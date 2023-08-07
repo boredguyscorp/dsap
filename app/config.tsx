@@ -10,13 +10,13 @@ export const siteConfig = {
 
 export const navItems = [
   {
-    href: '/events',
-    title: 'Events',
+    href: '/event',
+    title: 'Event',
     disabled: false
   },
   {
-    href: '/conventions',
-    title: 'Conventions',
+    href: '/convention',
+    title: 'Convention',
     disabled: false
   },
   {
@@ -30,7 +30,7 @@ export const navItems = [
     disabled: false
   },
   {
-    href: '/contact',
+    href: '/contact-us',
     title: 'Contact',
     disabled: false
   }

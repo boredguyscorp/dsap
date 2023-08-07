@@ -7,7 +7,7 @@ import Logo from './logo'
 
 export default function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
   return (
-    <footer className='mt-20 bg-teal-600'>
+    <footer className='bg-teal-600'>
       <div className='mx-auto w-full px-4 py-10 sm:px-6 lg:px-8 lg:pt-20 2xl:px-20'>
         <div className='grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-5'>
           <div className='col-span-full lg:col-span-1'>

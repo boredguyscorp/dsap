@@ -1,6 +1,10 @@
 import { getToken } from 'next-auth/jwt'
 import { withAuth } from 'next-auth/middleware'
 import { NextRequest, NextResponse } from 'next/server'
+import { navItems } from './app/config'
+
+const publicUrl = navItems.map((url) => url.href)
+// console.log('🚀 -> publicUrl:', publicUrl)
 
 export default withAuth(
   async function middleware(req: NextRequest) {
@@ -15,7 +19,7 @@ export default withAuth(
       if (isAuth) {
         return NextResponse.redirect(new URL('/dashboard', req.url))
       }
-      let from = req.nextUrl.pathname
+      // let from = req.nextUrl.pathname
       // console.log('🚀 -> middleware -> req.nextUrl:', req.url)
       // console.log('🚀 -> middleware -> from:', from)
 
@@ -34,7 +38,13 @@ export default withAuth(
         from += req.nextUrl.search
       }
 
-      const requestHeaders = new Headers(req.headers)
+      // console.log('🚀 -> middleware -> from:', from)
+      if (publicUrl.includes(from)) {
+        // console.log('xxx')
+        return null
+      }
+
+      // const requestHeaders = new Headers(req.headers)
       // console.log('🚀 -> middleware -> requestHeaders:', requestHeaders)
 
       return NextResponse.redirect(new URL(`/sign-in?from=${encodeURIComponent(from)}`, req.url))

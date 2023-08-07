@@ -16,8 +16,30 @@ import image2 from 'public/images/image2.jpg'
 
 export default async function Page() {
   // LANDING PAGE CONTENT
+  // min-h-[calc((100%-5rem))]
   return (
     <>
+      <section className='relative mt-24 flex min-h-[calc((100vh-6rem))] flex-col items-center justify-center text-center text-white '>
+        <div className='video-docker absolute left-0 top-0 h-full w-full overflow-hidden'>
+          <video autoPlay muted loop className='absolute z-10 min-h-full w-auto min-w-full max-w-none'>
+            <source src='/_static/video/banner-video.mp4' type='video/webm' />
+          </video>
+        </div>
+
+        <div className='video-content z-10 space-y-2'>
+          <h1 className='m-5 rounded-sm bg-teal-500 bg-opacity-50 p-3 text-4xl font-bold md:p-5 md:text-5xl xl:text-7xl'>
+            "One Cause, One Voice, One Future"
+          </h1>
+          <h3 className='text-[20px] font-light md:text-2xl xl:text-3xl'>{siteConfig.name}</h3>
+        </div>
+
+        <div className='z-10 mt-5 flex justify-center space-x-4 '>
+          <Link href={url.app.signup} className={cn(buttonVariants({ variant: 'main', size: 'lg' }), 'min-h-[100px]')}>
+            Become a Member
+          </Link>
+        </div>
+      </section>
+
       <section id='message'>
         <div className='flex items-center justify-center'>
           <div className='relative z-20 mt-5 w-5/6 overflow-hidden rounded-lg bg-white shadow-xl before:absolute before:left-1/2 before:top-0 before:-z-[1] before:h-full before:w-full before:-translate-x-1/2 before:transform before:bg-cover before:bg-top  before:bg-no-repeat sm:-mt-16 md:w-5/6 xl:w-3/5 '>
@@ -217,7 +239,7 @@ export default async function Page() {
         </div>
       </section>
 
-      <section className=''>
+      <section className='mb-20'>
         <div className='mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
           <div className='mx-auto mb-10 max-w-2xl text-center lg:mb-14'>
             <h2 className='text-2xl font-bold dark:text-white md:text-4xl md:leading-tight'>Read our latest news</h2>
