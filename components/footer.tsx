@@ -57,8 +57,8 @@ export default function SiteFooter({ className }: React.HTMLAttributes<HTMLEleme
               <p>
                 <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='#'>
                   Become a member
-                </a>{' '}
-                <span className='ml-1 inline rounded-md bg-teal-500 px-2 py-1 text-xs text-white'>Check here</span>
+                </a>
+                {/* <span className='ml-1 inline rounded-md bg-teal-500 px-2 py-1 text-xs text-white'>Check here</span> */}
               </p>
             </div>
           </div>
