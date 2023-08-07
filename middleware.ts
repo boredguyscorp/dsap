@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { navItems } from './app/config'
 
 const publicUrl = navItems.map((url) => url.href)
-// console.log('🚀 -> publicUrl:', publicUrl)
 
 export default withAuth(
   async function middleware(req: NextRequest) {

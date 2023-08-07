@@ -31,6 +31,8 @@ import {
   Check,
   Edit,
   RefreshCcw,
+  Phone,
+  Mail,
   type Icon as LucideIcon
 } from 'lucide-react'
 
@@ -68,6 +70,8 @@ export const Icons = {
   edit: Edit,
   refresh: RefreshCcw,
   twitter: Twitter,
+  phone: Phone,
+  mail: Mail,
   logo: ({ circleColor, ...props }: LucideProps & { circleColor: string }) => (
     <svg
       width='800px'

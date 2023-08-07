@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
+html {
+  scroll-padding-top: 2.5rem;
+}
 body,
 :root {
   height: 100%;
