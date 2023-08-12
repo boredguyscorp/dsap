@@ -122,7 +122,7 @@ export default function ContactUs() {
                   <h3 className='font-semibold text-gray-800 dark:text-gray-200'>Email us</h3>
                   <p className='mt-1 text-sm text-gray-500'>If you wish to write us an email instead please use</p>
                   <p className='mt-2 inline-flex items-center gap-x-2 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'>
-                    dsapnationalconvention@gmail.com
+                    dsap_office@yahoo.com
                   </p>
                 </div>
               </div>
@@ -131,7 +131,9 @@ export default function ContactUs() {
                 <Icons.map className='mt-1.5 h-6 w-6 flex-shrink-0 text-gray-800 dark:text-gray-200' />
                 <div>
                   <h3 className='font-semibold text-gray-800 dark:text-gray-200'>Address</h3>
-                  <p className='mt-1 text-sm text-gray-500'>Unit 2009 Medical Plaza Bldg., Philippines</p>
+                  <p className='mt-1 text-sm text-gray-500'>
+                    Unit 2009 Medical Plaza Bldg., San Miguel Avenue, Brgy. San Antonio Pasig City., Philippines
+                  </p>
                   <a
                     className='mt-2 inline-flex items-center gap-x-2 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
                     href='#'

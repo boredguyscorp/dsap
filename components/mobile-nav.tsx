@@ -38,7 +38,7 @@ export function MobileNav({ items, children, userId }: MobileNavProps) {
             </Link>
           ))}
 
-          {!userId && (
+          {/* {!userId && (
             <div className='flex space-x-2 lg:hidden'>
               <Link
                 href={url.app.signin}
@@ -64,7 +64,7 @@ export function MobileNav({ items, children, userId }: MobileNavProps) {
                 Sign up
               </Link>
             </div>
-          )}
+          )} */}
         </nav>
         {children}
       </div>

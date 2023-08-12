@@ -29,8 +29,8 @@ export function LandingNav({ children, userId }: MainNavProps) {
       <Link href='/' className='flex items-center'>
         <Logo />
         <span className='flex flex-col'>
-          <span className='hidden text-xl font-bold tracking-[-0.03em] text-teal-600 sm:block'>{siteConfig.name}</span>
-          <span className='hidden text-sm font-normal tracking-[-0.03em] text-gray-900 sm:block'>{siteConfig.description}</span>
+          <span className='text-sm font-bold tracking-[-0.03em] text-teal-600 sm:block sm:text-xl'>{siteConfig.name}</span>
+          <span className='text-xs font-normal tracking-[-0.03em] text-gray-900 sm:block sm:text-sm'>{siteConfig.description}</span>
         </span>
       </Link>
 
