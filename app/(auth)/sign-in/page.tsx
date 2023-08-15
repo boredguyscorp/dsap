@@ -6,7 +6,8 @@ import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import { Icons } from '@/components/shared/icons'
 import url from '@/constants/url'
-import { OAuthForm } from '../_components/oauth-form'
+// import { OAuthForm } from '../_components/oauth-form'
+import { SignInForm } from '../_components/sign-in-form'
 
 // export const runtime = 'edge'
 
@@ -42,8 +43,8 @@ export default function LoginPage() {
           <p className='text-sm text-muted-foreground'>Enter your credentials to sign in to your account</p> */}
         </div>
 
-        {/* <SignInForm /> */}
-        <OAuthForm />
+        <SignInForm />
+        {/* <OAuthForm /> */}
 
         <p className='px-8 text-center text-sm text-muted-foreground'>
           <Link href={url.app.signup} className='hover:text-brand underline underline-offset-4'>

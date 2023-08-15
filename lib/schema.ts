@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const signUpSchema = z.object({
+  name: z.string().min(1, { message: 'Please enter your name.' }),
   email: z.string().email({ message: 'Invalid email.' }),
   username: z.string().min(1, { message: 'Please enter username.' }),
   password: z.string().min(1, { message: 'Please enter password.' })
@@ -51,13 +52,18 @@ export const createApiKeySchema = z.object({
 
 export type CreateApiKeyDto = z.infer<typeof createApiKeySchema>
 
-// export const TokenPayloadSchema = z.object({
-//   apiKey: z.string(),
-//   businessId: z.string(),
-//   iat: z.number(),
-//   exp: z.number(),
-//   iatDate: z.date(),
-//   expDate: z.date()
-// })
+export const postPatchSchema = z.object({
+  title: z
+    .string()
+    .min(3, {
+      message: 'Title must be at least 3 characters long'
+    })
+    .max(128, {
+      message: 'Title must be less than 128 characters long'
+    }),
+  description: z.string().optional(),
+  content: z.any(),
+  isPublish: z.boolean().optional()
+})
 
-// export type TokenPayloadDto = z.infer<typeof TokenPayloadSchema>
+export type PostCreationRequest = z.infer<typeof postPatchSchema>

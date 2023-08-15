@@ -1,9 +1,8 @@
 'use client'
 
+import { OrganizationForm } from '@/app/(app.domain.com)/_components/create-organization-form'
 import { Modal } from '@/components/ui/modal'
 import { useOrganizationModal } from '@/hooks/use-organization-modal'
-
-import { OrganizationForm } from '@/app/(dashboard)/_components/create-organization-form'
 
 export const OrganizationModal = () => {
   const organizationModal = useOrganizationModal()

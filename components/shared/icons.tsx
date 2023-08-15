@@ -33,6 +33,8 @@ import {
   RefreshCcw,
   Phone,
   Mail,
+  Bell,
+  ExternalLink,
   type Icon as LucideIcon
 } from 'lucide-react'
 
@@ -72,6 +74,8 @@ export const Icons = {
   twitter: Twitter,
   phone: Phone,
   mail: Mail,
+  bell: Bell,
+  link: ExternalLink,
   logo: ({ circleColor, ...props }: LucideProps & { circleColor: string }) => (
     <svg
       width='800px'

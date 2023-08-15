@@ -1,42 +1,34 @@
 import { Icons } from '@/components/shared/icons'
 
-export const organizationMenuItems = [
+export const appDashboardMenuItems = [
   {
-    title: 'Business',
+    title: 'Dashboard',
     href: '/',
     icon: Icons.post
   },
   {
-    title: 'Apps',
-    href: '/apps',
-    icon: Icons.laptop
-  },
-  {
-    title: 'Settings',
-    href: '/settings',
+    title: 'Control Panel',
+    href: '/cpanel',
     icon: Icons.settings
-  }
-] as const
-
-export const businessMenuItems = [
-  {
-    title: 'Dashboard',
-    href: '/',
-    icon: Icons.pieChart
   },
   {
-    title: 'Location',
-    href: '/location',
-    icon: Icons.map
+    title: 'Membership',
+    href: '/membership',
+    icon: Icons.user
   },
   {
-    title: 'API Key',
-    href: '/api-key',
-    icon: Icons.key
+    title: 'Convention',
+    href: '/convention',
+    icon: Icons.media
   },
   {
-    title: 'Settings',
-    href: '/settings',
-    icon: Icons.settings
+    title: 'Registration',
+    href: '/registration',
+    icon: Icons.edit
+  },
+  {
+    title: 'Election',
+    href: '/election',
+    icon: Icons.post
   }
 ] as const

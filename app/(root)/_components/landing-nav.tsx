@@ -82,6 +82,20 @@ export function LandingNav({ children, userId }: MainNavProps) {
           ) : (
             <div className='hidden space-x-2 lg:flex'>
               <Link
+                href={url.app.signin}
+                className={cn(
+                  buttonVariants({
+                    variant: 'main',
+                    size: 'lg'
+                  }),
+                  'text-lg',
+                  'min-w-[230px]',
+                  'xl:ml-3'
+                )}
+              >
+                Dashboard
+              </Link>
+              <Link
                 href='/membership'
                 className={cn(
                   buttonVariants({

@@ -11,7 +11,7 @@ export default function SiteFooter({ className }: React.HTMLAttributes<HTMLEleme
       <div className='mx-auto w-full px-4 py-10 sm:px-6 lg:px-8 lg:pt-20 2xl:px-20'>
         <div className='grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-5'>
           <div className='col-span-full lg:col-span-1'>
-            <Logo size='h-6 w-6' textSize='text-lg' />
+            <Logo textSize='text-lg' />
             <span className='flex flex-col'>
               <span className='hidden text-sm font-bold tracking-[-0.03em] text-white sm:block'>{siteConfig.name}</span>
               <span className='hidden text-sm font-normal tracking-[-0.03em] text-white sm:block'>{siteConfig.description}</span>

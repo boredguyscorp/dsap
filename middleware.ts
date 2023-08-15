@@ -1,53 +1,63 @@
 import { getToken } from 'next-auth/jwt'
 import { withAuth } from 'next-auth/middleware'
 import { NextRequest, NextResponse } from 'next/server'
+import urls from './constants/url'
 import { navItems } from './app/config'
 
 const publicUrl = navItems.map((url) => url.href)
 
 export default withAuth(
   async function middleware(req: NextRequest) {
+    const res = NextResponse.next()
+    const hostname = req.headers.get('host')
+    const url = req.nextUrl
+
     const token = await getToken({ req })
     const isAuth = !!token
     const isAuthPage = req.nextUrl.pathname.startsWith('/sign-in') || req.nextUrl.pathname.startsWith('/sign-up')
 
-    // console.log('bbbbbbbbbbbbbbbbbb')
+    const currentHost = hostname?.replace(`.${urls.homeWithoutApp}`, '')
 
-    if (isAuthPage) {
-      // console.log('iiiiiiii')
-      if (isAuth) {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
+    if (currentHost === 'app') {
+      if (url.pathname === '/sign-in' || url.pathname === '/sign-up') {
+        if (isAuth) {
+          url.pathname = '/'
+          return NextResponse.redirect(url)
+        }
+        return res
       }
-      // let from = req.nextUrl.pathname
-      // console.log('🚀 -> middleware -> req.nextUrl:', req.url)
-      // console.log('🚀 -> middleware -> from:', from)
 
-      // console.log('nnnnnnnnnnnnnn')
-
-      return null
+      url.pathname = `/dashboard${url.pathname}`
+      return NextResponse.rewrite(url)
     }
 
-    // console.log('yyyyy')
+    return res
 
-    if (!isAuth) {
-      // console.log('isAuth bbbbbbb')
-      let from = req.nextUrl.pathname
+    // const token = await getToken({ req })
+    // const isAuth = !!token
+    // const isAuthPage = req.nextUrl.pathname.startsWith('/sign-in') || req.nextUrl.pathname.startsWith('/sign-up')
 
-      if (req.nextUrl.search) {
-        from += req.nextUrl.search
-      }
+    // if (isAuthPage) {
+    //   if (isAuth) {
+    //     return NextResponse.redirect(new URL('/dashboard', req.url))
+    //   }
 
-      // console.log('🚀 -> middleware -> from:', from)
-      if (publicUrl.includes(from)) {
-        // console.log('xxx')
-        return null
-      }
+    //   return null
+    // }
 
-      // const requestHeaders = new Headers(req.headers)
-      // console.log('🚀 -> middleware -> requestHeaders:', requestHeaders)
+    // if (!isAuth) {
+    //   let from = req.nextUrl.pathname
 
-      return NextResponse.redirect(new URL(`/sign-in?from=${encodeURIComponent(from)}`, req.url))
-    }
+    //   if (req.nextUrl.search) {
+    //     from += req.nextUrl.search
+    //   }
+
+    //   if (publicUrl.includes(from)) {
+    //     return null
+    //   }
+
+    //   return NextResponse.redirect(new URL(`/sign-in?from=${encodeURIComponent(from)}`, req.url))
+    // }
   },
   {
     callbacks: {
@@ -63,6 +73,21 @@ export default withAuth(
 )
 
 export const config = {
-  // matcher: ['/*', '/sign-in', '/sign-up']
-  matcher: ['/sign-in', '/sign-up']
+  matcher: [
+    /*
+     * Match all paths except for:
+     * 1. /api/ routes
+     * 2. /_next/ (Next.js internals)
+     * 3. /_proxy/ (special page for OG tags proxying)
+     * 4. /_static (inside /public)
+     * 5. /_vercel (Vercel internals)
+     * 6. /favicon.ico, /sitemap.xml (static files)
+     */
+    '/((?!api/|_next/|_proxy/|_static|_vercel|favicon.ico|sitemap.xml).*)'
+  ]
 }
+
+// export const config = {
+//   // matcher: ['/*', '/sign-in', '/sign-up']
+//   matcher: ['/sign-in', '/sign-up']
+// }

@@ -18,12 +18,12 @@ const font = Poppins({
   weight: '700',
   subsets: ['latin']
 })
-export default function Logo({ size, textSize }: { size?: string; textSize?: string }) {
+export default function Logo({ size = 100, textSize }: { size?: number; textSize?: string }) {
   const { theme } = useTheme()
 
   return (
     <div className='flex items-center space-x-2'>
-      <Image src={logo} width={100} height={100} alt='dsap logo' className='mr-2' />
+      <Image src={logo} width={size || 100} height={size || 100} alt='dsap logo' className='mr-2' />
 
       {/* <Icons.logo className={size || 'h-8 w-8'} circleColor={theme || 'light'} /> */}
       {/* <span className={cn('hidden text-2xl font-black sm:block', font.className, textSize && 'text-lg')}>{siteConfig.name}</span> */}

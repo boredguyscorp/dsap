@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 // import { UserAvatar } from '@/components/user-avatar'
 import dynamic from 'next/dynamic'
-import { organizationMenuItems } from '@/constants/menu'
+import { appDashboardMenuItems } from '@/constants/menu'
 import { useParams, usePathname } from 'next/navigation'
 
 interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -56,14 +56,14 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
           </div>
         </div>
         <DropdownMenuSeparator />
-        {organizationMenuItems.map((menu) => {
+        {appDashboardMenuItems.map((menu) => {
           // const pathRef = menu.href === '/' ? '/dashboard' : params.organizationId + menu.href
 
-          let fullPath = `/${params.organizationId}${menu.href}`
+          // let fullPath = `/${params.organizationId}${menu.href}`
 
           return (
             <DropdownMenuItem key={menu.href} asChild>
-              <Link href={fullPath}>{menu.title}</Link>
+              <Link href={menu.href}>{menu.title}</Link>
             </DropdownMenuItem>
           )
         })}

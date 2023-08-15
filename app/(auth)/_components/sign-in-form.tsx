@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/use-toast'
 import { LoginDto, loginSchema } from '@/lib/schema'
 import { Icons } from '@/components/shared/icons'
+import { getRedirectUrl } from '@/lib/redirect'
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -37,8 +38,8 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
 
     const signInResult = await signIn('credentials', {
       ...data,
-      redirect: false,
-      callbackUrl: searchParams?.get('from') || '/dashboard'
+      redirect: false
+      // callbackUrl: searchParams?.get('from') || '/dashboard'
     })
     console.log('🚀 -> onSubmit -> signInResult:', signInResult)
 
@@ -50,13 +51,12 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
       })
     }
 
-    router.push(searchParams?.get('from') || '/dashboard')
-
+    router.push(getRedirectUrl())
     setIsLoading(false)
 
     return toast({
       title: 'Login successful',
-      description: 'Welcome to Portal.'
+      description: 'Welcome to DSAP Portal.'
     })
   }
 

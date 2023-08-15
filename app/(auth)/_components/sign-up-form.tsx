@@ -81,6 +81,22 @@ export function SignUpForm({ className, ...props }: UserAuthFormProps) {
         <div className='grid gap-2'>
           <div className='grid gap-1'>
             <Label className='sr-only' htmlFor='username'>
+              Name
+            </Label>
+            <Input
+              id='name'
+              placeholder='Name'
+              type='name'
+              autoCapitalize='none'
+              autoComplete='name'
+              autoCorrect='off'
+              disabled={isPosting || isGoogleLoading}
+              {...register('name')}
+            />
+            {errors?.name && <p className='mt-1 px-1 text-xs text-red-600'>{errors.name.message}</p>}
+          </div>
+          <div className='grid gap-1'>
+            <Label className='sr-only' htmlFor='username'>
               Email
             </Label>
             <Input

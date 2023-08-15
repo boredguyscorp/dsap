@@ -7,15 +7,24 @@ const domain = 'dsaph.org'
 const local = 'localhost:5000'
 const home = isProduction ? domain : local
 
-const url = {
+export const url = {
+  // homeWithoutApp: home,
+  // home: `//${home}`,
+  // api: `${isProduction ? 'https://' : 'http://'}${home}`,
+  // serverApi: `${isProduction ? 'https://' : 'http://'}${home}`,
+  // app: {
+  //   signin: `//${home}/sign-in`,
+  //   signup: `//${home}/sign-up`,
+  //   overview: `//${home}`
+  // },
   homeWithoutApp: home,
   home: `//${home}`,
-  api: `${isProduction ? 'https://' : 'http://'}${home}`,
+  api: `${isProduction ? 'https://app.' : 'http://app.'}${home}`,
   serverApi: `${isProduction ? 'https://' : 'http://'}${home}`,
   app: {
-    signin: `//${home}/sign-in`,
-    signup: `//${home}/sign-up`,
-    overview: `//${home}`
+    signin: `//app.${home}/sign-in`,
+    signup: `//app.${home}/sign-up`,
+    overview: `//app.${home}`
   },
   developer: 'http://www.boredguyscorp.com/',
   twitter: 'https://twitter.com/theboredguyscorp',

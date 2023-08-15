@@ -7,7 +7,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { Icons } from '@/components/shared/icons'
 import { SignUpForm } from '../_components/sign-up-form'
 import url from '@/constants/url'
-import { OAuthForm } from '../_components/oauth-form'
+// import { OAuthForm } from '../_components/oauth-form'
 
 export const metadata: Metadata = {
   title: 'Sign-up',
@@ -41,8 +41,8 @@ export default function LoginPage() {
           <p className='text-sm text-muted-foreground'>Enter your credentials below to create your account.</p> */}
         </div>
 
-        {/* <SignUpForm /> */}
-        <OAuthForm signUp />
+        <SignUpForm />
+        {/* <OAuthForm signUp /> */}
 
         <p className='px-8 text-center text-sm text-muted-foreground'>
           By signing up, you agree to our <br />
