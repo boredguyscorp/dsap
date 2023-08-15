@@ -13,7 +13,7 @@ import { uploadFiles } from '@/lib/uploadthing'
 import * as z from 'zod'
 
 import '../../app/editor.css'
-import { cn, slugify } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import { toast } from '@/components/ui/use-toast'
 import { postPatchSchema } from '@/lib/schema'
