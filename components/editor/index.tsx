@@ -38,7 +38,7 @@ export default function Editor({ post }: { post: PostWithSite }) {
   //   ? `https://${data.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/${data.slug}`
   //   : `http://${data.site?.subdomain}.localhost:3000/${data.slug}`
 
-  const url = siteConfig.url.home
+  const url = siteConfig.url.home + '/' + data.page + '/' + data.slug
 
   const [debouncedData] = useDebounce(data, 1000)
   useEffect(() => {
@@ -183,14 +183,14 @@ export default function Editor({ post }: { post: PostWithSite }) {
 
         <div className='flex items-center space-x-3'>
           {data.published && (
-            <a
+            <Link
               href={url}
               target='_blank'
               rel='noopener noreferrer'
               className='flex items-center space-x-1 text-sm text-stone-400 hover:text-stone-500'
             >
               <ExternalLink className='h-4 w-4' />
-            </a>
+            </Link>
           )}
           <div className='rounded-lg bg-stone-100 px-2 py-1 text-sm text-stone-400 dark:bg-stone-800 dark:text-stone-500'>
             {isPendingSaving ? 'Saving...' : 'Saved'}

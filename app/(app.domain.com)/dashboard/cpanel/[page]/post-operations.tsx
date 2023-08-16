@@ -65,17 +65,22 @@ export function PostOperations({ post, page }: PostOperationsProps) {
               Edit Content
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link href={`${siteConfig.url.home}/${page}/${post.slug}`} target='_blank' rel='noreferrer' className='flex w-full'>
-              View Page
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
           <DropdownMenuItem
             className='flex cursor-pointer items-center text-destructive focus:text-destructive'
             onSelect={() => setShowDeleteAlert(true)}
           >
             Delete
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <Link
+              href={`${siteConfig.url.home}/${page}/${post.slug}`}
+              target='_blank'
+              rel='noreferrer'
+              className='flex w-full items-center'
+            >
+              <Icons.link className='mr-2 h-4 w-4' /> Visit Page
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

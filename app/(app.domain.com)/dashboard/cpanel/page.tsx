@@ -26,7 +26,7 @@ async function OrganizationGeneralSettings() {
     <div className='flex flex-col gap-5'>
       {/* <OrganizationName organizationId='org_123' currentName='' />
       <DeleteOrganization isSuspense={false} /> */}
-      <>CPanel General Page Content</>
+      <>General Page Content</>
     </div>
   )
 
