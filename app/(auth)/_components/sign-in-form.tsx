@@ -41,7 +41,7 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
       redirect: false
       // callbackUrl: searchParams?.get('from') || '/dashboard'
     })
-    console.log('🚀 -> onSubmit -> signInResult:', signInResult)
+    console.log('🚀 -> onSubmit -> signInResult v2:', signInResult)
 
     if (signInResult && signInResult.ok === false) {
       return toast({
@@ -51,7 +51,7 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
       })
     }
 
-    router.push(getRedirectUrl())
+    router.push('/')
     setIsLoading(false)
 
     return toast({

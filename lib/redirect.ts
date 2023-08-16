@@ -8,5 +8,6 @@ export const getRedirectUrl = () => {
   url = isProduction ? `https:${url}` : `http:${url}`
   // Make sure to including trailing `/`.
   url = url.charAt(url.length - 1) === '/' ? url : `${url}/`
+
   return url
 }
