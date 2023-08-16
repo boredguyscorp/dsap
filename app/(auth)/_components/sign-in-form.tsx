@@ -65,7 +65,7 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
     // setSignInRes(signInResult)
 
     router.push(url.app.overview)
-    // router.refresh()
+    router.refresh()
 
     setIsLoading(false)
 

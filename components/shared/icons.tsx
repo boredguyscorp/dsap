@@ -35,6 +35,7 @@ import {
   Mail,
   Bell,
   ExternalLink,
+  Home,
   type Icon as LucideIcon
 } from 'lucide-react'
 
@@ -76,7 +77,7 @@ export const Icons = {
   mail: Mail,
   bell: Bell,
   link: ExternalLink,
-
+  home: Home,
   logo: ({ circleColor, ...props }: LucideProps & { circleColor: string }) => (
     <svg
       width='800px'
