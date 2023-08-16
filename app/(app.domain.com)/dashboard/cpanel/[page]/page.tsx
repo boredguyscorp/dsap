@@ -48,9 +48,9 @@ export default async function CPanelContentPage({ params }: PageProps) {
             href={siteConfig.url.home + `/${page}`}
             target='_blank'
             rel='noreferrer'
-            className='flex items-center truncate rounded-md bg-stone-100 px-2 py-1 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
+            className='flex items-center truncate rounded-md bg-accent px-4 py-1 text-sm font-medium transition-colors hover:bg-slate-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
           >
-            {siteConfig.url.homeWithoutApp + `/${page}`} <Icons.link className='ml-2 h-4 w-4 text-teal-500' />
+            {siteConfig.url.homeWithoutApp + `/${page}`} <Icons.link className='ml-2 h-4 w-4 ' />
           </Link>
           <PostCreateButton page={page} />
         </div>
