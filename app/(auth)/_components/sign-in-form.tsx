@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { redirect, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SignInResponse, signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
@@ -30,16 +30,17 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [isGoogleLoading, setIsGoogleHubLoading] = React.useState<boolean>(false)
-  const searchParams = useSearchParams()
+  // const searchParams = useSearchParams()
 
   const router = useRouter()
-  // const [res, setRes] = React.useState<SignInResponse | undefined>()
+  const [signInRes, setSignInRes] = React.useState<SignInResponse | undefined>()
 
-  // React.useEffect(() => {
-  //   if (res?.ok) {
-  //     router.push(url.app.overview)
-  //   }
-  // }, [router, res])
+  React.useEffect(() => {
+    console.log('🚀 useEffect -> SignInForm -> signInRes:', signInRes)
+    if (signInRes?.ok) {
+      router.push(url.app.overview)
+    }
+  }, [router, signInRes])
 
   async function onSubmit(data: LoginDto) {
     setIsLoading(true)
@@ -49,7 +50,7 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
       redirect: false
       // callbackUrl: searchParams?.get('from') || '/dashboard'
     })
-    console.log('🚀 -> onSubmit -> signInResult v3:', signInResult)
+    // console.log('🚀 -> onSubmit -> signInResult v3:', signInResult)
 
     if (signInResult && signInResult.ok === false) {
       return toast({
@@ -59,7 +60,8 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
       })
     }
 
-    router.push(url.app.overview)
+    // router.push(url.app.overview)
+    setSignInRes(signInResult)
     setIsLoading(false)
 
     return toast({
