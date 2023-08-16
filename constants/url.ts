@@ -3,7 +3,7 @@ import { views } from './table'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-const domain = 'dsaph.org'
+const domain = 'dsap-livid.vercel.app'
 const local = 'localhost:5000'
 const home = isProduction ? domain : local
 
