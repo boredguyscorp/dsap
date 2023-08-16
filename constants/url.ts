@@ -3,9 +3,11 @@ import { views } from './table'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-const domain = process.env.MAIN_DOMAIN || 'dsapdev.vercel.app'
+const domain = process.env.MAIN_DOMAIN || 'dsaph.org'
 const local = 'localhost:5000'
 const home = isProduction ? domain : local
+console.log('-> domain:', domain)
+console.log('-> home:', home)
 
 export const url = {
   // homeWithoutApp: home,
