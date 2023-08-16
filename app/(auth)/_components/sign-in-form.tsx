@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { redirect, useRouter, useSearchParams } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn } from 'next-auth/react'
+import { SignInResponse, signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 
 import { cn } from '@/lib/utils'
@@ -14,6 +14,7 @@ import { toast } from '@/components/ui/use-toast'
 import { LoginDto, loginSchema } from '@/lib/schema'
 import { Icons } from '@/components/shared/icons'
 import { getRedirectUrl } from '@/lib/redirect'
+import url from '@/constants/url'
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -32,6 +33,13 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
   const searchParams = useSearchParams()
 
   const router = useRouter()
+  // const [res, setRes] = React.useState<SignInResponse | undefined>()
+
+  // React.useEffect(() => {
+  //   if (res?.ok) {
+  //     router.push(url.app.overview)
+  //   }
+  // }, [router, res])
 
   async function onSubmit(data: LoginDto) {
     setIsLoading(true)
@@ -41,7 +49,7 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
       redirect: false
       // callbackUrl: searchParams?.get('from') || '/dashboard'
     })
-    console.log('🚀 -> onSubmit -> signInResult v2:', signInResult)
+    console.log('🚀 -> onSubmit -> signInResult v3:', signInResult)
 
     if (signInResult && signInResult.ok === false) {
       return toast({
@@ -51,7 +59,7 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
       })
     }
 
-    router.push('/')
+    router.push(url.app.overview)
     setIsLoading(false)
 
     return toast({
