@@ -6,6 +6,7 @@ import { ModalProvider } from '@/providers/modal-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
 
 import { Toaster } from '@/components/ui/toaster'
+import { Toaster as ToasterReactHotToast } from 'react-hot-toast'
 
 import './globals.css'
 import { TailwindIndicator } from '@/components/tailwind-indicator'
@@ -62,6 +63,16 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           </ThemeProvider>
         </NextAuthProvider>
         <Toaster />
+        <ToasterReactHotToast
+          position='bottom-right'
+          toastOptions={{
+            style: {
+              background: 'hsl(var(--background))',
+              color: 'hsl(var(--foreground))',
+              border: '1px solid hsl(var(--border))'
+            }
+          }}
+        />
       </body>
     </html>
   )

@@ -52,8 +52,7 @@ export function PostCreateButton({ className, variant, page, ...props }: PostCre
 
     // This forces a cache invalidation.
     router.refresh()
-
-    router.push(`/editor/${post.id}?page=${page}`)
+    router.push(`/post/${post.id}?page=${page}`)
   }
 
   return (

@@ -8,7 +8,7 @@ import Badge from '@/components/custom/badge'
 // import { PostOperations } from "@/components/post-operations"
 
 interface PostItemProps {
-  post: Pick<Post, 'id' | 'title' | 'published' | 'createdAt'>
+  post: Pick<Post, 'id' | 'title' | 'slug' | 'published' | 'createdAt'>
   page: string
 }
 
@@ -16,7 +16,7 @@ export function PostItem({ post, page }: PostItemProps) {
   return (
     <div className='flex items-center justify-between p-4'>
       <div className='grid gap-1'>
-        <Link href={`/editor/${post.id}?page=${page}`} className='font-semibold hover:underline'>
+        <Link href={`/post/${post.id}?page=${page}`} className='font-semibold hover:underline'>
           {post.title}
         </Link>
         <div className='flex space-x-3'>
@@ -24,7 +24,7 @@ export function PostItem({ post, page }: PostItemProps) {
           <Badge text={post.published ? 'Publish' : 'Draft'} variant={post.published ? 'black' : 'outline'} />
         </div>
       </div>
-      <PostOperations post={{ id: post.id, title: post.title }} />
+      <PostOperations post={{ id: post.id, title: post.title, slug: post.slug }} page={page} />
     </div>
   )
 }

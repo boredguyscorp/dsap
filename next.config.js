@@ -4,7 +4,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['res.cloudinary.com', 'uploadthing.com', 'lh3.googleusercontent.com', 'public.blob.vercel-storage.com']
+    domains: [
+      'res.cloudinary.com',
+      'uploadthing.com',
+      'lh3.googleusercontent.com',
+      'public.blob.vercel-storage.com',
+      'illustrations.popsy.co',
+      'flag.vercel.app',
+      'images.unsplash.com'
+    ]
   },
   experimental: {
     serverActions: true,

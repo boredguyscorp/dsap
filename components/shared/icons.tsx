@@ -76,6 +76,7 @@ export const Icons = {
   mail: Mail,
   bell: Bell,
   link: ExternalLink,
+
   logo: ({ circleColor, ...props }: LucideProps & { circleColor: string }) => (
     <svg
       width='800px'

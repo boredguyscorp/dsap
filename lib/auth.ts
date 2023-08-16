@@ -1,5 +1,5 @@
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
-import { NextAuthOptions } from 'next-auth'
+import { NextAuthOptions, getServerSession } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 
@@ -102,5 +102,30 @@ export const authOptions: NextAuthOptions = {
         username: dbUser.username
       }
     }
+  }
+}
+
+export function withPostAuth(action: any) {
+  return async (formData: FormData | null, postId: string, key: string | null) => {
+    // const session = await getServerSession()
+    // if (!session?.user.id) {
+    //   return {
+    //     error: 'Not authenticated'
+    //   }
+    // }
+
+    const post = await db.post.findUnique({
+      where: {
+        id: postId
+      }
+    })
+
+    if (!post) {
+      return {
+        error: 'Post not found'
+      }
+    }
+
+    return action(formData, post, key)
   }
 }

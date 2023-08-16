@@ -156,7 +156,7 @@ model Post {
   slug          String   @default(cuid())
   title         String
   description   String?  @default("")
-  content       Json?
+  content       String?  @db.Text
   published     Boolean  @default(false)
   createdAt     DateTime @default(now()) @map(name: "created_at")
   updatedAt     DateTime @default(now()) @map(name: "updated_at")

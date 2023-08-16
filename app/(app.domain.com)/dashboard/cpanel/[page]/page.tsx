@@ -8,6 +8,7 @@ import { EmptyPlaceholder } from '@/components/empty-placeholder'
 import { PostCreateButton } from './post-create-button'
 import { toProperCase } from '@/lib/utils'
 import { Icons } from '@/components/shared/icons'
+import Link from 'next/link'
 
 interface PageProps {
   params: {
@@ -31,7 +32,8 @@ export default async function CPanelContentPage({ params }: PageProps) {
       id: true,
       title: true,
       published: true,
-      createdAt: true
+      createdAt: true,
+      slug: true
     },
     orderBy: {
       updatedAt: 'desc'
@@ -42,14 +44,14 @@ export default async function CPanelContentPage({ params }: PageProps) {
     <SidebarShell>
       <SidebarShellHeader heading={toProperCase(page) + ' Post'} text='Create and manage post.'>
         <div className='flex space-x-2'>
-          <a
+          <Link
             href={siteConfig.url.home + `/${page}`}
             target='_blank'
             rel='noreferrer'
             className='flex items-center truncate rounded-md bg-stone-100 px-2 py-1 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
           >
             {siteConfig.url.homeWithoutApp + `/${page}`} <Icons.link className='ml-2 h-4 w-4 text-teal-500' />
-          </a>
+          </Link>
           <PostCreateButton page={page} />
         </div>
       </SidebarShellHeader>

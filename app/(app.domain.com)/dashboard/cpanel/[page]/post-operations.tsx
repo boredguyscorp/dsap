@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/use-toast'
 import { Icons } from '@/components/shared/icons'
+import { siteConfig } from '@/app/config'
 
 async function deletePost(postId: string) {
   const response = await fetch(`/api/posts/${postId}`, {
@@ -42,10 +43,11 @@ async function deletePost(postId: string) {
 }
 
 interface PostOperationsProps {
-  post: Pick<Post, 'id' | 'title'>
+  post: Pick<Post, 'id' | 'slug' | 'title'>
+  page: string
 }
 
-export function PostOperations({ post }: PostOperationsProps) {
+export function PostOperations({ post, page }: PostOperationsProps) {
   const router = useRouter()
   const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false)
   const [isDeleteLoading, setIsDeleteLoading] = React.useState<boolean>(false)
@@ -59,8 +61,13 @@ export function PostOperations({ post }: PostOperationsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuItem>
-            <Link href={`/editor/${post.id}`} className='flex w-full'>
-              Edit
+            <Link href={`/post/${post.id}?page=${page}`} className='flex w-full'>
+              Edit Content
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link href={`${siteConfig.url.home}/${page}/${post.slug}`} target='_blank' rel='noreferrer' className='flex w-full'>
+              View Page
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
