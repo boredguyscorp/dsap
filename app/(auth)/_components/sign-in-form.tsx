@@ -33,14 +33,15 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
   // const searchParams = useSearchParams()
 
   const router = useRouter()
-  const [signInRes, setSignInRes] = React.useState<SignInResponse | undefined>()
+  // const [signInRes, setSignInRes] = React.useState<SignInResponse | undefined>()
 
-  React.useEffect(() => {
-    console.log('🚀 useEffect -> SignInForm -> signInRes:', signInRes)
-    if (signInRes?.ok) {
-      router.push(url.app.overview)
-    }
-  }, [router, signInRes])
+  // React.useEffect(() => {
+  //   console.log('🚀 useEffect -> SignInForm -> signInRes:', signInRes)
+  //   if (signInRes?.ok) {
+  //     router.push(url.app.overview)
+  //     router.refresh()
+  //   }
+  // }, [router, signInRes])
 
   async function onSubmit(data: LoginDto) {
     setIsLoading(true)
@@ -61,10 +62,15 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
     }
 
     // router.push(url.app.overview)
-    setSignInRes(signInResult)
+    // setSignInRes(signInResult)
+
+    router.push(url.app.overview)
+    router.refresh()
+    console.log('x')
+
     setIsLoading(false)
 
-    return toast({
+    toast({
       title: 'Login successful',
       description: 'Welcome to DSAP Portal.'
     })
