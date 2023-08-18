@@ -30,7 +30,7 @@ export default async function EventPagePost({ params }: PostPageProps) {
     notFound()
   }
 
-  // const mdxSource = await getMdxSource(selectedSlug.content!)
+  const mdxSource = await getMdxSource(selectedSlug.content!)
 
   return (
     <div className='mx-auto mb-20 mt-24 min-h-screen max-w-[85rem] px-4 sm:px-6 lg:px-8'>
@@ -56,7 +56,7 @@ export default async function EventPagePost({ params }: PostPageProps) {
             </div>
 
             <div className='space-y-5 lg:space-y-8'>
-              {/* <MDX source={mdxSource} /> */}
+              <MDX source={mdxSource} />
 
               {/* <EditorOutput content={data.content} /> */}
             </div>
