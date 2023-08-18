@@ -25,32 +25,34 @@ import {
 import { toast } from '@/components/ui/use-toast'
 import { Icons } from '@/components/shared/icons'
 import { siteConfig } from '@/app/config'
+import { deletePost } from '@/actions/post'
 
-async function deletePost(postId: string) {
-  const response = await fetch(`/api/posts/${postId}`, {
-    method: 'DELETE'
-  })
+// async function deletePost(postId: string) {
+//   const response = await fetch(`/api/posts/${postId}`, {
+//     method: 'DELETE'
+//   })
 
-  if (!response?.ok) {
-    toast({
-      title: 'Something went wrong.',
-      description: 'Your post was not deleted. Please try again.',
-      variant: 'destructive'
-    })
-  }
+//   if (!response?.ok) {
+//     toast({
+//       title: 'Something went wrong.',
+//       description: 'Your post was not deleted. Please try again.',
+//       variant: 'destructive'
+//     })
+//   }
 
-  return true
-}
+//   return true
+// }
 
 interface PostOperationsProps {
-  post: Pick<Post, 'id' | 'slug' | 'title'>
+  post: Pick<Post, 'id' | 'title' | 'slug' | 'published' | 'createdAt'>
   page: string
 }
 
 export function PostOperations({ post, page }: PostOperationsProps) {
   const router = useRouter()
   const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false)
-  const [isDeleteLoading, setIsDeleteLoading] = React.useState<boolean>(false)
+  // const [isDeleteLoading, setIsDeleteLoading] = React.useState<boolean>(false)
+  const [isDeleting, startDeleting] = React.useTransition()
 
   return (
     <>
@@ -72,7 +74,7 @@ export function PostOperations({ post, page }: PostOperationsProps) {
             Delete
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem disabled={!post.published}>
             <Link
               href={`${siteConfig.url.home}/${page}/${post.slug}`}
               target='_blank'
@@ -95,19 +97,29 @@ export function PostOperations({ post, page }: PostOperationsProps) {
             <AlertDialogAction
               onClick={async (event) => {
                 event.preventDefault()
-                setIsDeleteLoading(true)
+                // setIsDeleteLoading(true)
 
-                const deleted = await deletePost(post.id)
+                try {
+                  startDeleting(async () => {
+                    const deleted = await deletePost(post.id)
 
-                if (deleted) {
-                  setIsDeleteLoading(false)
+                    if (deleted) {
+                      setShowDeleteAlert(false)
+                      router.refresh()
+                    }
+                  })
+                } catch (error) {
                   setShowDeleteAlert(false)
-                  router.refresh()
+                  toast({
+                    title: 'Something went wrong.',
+                    description: 'Your post was not deleted. Please try again.',
+                    variant: 'destructive'
+                  })
                 }
               }}
               className='bg-red-600 focus:ring-red-600'
             >
-              {isDeleteLoading ? <Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> : <Icons.trash className='mr-2 h-4 w-4' />}
+              {isDeleting ? <Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> : <Icons.trash className='mr-2 h-4 w-4' />}
               <span>Delete</span>
             </AlertDialogAction>
           </AlertDialogFooter>

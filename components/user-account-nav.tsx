@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { User } from 'next-auth'
 import { signOut } from 'next-auth/react'
 
 import {
@@ -15,9 +14,12 @@ import {
 import dynamic from 'next/dynamic'
 import { appDashboardMenuItems } from '@/constants/menu'
 import { useParams, usePathname } from 'next/navigation'
+import { CurrentUserType } from '@/lib/session'
+import { use } from 'react'
 
 interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
-  user: Pick<User, 'name' | 'image' | 'email'>
+  userPromise: Promise<CurrentUserType>
+  // user: Pick<User, 'name' | 'image' | 'email'>
 }
 
 const UserAvatar = dynamic(() => import('@/components/user-avatar'), {
@@ -25,12 +27,12 @@ const UserAvatar = dynamic(() => import('@/components/user-avatar'), {
   loading: () => <div className='h-8 w-8 animate-pulse rounded-full bg-muted-foreground/70' />
 })
 
-export function UserAccountNav({ user }: UserAccountNavProps) {
+export function UserAccountNav({ userPromise }: UserAccountNavProps) {
   const path = usePathname()
-
   const params = useParams()
+  const user = use(userPromise)
 
-  if (!params || !path) return
+  if (!params || !path || !user) return
 
   const pathname = path.replace(`/${params.organizationId}`, '').replace(`/${params.businessId}`, '') || '/'
 

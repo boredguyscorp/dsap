@@ -1,4 +1,4 @@
-import { getMdxSource, getPostData, getPostsForSite } from '@/actions/fetchers'
+import { getPostData } from '@/actions/fetchers'
 import BlurPostImage from '@/app/(root)/_components/BlurPostImage'
 import MDX from '@/components/mdx'
 import { Icons } from '@/components/shared/icons'
@@ -16,21 +16,14 @@ interface PostPageProps {
 export default async function EventPagePost({ params }: PostPageProps) {
   const slug = params.slug
 
-  const posts = await getPostsForSite('event')
-  const selectedSlug = posts.find((post) => post.slug === slug)
-
-  const adjacentPosts = posts.filter((post) => post.slug !== slug)
-
   // const res = await getPostDataPerPage('event', slug)
   // console.log('🚀 -> EventPagePost -> res:', res)
 
-  // const data = await getPostData('event', slug)
+  const data = await getPostData('event', slug)
 
-  if (!selectedSlug) {
+  if (!data) {
     notFound()
   }
-
-  // const mdxSource = await getMdxSource(selectedSlug.content!)
 
   return (
     <div className='mx-auto mb-20 mt-24 min-h-screen max-w-[85rem] px-4 sm:px-6 lg:px-8'>
@@ -43,20 +36,20 @@ export default async function EventPagePost({ params }: PostPageProps) {
                 Back to Event
               </Link>
 
-              <h2 className='text-3xl font-bold dark:text-white md:text-4xl lg:text-5xl'>{selectedSlug.title}</h2>
+              <h2 className='text-3xl font-bold dark:text-white md:text-4xl lg:text-5xl'>{data.title}</h2>
 
-              <p className='text-lg text-gray-800 dark:text-gray-200'>{selectedSlug.description}</p>
+              <p className='text-lg text-gray-800 dark:text-gray-200'>{data.description}</p>
 
               <div className='flex items-center justify-between gap-x-5'>
                 <div className='inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-800 sm:px-4 sm:py-2 sm:text-sm'>
                   Tags or Category here.
                 </div>
-                <p className='text-xs text-gray-800 dark:text-gray-200 sm:text-sm'>Published {toDateString(selectedSlug.createdAt)}</p>
+                <p className='text-xs text-gray-800 dark:text-gray-200 sm:text-sm'>Published {toDateString(data.createdAt)}</p>
               </div>
             </div>
 
             <div className='space-y-5 lg:space-y-8'>
-              {/* <MDX source={mdxSource} /> */}
+              <MDX source={data.mdxSource} />
 
               {/* <EditorOutput content={data.content} /> */}
             </div>
@@ -66,33 +59,35 @@ export default async function EventPagePost({ params }: PostPageProps) {
         <div className=' dark:from-slate-800 lg:col-span-1 lg:h-full lg:w-full lg:bg-gradient-to-r lg:from-gray-50 lg:via-transparent lg:to-transparent'>
           <div className='sticky left-0 top-0 py-8 md:pl-4 lg:pl-8'>
             <div className='group mb-8 mt-20 flex items-center gap-x-3 border-b border-gray-200 pb-8 dark:border-gray-700'>
-              <div className='block grow'>
-                <h5 className='text-lg font-bold text-gray-800 dark:text-gray-200 dark:group-hover:text-gray-400'>Related content</h5>
+              <a className='group block grow' href=''>
+                <h5 className='text-lg font-bold text-gray-800 group-hover:text-gray-600 dark:text-gray-200 dark:group-hover:text-gray-400'>
+                  Related content
+                </h5>
                 <p className='text-sm text-gray-500'>and more event post.</p>
-              </div>
+              </a>
             </div>
 
             <div className='space-y-6'>
-              {adjacentPosts &&
-                adjacentPosts.map((post) => (
-                  <Link key={post.slug} className='group flex items-center gap-x-6' href={post.slug}>
+              {data.adjacentPosts &&
+                data.adjacentPosts.map((data, index) => (
+                  <Link key={data.slug} className='group flex items-center gap-x-6' href={data.slug}>
                     <div className='grow'>
                       <span className='text-sm font-semibold text-gray-800 group-hover:text-teal-500 dark:text-gray-200 dark:group-hover:text-blue-500'>
-                        {post.title}
-                        <p className='text-xs font-light text-gray-500'>{post.description}</p>
+                        {data.title}
+                        <p className='text-xs font-light text-gray-500'>{data.description}</p>
                       </span>
                     </div>
 
                     <div className='relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg'>
                       <BlurPostImage
-                        src={post.image ?? imagePostEmpty}
-                        alt={post.title ?? `${post.page} Post`}
+                        src={data.image ?? imagePostEmpty}
+                        alt={data.title ?? `${data.page} Post`}
                         fill
                         // width={50}
                         // height={50}
                         className='absolute left-0 top-0 h-full w-full rounded-lg object-cover'
                         placeholder='blur'
-                        blurDataURL={post.imageBlurhash ?? placeholderBlurhash}
+                        blurDataURL={data.imageBlurhash ?? placeholderBlurhash}
                       />
                     </div>
                   </Link>
@@ -103,14 +98,4 @@ export default async function EventPagePost({ params }: PostPageProps) {
       </div>
     </div>
   )
-}
-
-export async function generateStaticParams() {
-  const posts = await getPostsForSite('event')
-
-  if (posts.length < 0) return []
-
-  return posts.map((post) => ({
-    slug: post.slug
-  }))
 }

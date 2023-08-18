@@ -3,7 +3,9 @@ import * as z from 'zod'
 
 import { authOptions } from '@/lib/auth'
 import db from '@/lib/db'
-import { slugify } from '@/lib/utils'
+
+import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 
 const postCreateSchema = z.object({
   title: z.string(),
@@ -11,30 +13,42 @@ const postCreateSchema = z.object({
   page: z.string()
 })
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    // const session = await getServerSession(authOptions)
+    // console.log('🚀 -> GET -> session:', session)
 
-    if (!session) {
-      return new Response('Unauthorized', { status: 403 })
+    // if (!session) {
+    //   return new Response('Unauthorized', { status: 403 })
+    // }
+
+    const page = request.nextUrl.searchParams.get('page')
+    // console.log('🚀 -> GET -> page:', page)
+
+    if (!page) {
+      return NextResponse.json({ message: 'Missing page param' }, { status: 400 })
     }
 
-    const { user } = session
     const posts = await db.post.findMany({
       select: {
-        id: true,
         title: true,
-        published: true,
+        description: true,
+        slug: true,
+        image: true,
+        imageBlurhash: true,
         createdAt: true
       },
-      where: {
-        authorId: user.id
-      }
+      where: { page },
+      orderBy: [
+        {
+          createdAt: 'desc'
+        }
+      ]
     })
 
-    return new Response(JSON.stringify(posts))
+    return NextResponse.json(JSON.stringify(posts))
   } catch (error) {
-    return new Response(null, { status: 500 })
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
 

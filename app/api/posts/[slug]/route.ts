@@ -7,11 +7,40 @@ import db from '@/lib/db'
 import { postPatchSchema } from '@/lib/schema'
 import { slugify } from '@/lib/utils'
 
+import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
+
 const routeContextSchema = z.object({
   params: z.object({
-    postId: z.string()
+    slug: z.string()
   })
 })
+
+export async function GET(request: NextRequest, context: z.infer<typeof routeContextSchema>) {
+  try {
+    // const session = await getServerSession(authOptions)
+    // console.log('🚀 -> GET -> session:', session)
+
+    // if (!session) {
+    //   return new Response('Unauthorized', { status: 403 })
+    // }
+
+    const page = request.nextUrl.searchParams.get('page')
+    const { params } = routeContextSchema.parse(context)
+
+    if (!page) {
+      return NextResponse.json({ message: 'Missing page param' }, { status: 400 })
+    }
+
+    const posts = await db.post.findUnique({
+      where: { slug: params.slug }
+    })
+
+    return NextResponse.json(JSON.stringify(posts))
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  }
+}
 
 export async function DELETE(req: Request, context: z.infer<typeof routeContextSchema>) {
   try {
@@ -19,14 +48,14 @@ export async function DELETE(req: Request, context: z.infer<typeof routeContextS
     const { params } = routeContextSchema.parse(context)
 
     // Check if the user has access to this post.
-    if (!(await verifyCurrentUserHasAccessToPost(params.postId))) {
+    if (!(await verifyCurrentUserHasAccessToPost(params.slug))) {
       return new Response(null, { status: 403 })
     }
 
     // Delete the post.
     await db.post.delete({
       where: {
-        id: params.postId as string
+        slug: params.slug as string
       }
     })
 
@@ -46,7 +75,7 @@ export async function PATCH(req: Request, context: z.infer<typeof routeContextSc
     const { params } = routeContextSchema.parse(context)
 
     // Check if the user has access to this post.
-    if (!(await verifyCurrentUserHasAccessToPost(params.postId))) {
+    if (!(await verifyCurrentUserHasAccessToPost(params.slug))) {
       return new Response(null, { status: 403 })
     }
 
@@ -58,7 +87,7 @@ export async function PATCH(req: Request, context: z.infer<typeof routeContextSc
     // TODO: Implement sanitization for content.
     await db.post.update({
       where: {
-        id: params.postId
+        slug: params.slug
       },
       data: {
         title: body.title,
@@ -78,11 +107,11 @@ export async function PATCH(req: Request, context: z.infer<typeof routeContextSc
   }
 }
 
-async function verifyCurrentUserHasAccessToPost(postId: string) {
+async function verifyCurrentUserHasAccessToPost(slug: string) {
   const session = await getServerSession(authOptions)
   const count = await db.post.count({
     where: {
-      id: postId,
+      slug: slug,
       authorId: session?.user.id
     }
   })

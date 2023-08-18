@@ -3,23 +3,15 @@
 import db from '@/lib/db'
 import { getBlurDataURL } from '@/lib/utils'
 import { Post } from '@prisma/client'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { customAlphabet } from 'nanoid'
 import { withPostAuth } from '@/lib/auth'
-import { getCurrentUser } from '@/lib/session'
-import { siteConfig } from '@/app/config'
 
 const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 7) // 7-character random string
 
 export const updatePost = async (data: Post) => {
-  // const xxxxxx = await getCurrentUser()
-
-  // if (!session?.id) {
-  //   return {
-  //     error: 'Not authenticated'
-  //   }
-  // }
   const post = await db.post.findUnique({
+    select: { id: true },
     where: {
       id: data.id
     }
@@ -32,7 +24,7 @@ export const updatePost = async (data: Post) => {
   }
 
   try {
-    const response = await db.post.update({
+    const result = await db.post.update({
       where: {
         id: data.id
       },
@@ -43,19 +35,38 @@ export const updatePost = async (data: Post) => {
       }
     })
 
-    revalidateTag(`/cpanel/${post.page}`)
-    revalidateTag(siteConfig.url.home + `/${post.page}`)
-    // console.log(siteConfig.url.homeWithoutApp + `/${post.page}`)
-    // revalidateTag('http://localhost:5000/event')
+    revalidatePath(`/cpanel/${result.page}`)
+    revalidatePath(`posts-${result.page}`)
 
-    // await revalidateTag(`${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`)
-    // await revalidateTag(`${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-${post.slug}`)
+    return result
+  } catch (error: any) {
+    return {
+      error: error.message
+    }
+  }
+}
 
-    // // if the site has a custom domain, we need to revalidate those tags too
-    // post.site?.customDomain &&
-    //   (await revalidateTag(`${post.site?.customDomain}-posts`), await revalidateTag(`${post.site?.customDomain}-${post.slug}`))
+export const deletePost = async (id: string) => {
+  const post = await db.post.findUnique({
+    select: { id: true },
+    where: {
+      id
+    }
+  })
 
-    return response
+  if (!post) {
+    return {
+      error: 'Post not found - deletePost'
+    }
+  }
+
+  try {
+    const result = await db.post.delete({ where: { id }, select: { id: true, page: true } })
+
+    revalidatePath(`/cpanel/${result.page}`)
+    revalidatePath(`posts-${result.page}`)
+
+    return result
   } catch (error: any) {
     return {
       error: error.message
@@ -102,13 +113,6 @@ export const updatePostMetadata = withPostAuth(async (formData: FormData, post: 
     }
 
     revalidateTag(`/cpanel/${post.page}`)
-
-    //   await revalidateTag(`${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`)
-    //   await revalidateTag(`${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-${post.slug}`)
-
-    //   // if the site has a custom domain, we need to revalidate those tags too
-    //   post.site?.customDomain &&
-    //     (await revalidateTag(`${post.site?.customDomain}-posts`), await revalidateTag(`${post.site?.customDomain}-${post.slug}`))
 
     return response
   } catch (error: any) {

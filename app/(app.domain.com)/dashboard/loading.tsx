@@ -1,14 +1,9 @@
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DashboardShell } from '../_components/dashboard-shell'
-import { Button } from '@/components/ui/button'
 
 export default function Loading() {
   return (
-    <DashboardShell
-      title='Business'
-      description='Business for this organization will show up here'
-      headerAction={<Button disabled>Create a new business</Button>}
-    >
+    <DashboardShell title='Hello' description='Welcome to DSAP Portal. 😘'>
       <ul className='grid grid-cols-1 gap-4 md:grid-cols-3'>
         <BusinessCardSkeleton />
         <BusinessCardSkeleton />

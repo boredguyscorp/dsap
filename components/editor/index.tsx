@@ -12,7 +12,6 @@ import { EditorBubbleMenu } from './bubble-menu'
 import { Post } from '@prisma/client'
 
 import { cn } from '@/lib/utils'
-import { ExternalLink } from 'lucide-react'
 import { Icons } from '../shared/icons'
 import { useToast } from '../ui/use-toast'
 import { updatePost, updatePostMetadata } from '@/actions/post'
@@ -21,17 +20,15 @@ import Link from 'next/link'
 import { buttonVariants } from '../ui/button'
 import Badge from '../custom/badge'
 import LoadingDots from '../custom/loading.dots'
-import { toast } from 'react-hot-toast'
+import { update } from 'react-spring'
 
-type PostWithSite = Post
-
-export default function Editor({ post }: { post: PostWithSite }) {
+export default function Editor({ post }: { post: Post }) {
   const toaster = useToast()
 
   let [isPendingSaving, startTransitionSaving] = useTransition()
   let [isPendingPublishing, startTransitionPublishing] = useTransition()
 
-  const [data, setData] = useState<PostWithSite>(post)
+  const [data, setData] = useState<Post>(post)
   const [hydrated, setHydrated] = useState(false)
 
   // const url = process.env.NEXT_PUBLIC_VERCEL_ENV
@@ -40,16 +37,16 @@ export default function Editor({ post }: { post: PostWithSite }) {
 
   const url = siteConfig.url.home + '/' + data.page + '/' + data.slug
 
-  const [debouncedData] = useDebounce(data, 1000)
-  useEffect(() => {
-    // compare the title, description and content only
-    if (debouncedData.title === post.title && debouncedData.description === post.description && debouncedData.content === post.content) {
-      return
-    }
-    startTransitionSaving(async () => {
-      await updatePost(debouncedData)
-    })
-  }, [debouncedData, post])
+  // const [debouncedData] = useDebounce(data, 1000)
+  // useEffect(() => {
+  //   // compare the title, description and content only
+  //   if (debouncedData.title === post.title && debouncedData.description === post.description && debouncedData.content === post.content) {
+  //     return
+  //   }
+  //   startTransitionSaving(async () => {
+  //     await updatePost(debouncedData)
+  //   })
+  // }, [debouncedData, post])
 
   // listen to CMD + S and override the default behavior
   useEffect(() => {
@@ -181,24 +178,73 @@ export default function Editor({ post }: { post: PostWithSite }) {
           <Badge text={data.published ? 'Publish' : 'Draft'} variant={data.published ? 'black' : 'outline'} />
         </div>
 
-        <div className='flex items-center space-x-3'>
+        <div className='flex items-center space-x-2'>
           {data.published && (
             <Link
               href={url}
               target='_blank'
               rel='noopener noreferrer'
-              className='flex items-center space-x-1 text-sm text-stone-400 hover:text-stone-500'
+              className='mr-2 flex items-center space-x-1 text-sm text-slate-600 hover:text-slate-800'
             >
-              <ExternalLink className='h-4 w-4' />
+              <Icons.link className='h-5 w-5' />
             </Link>
           )}
-          <div className='rounded-lg bg-stone-100 px-2 py-1 text-sm text-stone-400 dark:bg-stone-800 dark:text-stone-500'>
-            {isPendingSaving ? 'Saving...' : 'Saved'}
-          </div>
+
           <button
             onClick={() => {
               const formData = new FormData()
-              console.log(data.published, typeof data.published)
+              // console.log(data.published, typeof data.published)
+              formData.append('published', String(!data.published))
+              startTransitionPublishing(async () => {
+                await updatePostMetadata(formData, post.id, 'published').then(() => {
+                  // toast.success(`Successfully ${data.published ? 'unpublished' : 'published'} your post.`)
+
+                  toaster.toast({
+                    title: `Successfully ${data.published ? 'unpublished' : 'published'} your post.`,
+                    variant: 'default'
+                  })
+
+                  setData((prev) => ({ ...prev, published: !prev.published }))
+                })
+              })
+            }}
+            disabled={isPendingPublishing}
+            className={cn(buttonVariants({ variant: 'secondary' }), 'min-w-[90px]')}
+          >
+            {isPendingPublishing && <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />}
+            <span>{data.published ? 'Unpublish' : 'Publish'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              startTransitionSaving(async () => {
+                await updatePost(data).then(() => {
+                  // toast.success(`Successfully ${data.published ? 'unpublished' : 'published'} your post.`)
+
+                  toaster.toast({
+                    title: `Successfully save your post.`,
+                    variant: 'default'
+                  })
+
+                  // setData((prev) => ({ ...prev, published: !prev.published }))
+                })
+                // await new Promise((resolve) => setTimeout(resolve, 2000))
+              })
+            }}
+            disabled={isPendingSaving}
+            className={cn(buttonVariants(), 'min-w-[90px]')}
+          >
+            {isPendingSaving && <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />}
+            <span>Save</span>
+
+            {/* <div className='rounded-lg bg-stone-100 px-2 py-1 text-sm text-stone-400 dark:bg-stone-800 dark:text-stone-500'>
+            {isPendingSaving ? 'Saving...' : 'Saved'}
+          </div> */}
+
+            {/* <button
+            onClick={() => {
+              const formData = new FormData()
+              // console.log(data.published, typeof data.published)
               formData.append('published', String(!data.published))
               startTransitionPublishing(async () => {
                 await updatePostMetadata(formData, post.id, 'published').then(() => {
@@ -222,6 +268,18 @@ export default function Editor({ post }: { post: PostWithSite }) {
             disabled={isPendingPublishing}
           >
             {isPendingPublishing ? <LoadingDots /> : <p>{data.published ? 'Unpublish' : 'Publish'}</p>}
+          </button> */}
+            {/* <button
+              className={cn(
+                'flex h-7 w-24 items-center justify-center space-x-2 rounded-lg border text-sm transition-all focus:outline-none',
+                isPendingSaving
+                  ? 'cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300'
+                  : 'border border-black bg-black text-white hover:bg-white hover:text-black active:bg-stone-100 dark:border-stone-700 dark:hover:border-stone-200 dark:hover:bg-black dark:hover:text-white dark:active:bg-stone-800'
+              )}
+              disabled={isPendingSaving}
+            >
+              {isPendingSaving ? <LoadingDots /> : <p>Save</p>}
+            </button> */}
           </button>
         </div>
       </div>

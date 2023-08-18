@@ -2,6 +2,8 @@ import db from '@/lib/db'
 import { unstable_cache } from 'next/cache'
 import { serialize } from 'next-mdx-remote/serialize'
 import { replaceExamples, replaceTweets } from '@/lib/remark-plugins'
+import url from '@/constants/url'
+import { Post } from '@prisma/client'
 
 export async function getPostsForSite(page: string) {
   return await unstable_cache(
@@ -13,7 +15,9 @@ export async function getPostsForSite(page: string) {
           slug: true,
           image: true,
           imageBlurhash: true,
-          createdAt: true
+          createdAt: true,
+          page: true,
+          content: true
         },
         orderBy: [
           {
@@ -22,10 +26,10 @@ export async function getPostsForSite(page: string) {
         ]
       })
     },
-    [`${page}-posts`],
+    [`posts-${page}`],
     {
-      revalidate: 900, // 15 minutes
-      tags: [`${page}-posts`]
+      revalidate: 20, // 86400 = 1 day cache (900 = 15 minutes)
+      tags: [`posts-${page}`]
     }
   )()
 }
@@ -79,7 +83,7 @@ export async function getPostData(page: string, slug: string) {
   )()
 }
 
-async function getMdxSource(postContents: string) {
+export async function getMdxSource(postContents: string) {
   // transforms links like <link> to [link](link) as MDX doesn't support <link> syntax
   // https://mdxjs.com/docs/what-is-mdx/#markdown
   const content = postContents?.replaceAll(/<(https?:\/\/\S+)>/g, '[$1]($1)') ?? ''
@@ -91,4 +95,30 @@ async function getMdxSource(postContents: string) {
   })
 
   return mdxSource
+}
+
+// export async function API_CALL_getPostDataPerPage(page: string, slug: string) {
+//   const result = await fetch(`${url.serverApi}/api/posts/${slug}?page=${page}`, {
+//     method: 'GET',
+//     headers: {
+//       'Content-Type': 'application/json'
+//     },
+//     next: { revalidate: 1, tags: [`${page}-${slug}`] } // 86400 = 1 day cache (900 = 15 minutes)
+//     // cache: 'no-store'
+//   })
+
+//   return result.ok ? (JSON.parse(await result.json()) as Post[]) : null
+// }
+
+export async function API_CALL_getPostsForSite(page: 'event' | 'news' | 'convention') {
+  const result = await fetch(`${url.serverApi}/api/posts?page=${page}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    next: { revalidate: 0, tags: [`posts-${page}`] }, // 86400 = 1 day cache (900 = 15 minutes)
+    cache: 'no-cache'
+  })
+
+  return result.ok ? (JSON.parse(await result.json()) as Post[]) : null
 }

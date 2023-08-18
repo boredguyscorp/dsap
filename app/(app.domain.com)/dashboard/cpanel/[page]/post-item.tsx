@@ -19,12 +19,12 @@ export function PostItem({ post, page }: PostItemProps) {
         <Link href={`/post/${post.id}?page=${page}`} className='font-semibold hover:underline'>
           {post.title}
         </Link>
-        <div className='flex space-x-3'>
+        <div className='flex items-center space-x-3'>
           <p className='text-sm text-muted-foreground'>{formatDate(post.createdAt?.toDateString())}</p>
           <Badge text={post.published ? 'Publish' : 'Draft'} variant={post.published ? 'black' : 'outline'} />
         </div>
       </div>
-      <PostOperations post={{ id: post.id, title: post.title, slug: post.slug }} page={page} />
+      <PostOperations post={post} page={page} />
     </div>
   )
 }
