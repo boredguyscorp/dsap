@@ -15,13 +15,13 @@ export const navItems = [
     disabled: false
   },
   {
-    href: '/convention',
-    title: 'Convention',
+    href: '/news',
+    title: 'News',
     disabled: false
   },
   {
-    href: '/news',
-    title: 'News',
+    href: '/convention',
+    title: 'Convention',
     disabled: false
   },
   {

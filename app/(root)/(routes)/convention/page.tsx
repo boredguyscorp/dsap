@@ -1,18 +1,17 @@
 import React from 'react'
 import PostCard from '../../_components/PostCard'
-import { API_CALL_getPostsForSite, getPostsForSite } from '@/actions/fetchers'
-import url from '@/constants/url'
-import { Post } from '@prisma/client'
+import { getPostsForSite } from '@/actions/fetchers'
+// import { ForceRefresh } from '@/components/shared/force-refresh'
+
+// export const dynamic = 'force-dynamic'
 
 export default async function EventPage() {
-  // const posts = await API_CALL_getPostsForSite('event')
-
-  // const posts = await API_CALL_getPostsForSite('convention')
-  const posts = await getPostsForSite('convention')
+  const posts = await getPostsForSite('event')
 
   return (
     // <div className='mb-20 mt-24 min-h-[calc((100vh-6rem))] w-full bg-yellow-500 px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
     <div className='mx-auto mt-24 min-h-[calc((100vh-6rem))] max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
+      {/* <ForceRefresh /> */}
       <div className='mb-10 max-w-[85rem]'>
         <h2 className='text-2xl font-bold dark:text-white md:text-4xl md:leading-tight'>Convention</h2>
         <p className='mt-1 text-gray-600 dark:text-gray-400'>
