@@ -67,3 +67,16 @@ export const postPatchSchema = z.object({
 })
 
 export type PostCreationRequest = z.infer<typeof postPatchSchema>
+
+export const newMemberSchema = [
+  z.object({
+    drugStoreName: z.string().min(1, { message: 'Please enter Drugstore name.' })
+  }),
+  z.object({
+    ownerFirstName: z.string().min(1, { message: 'Please enter Owner first name.' }),
+    ownerLastName: z.string().min(1, { message: 'Please enter Owner last name.' })
+  }),
+  z.object({
+    test: z.string().min(1, { message: 'Please enter test.' })
+  })
+]
