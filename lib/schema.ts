@@ -70,7 +70,22 @@ export type PostCreationRequest = z.infer<typeof postPatchSchema>
 
 export const newMemberSchema = [
   z.object({
-    drugStoreName: z.string().min(1, { message: 'Please enter Drugstore name.' })
+    drugStoreName: z.string().min(1, { message: 'Please enter Drugstore name.' }),
+    address: z.string({ required_error: 'Please enter Address.' }),
+    emailAdd: z.string().nullish(),
+    telNo: z.string().nullish(),
+    mobileNo: z.string().nullish(),
+    ownershipType: z.string({ required_error: 'Please select a ownership type' }),
+    membershipType: z.string({ required_error: 'Please select a membership type' }),
+    drugstoreClassification: z.string({ required_error: 'Please select a drugstore classification' })
+  }),
+  z.object({
+    fdaLtoNo: z.string({ required_error: 'Please enter Address.' }),
+    fdaDateIssued: z.date({
+      required_error: 'FDA Date Issued is required.'
+    }),
+    fdaDateExpiry: z.string({ required_error: 'Please enter Address.' }),
+    fdaUrlAttachment: z.string({ required_error: 'Please enter Address.' })
   }),
   z.object({
     ownerFirstName: z.string().min(1, { message: 'Please enter Owner first name.' }),

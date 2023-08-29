@@ -86,7 +86,7 @@ module.exports = {
   plugins: [
     require('tailwindcss-animate'),
     require('@tailwindcss/typography'),
-    require('@tailwindcss/forms'),
+    // require('@tailwindcss/forms'),
     require('tailwindcss/nesting'),
     require('postcss-nesting')
   ]
