@@ -5,36 +5,39 @@ import { formatDate } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PostOperations } from './post-operations'
 import Badge from '@/components/custom/badge'
-import { SettingsDialog } from '@/components/editor/settings/post-settings'
 import { Icons } from '@/components/shared/icons'
 import { siteConfig } from '@/app/config'
-// import { PostOperations } from "@/components/post-operations"
+import { SettingsDialog } from '@/components/editor/settings/post-settings'
 
 interface PostItemProps {
-  post: Pick<Post, 'id' | 'title' | 'slug' | 'published' | 'createdAt' | 'image'>
+  post: Pick<Post, 'id' | 'title' | 'slug' | 'published' | 'createdAt' | 'image' | 'imagesGallery' | 'page'>
   page: string
 }
 
 export function PostItem({ post, page }: PostItemProps) {
   return (
-    <div className='flex items-center justify-between p-4'>
-      <div className='grid gap-1'>
-        <Link href={`/post/${post.id}?page=${page}`} className='font-semibold hover:underline'>
-          {post.title}
-        </Link>
-        <div className='flex items-center space-x-3'>
-          <p className='text-sm text-muted-foreground'>{formatDate(post.createdAt?.toDateString())}</p>
-          <Badge text={post.published ? 'Publish' : 'Draft'} variant={post.published ? 'black' : 'outline'} />
+    <>
+      <div className='flex items-center justify-between p-4'>
+        <div className='grid gap-1'>
+          <Link href={`/post/${post.id}?page=${page}`} className='font-semibold hover:underline'>
+            {post.title}
+          </Link>
+          <div className='flex items-center space-x-3'>
+            <p className='text-sm text-muted-foreground'>{formatDate(post.createdAt?.toDateString())}</p>
+            <Badge text={post.published ? 'Publish' : 'Draft'} variant={post.published ? 'black' : 'outline'} />
+          </div>
+        </div>
+        <div className='flex items-center justify-between gap-2'>
+          <Link href={`${siteConfig.url.home}/${page}/${post.slug}`} target='_blank' rel='noreferrer'>
+            <Icons.link className='h-4 w-4' />
+          </Link>
+
+          <SettingsDialog post={post} />
+
+          <PostOperations post={post} page={page} />
         </div>
       </div>
-      <div className='flex items-center justify-between gap-2'>
-        <Link href={`${siteConfig.url.home}/${page}/${post.slug}`} target='_blank' rel='noreferrer'>
-          <Icons.link className='h-4 w-4' />
-        </Link>
-        <SettingsDialog post={{ id: post.id, slug: post.slug, image: post.image }} />
-        <PostOperations post={post} page={page} />
-      </div>
-    </div>
+    </>
   )
 }
 

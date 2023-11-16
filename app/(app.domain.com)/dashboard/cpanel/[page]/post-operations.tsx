@@ -26,6 +26,7 @@ import { toast } from '@/components/ui/use-toast'
 import { Icons } from '@/components/shared/icons'
 import { siteConfig } from '@/app/config'
 import { deletePost } from '@/actions/post'
+// import { SettingsDialog } from '@/components/editor/settings/post-settings'
 
 // async function deletePost(postId: string) {
 //   const response = await fetch(`/api/posts/${postId}`, {
@@ -44,7 +45,7 @@ import { deletePost } from '@/actions/post'
 // }
 
 interface PostOperationsProps {
-  post: Pick<Post, 'id' | 'title' | 'slug' | 'published' | 'createdAt' | 'image'>
+  post: Pick<Post, 'id' | 'slug' | 'title' | 'image' | 'imagesGallery' | 'page'>
   page: string
 }
 
@@ -67,6 +68,10 @@ export function PostOperations({ post, page }: PostOperationsProps) {
               Edit Content
             </Link>
           </DropdownMenuItem>
+
+          {/* <DropdownMenuItem>
+            <SettingsDialog post={post} />
+          </DropdownMenuItem> */}
 
           <DropdownMenuItem
             className='flex cursor-pointer items-center text-destructive focus:text-destructive'

@@ -20,7 +20,7 @@ export const FileUpload = ({ onChange, value }: FileUploadProps) => {
 
   if (value && fileType !== 'pdf') {
     return (
-      <div className='relative h-full w-full '>
+      <div className='relative h-96 w-full '>
         <Image fill src={value} alt='Upload' className='rounded-sm' />
         <button
           onClick={() => onChange(undefined)}
@@ -60,6 +60,7 @@ export const FileUpload = ({ onChange, value }: FileUploadProps) => {
     <UploadDropzone
       endpoint='imageUploader'
       onClientUploadComplete={(res) => {
+        console.log('🚀 -> onClientUploadComplete -> res:', res)
         onChange(res?.[0].url)
       }}
       onUploadError={(error: Error) => {

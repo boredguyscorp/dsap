@@ -6,6 +6,7 @@ import { Post } from '@prisma/client'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { customAlphabet } from 'nanoid'
 import { withPostAuth } from '@/lib/auth'
+import { MultiImage } from '@/components/editor/settings/multi-image-uploader'
 
 const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 7) // 7-character random string
 
@@ -158,6 +159,48 @@ export const updateMetaDataSettings = async (data: MetaDataSettings) => {
       data: {
         slug,
         image: img
+      }
+    })
+
+    revalidatePath(`/cpanel/${result.page}`)
+    revalidatePath(`posts-${result.page}`)
+
+    return result
+  } catch (error: any) {
+    return {
+      error: error.message
+    }
+  }
+}
+
+type PostImageGallery = {
+  id: string
+  imagesGallery: MultiImage[]
+}
+
+export const updatePostImageGallery = async (data: PostImageGallery) => {
+  const { id, imagesGallery } = data
+
+  const post = await db.post.findUnique({
+    select: { id: true },
+    where: {
+      id
+    }
+  })
+
+  if (!post) {
+    return {
+      error: 'Post not found - updatePost'
+    }
+  }
+
+  try {
+    const result = await db.post.update({
+      where: {
+        id
+      },
+      data: {
+        imagesGallery
       }
     })
 

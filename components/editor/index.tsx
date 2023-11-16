@@ -195,7 +195,7 @@ export default function Editor({ post }: { post: Post }) {
             <Icons.settings className='h-4 w-4 text-slate-600' />
           </Button> */}
 
-          <SettingsDialog post={{ id: post.id, slug: post.slug, image: post.image }} />
+          <SettingsDialog post={post} />
 
           <button
             onClick={() => {

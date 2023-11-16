@@ -164,6 +164,7 @@ model Post {
   page          String
   image         String?  @db.Text
   imageBlurhash String?  @db.Text
+  imagesGallery Json     @default("[]")
 
   author User @relation(fields: [authorId], references: [id])
 

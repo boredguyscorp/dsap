@@ -34,7 +34,9 @@ export default async function CPanelContentPage({ params }: PageProps) {
       published: true,
       createdAt: true,
       slug: true,
-      image: true
+      image: true,
+      imagesGallery: true,
+      page: true
     },
     orderBy: {
       updatedAt: 'desc'
