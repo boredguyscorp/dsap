@@ -52,11 +52,13 @@ export default async function Page() {
               </div>
 
               <div className='mx-auto mt-5 max-w-3xl text-center'>
-                <p className='text-lg text-gray-600 dark:text-gray-400'>
-                  I wanted to take a moment to address the current state of our nation. We are facing unprecedented challenges, but I have
-                  confidence in our people's ability to rise above them. As we navigate through these difficult times, let us remember to
-                  treat each other with kindness and compassion. We will get through this together.
-                </p>
+                <Balancer>
+                  <p className='text-lg text-gray-600 dark:text-gray-400'>
+                    In behalf of the DSAP Board of Directors, I am happy to welcome you back to our upgraded DSAP website. Our new website
+                    is now user friendly making it easier to access the information you need on demand. I encourage you to experience the
+                    changes we have incorporated in our new site and feel the warm embrace of being a member of our association.
+                  </p>
+                </Balancer>
               </div>
 
               <div className='relative flex h-full flex-col'>
@@ -72,22 +74,30 @@ export default async function Page() {
 
                 <div className='relative z-10 h-full'>
                   <p className='serif px-6 py-6 text-xl font-normal italic text-gray-600 md:px-16 md:py-10 md:text-2xl'>
-                    Leverage agile frameworks to provide a robust synopsis for high level overviews. Iterative approaches to corporate
-                    strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world
-                    view of disruptive innovation via workplace diversity and empowerment.
+                    "When the time is right, I the Lord will make it happen." --Isaiah 60:22
                   </p>
                 </div>
 
-                <div className='text-center'>
+                <div className='mx-auto mt-5 max-w-3xl space-y-12 text-center'>
+                  <Balancer>
+                    <p className='text-lg text-gray-600 dark:text-gray-400'>
+                      We have been blessed to go with the trend and to make the innovations happen. This is the TIME for DSAP.
+                    </p>
+                  </Balancer>
+
+                  <p className='text-lg text-gray-600 dark:text-gray-400'>God Bless us all...</p>
+                </div>
+
+                <div className='mt-10 text-center'>
                   <img
-                    src='https://mdbcdn.b-cdn.net/img/new/avatars/1.webp'
-                    className='mx-auto mb-3 w-32 rounded-full shadow-lg'
-                    alt='Avatar'
+                    src={`/images/officers/vicente.png`}
+                    alt={`vicente.png`}
+                    width={250}
+                    height={250}
+                    className='shadow- mx-auto mb-3 h-32  w-32  rounded-full'
                   />
-                  <h2 className='text-sm font-bold leading-tight text-gray-700 md:text-xl'>Juan Dela Cruz</h2>
-                  <small className='truncate text-xs text-gray-500 md:text-sm'>
-                    President, Drugstores Association of the Philippines Inc.
-                  </small>
+                  <h2 className='text-sm font-bold leading-tight text-gray-700 md:text-xl'>Vicente U. Briones, RPh.</h2>
+                  <small className='truncate text-xs text-gray-500 md:text-sm'>DSAP National President 2023</small>
                 </div>
               </div>
             </div>

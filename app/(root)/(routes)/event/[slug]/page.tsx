@@ -13,6 +13,8 @@ interface PostPageProps {
   }
 }
 
+export const dynamic = 'force-static'
+
 export default async function EventPagePost({ params }: PostPageProps) {
   const slug = params.slug
 
@@ -43,15 +45,15 @@ export default async function EventPagePost({ params }: PostPageProps) {
                 Back to Event
               </Link>
 
-              <h2 className='text-3xl font-bold dark:text-white md:text-4xl lg:text-5xl'>{selectedSlug.title}</h2>
+              <h2 className='text-3xl font-bold text-teal-600 dark:text-white md:text-4xl lg:text-5xl'>{selectedSlug.title}</h2>
 
               <p className='text-lg text-gray-800 dark:text-gray-200'>{selectedSlug.description}</p>
 
               <div className='flex items-center justify-between gap-x-5'>
                 <div className='inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-800 sm:px-4 sm:py-2 sm:text-sm'>
-                  Tags or Category here.
+                  Published {toDateString(selectedSlug.createdAt)}
                 </div>
-                <p className='text-xs text-gray-800 dark:text-gray-200 sm:text-sm'>Published {toDateString(selectedSlug.createdAt)}</p>
+                {/* <p className='text-xs text-gray-800 dark:text-gray-200 sm:text-sm'>Published {toDateString(selectedSlug.createdAt)}</p> */}
               </div>
             </div>
 
@@ -77,7 +79,7 @@ export default async function EventPagePost({ params }: PostPageProps) {
                 adjacentPosts.map((post) => (
                   <Link key={post.slug} className='group flex items-center gap-x-6' href={post.slug}>
                     <div className='grow'>
-                      <span className='text-sm font-semibold text-gray-800 group-hover:text-teal-500 dark:text-gray-200 dark:group-hover:text-blue-500'>
+                      <span className='text-sm font-semibold text-teal-600 group-hover:text-teal-500 dark:text-gray-200 dark:group-hover:text-blue-500'>
                         {post.title}
                         <p className='text-xs font-light text-gray-500'>{post.description}</p>
                       </span>

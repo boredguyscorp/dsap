@@ -23,18 +23,18 @@ export default function SiteFooter({ className }: React.HTMLAttributes<HTMLEleme
 
             <div className='mt-3 grid space-y-3'>
               <p>
-                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='#'>
+                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='/event'>
+                  Event
+                </a>
+              </p>
+              <p>
+                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='/news'>
                   News
                 </a>
               </p>
               <p>
-                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='#'>
-                  Events
-                </a>
-              </p>
-              <p>
-                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='#'>
-                  Conventions
+                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='/convention'>
+                  Convention
                 </a>
               </p>
             </div>
@@ -45,17 +45,17 @@ export default function SiteFooter({ className }: React.HTMLAttributes<HTMLEleme
 
             <div className='mt-3 grid space-y-3'>
               <p>
-                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='#'>
+                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='/about-us'>
                   About us
                 </a>
               </p>
               <p>
-                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='#'>
+                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='/contact-us'>
                   Contact us
                 </a>
               </p>
               <p>
-                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='#'>
+                <a className='inline-flex gap-x-2 text-white hover:text-gray-200' href='/membership'>
                   Become a member
                 </a>
                 {/* <span className='ml-1 inline rounded-md bg-teal-500 px-2 py-1 text-xs text-white'>Check here</span> */}

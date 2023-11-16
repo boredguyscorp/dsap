@@ -17,10 +17,11 @@ import { useToast } from '../ui/use-toast'
 import { updatePost, updatePostMetadata } from '@/actions/post'
 import { siteConfig } from '@/app/config'
 import Link from 'next/link'
-import { buttonVariants } from '../ui/button'
+import { Button, buttonVariants } from '../ui/button'
 import Badge from '../custom/badge'
 import LoadingDots from '../custom/loading.dots'
 import { update } from 'react-spring'
+import { SettingsDialog } from './settings/post-settings'
 
 export default function Editor({ post }: { post: Post }) {
   const toaster = useToast()
@@ -35,7 +36,7 @@ export default function Editor({ post }: { post: Post }) {
   //   ? `https://${data.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/${data.slug}`
   //   : `http://${data.site?.subdomain}.localhost:3000/${data.slug}`
 
-  const url = siteConfig.url.home + '/' + data.page + '/' + data.slug
+  const url = siteConfig.url.home + '/' + data.page + '/' + post.slug
 
   // const [debouncedData] = useDebounce(data, 1000)
   // useEffect(() => {
@@ -184,11 +185,17 @@ export default function Editor({ post }: { post: Post }) {
               href={url}
               target='_blank'
               rel='noopener noreferrer'
-              className='mr-2 flex items-center space-x-1 text-sm text-slate-600 hover:text-slate-800'
+              className='flex items-center space-x-1 text-sm text-slate-600 hover:text-slate-800'
             >
               <Icons.link className='h-5 w-5' />
             </Link>
           )}
+
+          {/* <Button variant='ghost' size='icon'>
+            <Icons.settings className='h-4 w-4 text-slate-600' />
+          </Button> */}
+
+          <SettingsDialog post={{ id: post.id, slug: post.slug, image: post.image }} />
 
           <button
             onClick={() => {

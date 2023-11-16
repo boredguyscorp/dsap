@@ -18,6 +18,8 @@ export default withAuth(
 
     const currentHost = hostname?.replace(`.${urls.homeWithoutApp}`, '')
 
+    // console.log('🚀 -> middleware -> currentHost:', currentHost)
+
     if (currentHost === 'app') {
       if (url.pathname === '/sign-in' || url.pathname === '/sign-up') {
         if (isAuth) {

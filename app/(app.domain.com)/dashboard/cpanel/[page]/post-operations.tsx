@@ -44,7 +44,7 @@ import { deletePost } from '@/actions/post'
 // }
 
 interface PostOperationsProps {
-  post: Pick<Post, 'id' | 'title' | 'slug' | 'published' | 'createdAt'>
+  post: Pick<Post, 'id' | 'title' | 'slug' | 'published' | 'createdAt' | 'image'>
   page: string
 }
 
@@ -67,14 +67,15 @@ export function PostOperations({ post, page }: PostOperationsProps) {
               Edit Content
             </Link>
           </DropdownMenuItem>
+
           <DropdownMenuItem
             className='flex cursor-pointer items-center text-destructive focus:text-destructive'
             onSelect={() => setShowDeleteAlert(true)}
           >
             Delete
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem disabled={!post.published}>
+          {/* <DropdownMenuSeparator /> */}
+          {/* <DropdownMenuItem disabled={!post.published}>
             <Link
               href={`${siteConfig.url.home}/${page}/${post.slug}`}
               target='_blank'
@@ -83,7 +84,7 @@ export function PostOperations({ post, page }: PostOperationsProps) {
             >
               <Icons.link className='mr-2 h-4 w-4' /> Visit Page
             </Link>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
       <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>

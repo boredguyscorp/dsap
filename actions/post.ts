@@ -127,3 +127,47 @@ export const updatePostMetadata = withPostAuth(async (formData: FormData, post: 
     }
   }
 })
+
+type MetaDataSettings = {
+  id: string
+  slug: string
+  img?: string | null
+}
+
+export const updateMetaDataSettings = async (data: MetaDataSettings) => {
+  const { id, slug, img } = data
+
+  const post = await db.post.findUnique({
+    select: { id: true },
+    where: {
+      id
+    }
+  })
+
+  if (!post) {
+    return {
+      error: 'Post not found - updatePost'
+    }
+  }
+
+  try {
+    const result = await db.post.update({
+      where: {
+        id
+      },
+      data: {
+        slug,
+        image: img
+      }
+    })
+
+    revalidatePath(`/cpanel/${result.page}`)
+    revalidatePath(`posts-${result.page}`)
+
+    return result
+  } catch (error: any) {
+    return {
+      error: error.message
+    }
+  }
+}

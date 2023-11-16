@@ -3,7 +3,7 @@ import url from '@/constants/url'
 
 export const siteConfig = {
   code: 'DSAP',
-  name: 'Drugstore Association of the Philippines Inc.',
+  name: 'Drugstores Association of the Philippines Inc.',
   description: '"One Cause, One Voice, One Future"',
   url
 }

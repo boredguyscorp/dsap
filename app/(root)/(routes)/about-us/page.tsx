@@ -4,6 +4,8 @@ import Image from 'next/image'
 import image1 from 'public/images/image1.jpg'
 import image2 from 'public/images/image2.jpg'
 import person1 from 'public/images/person1.png'
+import dsapOffice from 'public/images/dsap-office.png'
+import { bod, officers } from './_content/constant'
 
 export default function AboutPage() {
   return (
@@ -122,37 +124,51 @@ export default function AboutPage() {
                             <h2 className='text-2xl font-bold dark:text-white md:text-3xl '>About us</h2>
 
                             <p className='text-lg text-gray-800 dark:text-gray-200'>
-                              About us, is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's
-                              standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to
-                              make a type specimen book. It has survived not only five centuries, but also the leap into electronic
-                              typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset
-                              sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus
-                              PageMaker including versions of Lorem Ipsum
+                              Realizing the importance of a strong, unified association of drugstore owners to serve the needs of its
+                              members, the customers, the manufacturers or suppliers, as well as the government, a core group of fifteen
+                              wholesales, chain store operators and retailers met with hopes of working together. They were Carlos Super
+                              Drug, Dyna Drug, Emilene's Pharmacy, Farmacia Arsenia, Globe Pharmacy, Goodwill Pharmacy, Madis Drug,
+                              Marcelo's Pharmacy, Merced Drug, New South Star Drug, 777 Drug, Olympic Drug, Rose Pharmacy, Save More Drug
+                              and Surety Drug. After a series of conferences, the original fifteen participants formally organized what now
+                              is known as the Drugstores Association of the Philippines (DSAP), having elected their initial set of officers
+                              on April 14, 1984 at the Quezon City Sports Club.
                             </p>
                           </div>
 
                           <p className='text-lg text-gray-800 dark:text-gray-200'>
-                            We're proud to be a part of creating a more open culture and to continue building a product that supports this
-                            vision.
+                            The installation of the initial set of officers of DSAP was held at the Hyatt Regency Manila on November 29,
+                            1984 with Ms. Catalina Sanchez, Director of the Bureau of Food and Drug (BFAD) as installing officer. The newly
+                            installed officers were Mr. Dioscoro Rodolfo of Merced Drug as President, Mr. Steve Dy of Dyna Drug as Vice
+                            President, Ms. Celia Carlos of Carlos Super Drug as Secretary, Mrs. Carmen Tan of Save More Drug as Assistant
+                            Secretary, Mrs. Celita Cabigao of 777 Drug as Treasurer, Mrs. Consuelo Dy of New South Star Drug as Assistant
+                            Treasurer, the late Mr. Artemio Vizconde of Marcelo's Pharmacy as Auditor, Mr. Rodolfo Manalac of Olympic Drug
+                            as Assistant Auditor and Mr. Amador of Madis Drug as Public Relations Officer.
                           </p>
 
                           <figure>
-                            <Image src={image1} alt='Image Description' className='w-full rounded-xl object-cover' />
+                            <Image src={dsapOffice} alt='Image Description' className='w-full rounded-xl object-cover' />
 
-                            <figcaption className='mt-3 text-center text-sm text-gray-500'>DSAP Meeting and Discussion.</figcaption>
+                            <figcaption className='mt-3 text-center text-sm text-gray-500'>
+                              DSAP Office Unit 2009 Medical Plaza Bldg., San Miguel Avenue, Brgy. San Antonio Pasig City., Philippines.
+                            </figcaption>
                           </figure>
 
                           <p className='text-lg text-gray-800 dark:text-gray-200'>
-                            Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable
-                            source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of
-                            Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during
-                            the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section
-                            1.10.32.
+                            DSAP has participated in deliberations with the Department of Health, BFAD now FDA, House of Representatives,
+                            Senate of the Philippines and other government agencies, as well as private offices and organizations. The
+                            association also spearheaded several civic and humanitarian projects and training programs that seek to teach
+                            drugstore owners on the more modern operational methods of pharmacy community service. The association was then
+                            able to get support from the pharmaceutical companies.
                           </p>
 
                           <p className='text-lg text-gray-800 dark:text-gray-200'>
-                            There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in
-                            some form, by injected humour, or randomised words which don't look even slightly believable.
+                            The social affairs committee always had the spirit of camaraderie and friendship that the officers and members
+                            of DSAP continue its untiring task of uniting the thousands of drugstores all over the country. The association
+                            has gone a long way since 1984 as it evolved from one leadership to another. It has passed through 12 presidents
+                            namely; Mr. Dioscoro Rodolfo (1984-1992), Ms. Celia Carlos (1992-1996, 2004), Mr. James Sandoval (1996-1999),
+                            Mr. Angel Margarito Caramat, Jr. (1999- 2001), Ms. Gloria De Chavez (2001-2003, 2005) Ms. Erlinda Pascual*
+                            (2006- 2007), Ms. Josephine Inocencio (2008-2009), Ms. Florecita Intal (2010), Dr. Alan Kintanar (2011), and Ms.
+                            Julie F. Marquez (2012,) Ms. Herlinda Aquino (2013) and Ms. Estela A. Lim (2014).
                           </p>
                         </div>
                       </div>
@@ -162,18 +178,13 @@ export default function AboutPage() {
                   <div id='mission' className='min-h-[25rem] scroll-mt-24 '>
                     <div className='mx-auto max-w-full px-4 pb-6 sm:px-6 lg:-mt-2 lg:px-8'>
                       <div className='max-w-full'>
-                        <div className='space-y-5 md:space-y-8'>
+                        <div className='space-y-5 md:space-y-5'>
                           <div className='space-y-3'>
                             <h2 className='text-2xl font-bold dark:text-white md:text-3xl'>Mission</h2>
 
-                            <p className='text-lg text-gray-800 dark:text-gray-200'>
-                              Mission, is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's
-                              standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to
-                              make a type specimen book. It has survived not only five centuries, but also the leap into electronic
-                              typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset
-                              sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus
-                              PageMaker including versions of Lorem Ipsum
-                            </p>
+                            {/* <p className='text-lg text-gray-800 dark:text-gray-200'>
+                              Mission, text
+                            </p> */}
                           </div>
 
                           <div className='mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
@@ -268,9 +279,9 @@ export default function AboutPage() {
                                     </p>
 
                                     <p className='text-xl font-medium italic text-gray-800 dark:text-gray-200 md:text-2xl md:leading-normal xl:text-3xl xl:leading-normal'>
-                                      If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything
-                                      embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to
-                                      repeat predefined chunks as necessary, making this the first true generator on the Internet.
+                                      To ensure a climate of continuous growth and development as an association through its strong
+                                      organizational structure supported by its servant leaders, committed membership nationwide and its
+                                      more than 25 years of dedicated partnership with stakeholders of the healthcare industry.
                                     </p>
                                   </div>
 
@@ -301,18 +312,13 @@ export default function AboutPage() {
                   <div id='vision' className='min-h-[25rem] scroll-mt-24 '>
                     <div className='mx-auto max-w-full px-4 sm:px-6 lg:-mt-2 lg:px-8'>
                       <div className='max-w-full'>
-                        <div className='space-y-5 md:space-y-8'>
+                        <div className='space-y-5 md:space-y-5'>
                           <div className='space-y-3'>
                             <h2 className='text-2xl font-bold dark:text-white md:text-3xl'>Vision</h2>
 
-                            <p className='text-lg text-gray-800 dark:text-gray-200'>
-                              Vision, is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's
-                              standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to
-                              make a type specimen book. It has survived not only five centuries, but also the leap into electronic
-                              typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset
-                              sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus
-                              PageMaker including versions of Lorem Ipsum
-                            </p>
+                            {/* <p className='text-lg text-gray-800 dark:text-gray-200'>
+                              Vision, text
+                            </p> */}
                           </div>
 
                           <div className='mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
@@ -407,9 +413,9 @@ export default function AboutPage() {
                                     </p>
 
                                     <p className='text-xl font-medium italic text-gray-800 dark:text-gray-200 md:text-2xl md:leading-normal xl:text-3xl xl:leading-normal'>
-                                      If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything
-                                      embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to
-                                      repeat predefined chunks as necessary, making this the first true generator on the Internet.
+                                      To be the prime mover in healthcare distribution; responsive to the needs of its members, adapting to
+                                      the changing business climate to pave the way for continued growth and prosperity while maintaining
+                                      excellence in customer servicing.
                                     </p>
                                   </div>
 
@@ -424,7 +430,7 @@ export default function AboutPage() {
                                       </div>
                                       <div className='ml-4 md:ml-0'>
                                         <div className='text-base font-semibold text-gray-800 dark:text-gray-200'>DSAP Vision</div>
-                                        <div className='text-xs text-gray-500 dark:text-gray-400'>One Mission, One Goal. ❤️ </div>
+                                        <div className='text-xs text-gray-500 dark:text-gray-400'>One Vision, One Goal. ❤️ </div>
                                       </div>
                                     </div>
                                   </footer>
@@ -442,104 +448,29 @@ export default function AboutPage() {
                       <div className='max-w-full'>
                         <div className='space-y-5 md:space-y-8'>
                           <div className='space-y-3 text-center'>
-                            <h2 className='text-2xl font-bold dark:text-white md:text-3xl '>National Officer</h2>
-
-                            <p className='text-lg text-gray-800 dark:text-gray-200'>
-                              The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections
-                              1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are also reproduced in their exact original
-                              form, accompanied by English versions from the 1914 translation by H. Rackham.
-                            </p>
+                            <h2 className='text-2xl font-bold dark:text-white md:text-3xl '>DSAP National Officers 2023</h2>
                           </div>
-                          <div className='grid grid-cols-3 gap-8 pt-5 md:grid-cols-4 md:gap-12 xl:grid-cols-5 2xl:px-28 2xl:pt-8'>
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
+                          <div className='grid grid-cols-3 gap-8 pt-5 md:grid-cols-4 md:gap-12 2xl:px-16 2xl:pt-8'>
+                            {officers.map((row) => {
+                              return (
+                                <div key={row.position} className='text-center'>
+                                  <Image
+                                    src={`/images/officers/${row.img}.png`}
+                                    alt={`${row.img}.png`}
+                                    width={250}
+                                    height={250}
+                                    className='mx-auto h-32 w-32 rounded-full'
+                                  />
 
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>Juan Dela Cruz</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>Juan Dela Cruz</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>Juan Dela Cruz</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>Juan Dela Cruz</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>Juan Dela Cruz</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>David Forren</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>David Forren</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>David Forren</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>David Forren</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>David Forren</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
+                                  <div className='mt-2 sm:mt-4'>
+                                    <h3 className='font-medium text-gray-800 dark:text-gray-200'>{row.name}</h3>
+                                    <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>{row.position}</p>
+                                    <p className='text-sm text-gray-600 dark:text-gray-400'>{row.drugstore}</p>
+                                    <p className='text-sm text-gray-600 dark:text-gray-400'>{row.chapter}</p>
+                                  </div>
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
                       </div>
@@ -551,104 +482,29 @@ export default function AboutPage() {
                       <div className='max-w-full'>
                         <div className='space-y-5 md:space-y-8'>
                           <div className='space-y-3 text-center'>
-                            <h2 className='text-2xl font-bold dark:text-white md:text-3xl '>Board of Director</h2>
-
-                            <p className='text-lg text-gray-800 dark:text-gray-200'>
-                              The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections
-                              1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are also reproduced in their exact original
-                              form, accompanied by English versions from the 1914 translation by H. Rackham.
-                            </p>
+                            <h2 className='text-2xl font-bold dark:text-white md:text-3xl '>Board of Directors</h2>
                           </div>
-                          <div className='grid grid-cols-3 gap-8 pt-5 md:grid-cols-4 md:gap-12 xl:grid-cols-5 2xl:px-28 2xl:pt-8'>
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
+                          <div className='grid grid-cols-3 gap-8 pt-5 md:grid-cols-4 md:gap-12 2xl:px-16 2xl:pt-8'>
+                            {bod.map((row) => {
+                              return (
+                                <div key={row.position} className='text-center'>
+                                  <Image
+                                    src={`/images/officers/${row.img}.png`}
+                                    alt={`${row.img}.png`}
+                                    width={250}
+                                    height={250}
+                                    className='mx-auto h-32 w-32 rounded-full'
+                                  />
 
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>Juan Dela Cruz</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>Juan Dela Cruz</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>Juan Dela Cruz</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>Juan Dela Cruz</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>Juan Dela Cruz</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>David Forren</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>David Forren</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>David Forren</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>David Forren</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
-
-                            <div className='text-center'>
-                              <Image src={person1} alt='Image Description' className='mx-auto h-24 w-24 rounded-full' />
-
-                              <div className='mt-2 sm:mt-4'>
-                                <h3 className='font-medium text-gray-800 dark:text-gray-200'>David Forren</h3>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>Founder / CEO</p>
-                              </div>
-                            </div>
+                                  <div className='mt-2 sm:mt-4'>
+                                    <h3 className='font-medium text-gray-800 dark:text-gray-200'>{row.name}</h3>
+                                    <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>{row.position}</p>
+                                    <p className='text-sm text-gray-600 dark:text-gray-400'>{row.drugstore}</p>
+                                    <p className='text-sm text-gray-600 dark:text-gray-400'>{row.chapter}</p>
+                                  </div>
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
                       </div>

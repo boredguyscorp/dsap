@@ -54,7 +54,21 @@ export function LandingNav({ children, userId }: MainNavProps) {
         ) : null}
 
         <nav className='items-center space-x-2 sm:flex'>
-          {userId ? (
+          <Link
+            href='/membership'
+            className={cn(
+              buttonVariants({
+                variant: 'main',
+                size: 'lg'
+              }),
+              'text-lg',
+              'min-w-[230px]',
+              'xl:ml-3'
+            )}
+          >
+            Become a Member
+          </Link>
+          {/* {userId ? (
             <div className=' flex items-center space-x-2 '>
               <Link
                 href='/dashboard'
@@ -110,7 +124,7 @@ export function LandingNav({ children, userId }: MainNavProps) {
                 Become a Member
               </Link>
             </div>
-          )}
+          )} */}
         </nav>
 
         <button className='flex items-center space-x-2 xl:hidden' onClick={() => setShowMobileMenu(!showMobileMenu)}>
