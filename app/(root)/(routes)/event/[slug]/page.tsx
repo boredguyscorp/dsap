@@ -1,11 +1,16 @@
 import { getMdxSource, getPostData, getPostsForSite } from '@/actions/fetchers'
 import BlurPostImage from '@/app/(root)/_components/BlurPostImage'
+import { MultiImage } from '@/components/editor/settings/multi-image-uploader'
 import MDX from '@/components/mdx'
 import { Icons } from '@/components/shared/icons'
 import { imagePostEmpty, placeholderBlurhash, toDateString } from '@/lib/utils'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import React from 'react'
+
+import * as nextDynamic from 'next/dynamic'
+
+const ImagesGallery = nextDynamic.default(() => import(`./images-gallery`))
 
 interface PostPageProps {
   params: {
@@ -20,19 +25,16 @@ export default async function EventPagePost({ params }: PostPageProps) {
 
   const posts = await getPostsForSite('event')
   const selectedSlug = posts.find((post) => post.slug === slug)
+  // console.log('🚀 -> EventPagePost -> selectedSlug:', selectedSlug?.imagesGallery)
 
   const adjacentPosts = posts.filter((post) => post.slug !== slug)
-
-  // const res = await getPostDataPerPage('event', slug)
-  // console.log('🚀 -> EventPagePost -> res:', res)
-
-  // const data = await getPostData('event', slug)
 
   if (!selectedSlug) {
     notFound()
   }
 
   const mdxSource = await getMdxSource(selectedSlug.content!)
+  const imagesGallery = selectedSlug.imagesGallery as MultiImage[]
 
   return (
     <div className='mx-auto mb-20 mt-24 min-h-screen max-w-[85rem] px-4 sm:px-6 lg:px-8'>
@@ -61,6 +63,29 @@ export default async function EventPagePost({ params }: PostPageProps) {
               <MDX source={mdxSource} />
 
               {/* <EditorOutput content={data.content} /> */}
+            </div>
+
+            <div className='mt-10'>
+              {imagesGallery.length > 0 && <ImagesGallery imagesGallery={imagesGallery} />}
+              {/* <ImagesTest images={selectedSlug.imagesGallery as MultiImage[]} /> */}
+              {/* {imagesGallery.map((img) => {
+                return (
+                  <div key={img.id} className='group flex items-center gap-x-6'>
+                    <div className='relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg'>
+                      <BlurPostImage
+                        src={img.url ?? imagePostEmpty}
+                        alt={selectedSlug.title ?? `${selectedSlug.page} Post`}
+                        fill
+                        // width={50}
+                        // height={50}
+                        className='absolute left-0 top-0 h-full w-full rounded-lg object-cover'
+                        placeholder='blur'
+                        blurDataURL={selectedSlug.imageBlurhash ?? placeholderBlurhash}
+                      />
+                    </div>
+                  </div>
+                )
+              })} */}
             </div>
           </div>
         </div>

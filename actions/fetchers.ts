@@ -17,7 +17,8 @@ export async function getPostsForSite(page: string) {
           imageBlurhash: true,
           createdAt: true,
           page: true,
-          content: true
+          content: true,
+          imagesGallery: true
         },
         orderBy: [
           {
