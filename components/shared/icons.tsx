@@ -38,6 +38,8 @@ import {
   Home,
   Download,
   UserCheckIcon,
+  Maximize,
+  Minimize,
   type Icon as LucideIcon
 } from 'lucide-react'
 
@@ -82,6 +84,8 @@ export const Icons = {
   home: Home,
   download: Download,
   userCheck: UserCheckIcon,
+  maximize: Maximize,
+  minimize: Minimize,
   logo: ({ circleColor, ...props }: LucideProps & { circleColor: string }) => (
     <svg
       width='800px'

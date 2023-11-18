@@ -10,7 +10,9 @@ import React from 'react'
 
 import * as nextDynamic from 'next/dynamic'
 
-const ImagesGallery = nextDynamic.default(() => import(`./images-gallery`))
+const ImagesGallery = nextDynamic.default(() => import(`./images-gallery`), {
+  loading: () => <h1 className='text-lg'>Loading Images...</h1>
+})
 
 interface PostPageProps {
   params: {
@@ -59,33 +61,12 @@ export default async function EventPagePost({ params }: PostPageProps) {
               </div>
             </div>
 
+            <div className='my-10'>{imagesGallery.length > 0 && <ImagesGallery imagesGallery={imagesGallery} />}</div>
+
             <div className='space-y-5 lg:space-y-8'>
               <MDX source={mdxSource} />
 
               {/* <EditorOutput content={data.content} /> */}
-            </div>
-
-            <div className='mt-10'>
-              {imagesGallery.length > 0 && <ImagesGallery imagesGallery={imagesGallery} />}
-              {/* <ImagesTest images={selectedSlug.imagesGallery as MultiImage[]} /> */}
-              {/* {imagesGallery.map((img) => {
-                return (
-                  <div key={img.id} className='group flex items-center gap-x-6'>
-                    <div className='relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg'>
-                      <BlurPostImage
-                        src={img.url ?? imagePostEmpty}
-                        alt={selectedSlug.title ?? `${selectedSlug.page} Post`}
-                        fill
-                        // width={50}
-                        // height={50}
-                        className='absolute left-0 top-0 h-full w-full rounded-lg object-cover'
-                        placeholder='blur'
-                        blurDataURL={selectedSlug.imageBlurhash ?? placeholderBlurhash}
-                      />
-                    </div>
-                  </div>
-                )
-              })} */}
             </div>
           </div>
         </div>
