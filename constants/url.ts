@@ -3,7 +3,7 @@ import { views } from './table'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-const domain = 'dsapnationalconvention.org'
+const domain = 'dsaph.org'
 const local = 'localhost:5000'
 const home = isProduction ? domain : local
 
