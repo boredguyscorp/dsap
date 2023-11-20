@@ -39,9 +39,14 @@ export default function ImagesGallery({ imagesGallery }: ImagesProps) {
   }
 
   useEffect(() => {
+    // try {
     if (!isMaximize) {
       imageGalleryRef?.current?.exitFullScreen()
     }
+    // } catch (error) {
+    //   console.log('🚀 -> useEffect -> error:', error)
+    //   setIsMaximize(false)
+    // }
   }, [isMaximize])
 
   return (
@@ -52,35 +57,38 @@ export default function ImagesGallery({ imagesGallery }: ImagesProps) {
       showBullets
       lazyLoad
       showFullscreenButton
+      showPlayButton={false}
       renderItem={(e) => renderItem(e, isMaximize)}
       onClick={() => {
         onClickHandler()
       }}
       renderFullscreenButton={(onClick, isFullScreen) => {
         // console.log('🚀 -> ImagesGallery -> isFullScreen:', isFullScreen)
-        return (
-          <div className='-mt-10 flex w-full justify-end'>
-            {/* <button
-              className='absolute bottom-0 z-50 h-10 w-28 bg-red-300'
-              onClick={(e) => {
-                onClick(e)
+        setIsMaximize(isFullScreen)
+        return null
+        // return (
+        //   <div className='-mt-10 flex w-full justify-end'>
+        //     {/* <button
+        //       className='absolute bottom-0 z-50 h-10 w-28 bg-red-300'
+        //       onClick={(e) => {
+        //         onClick(e)
 
-                setShowThumbnail((state) => !state)
-              }}
-            >
-              Click Me
-            </button> */}
-            <button
-              className='z-40 -mt-1 mb-4 mr-1 h-9 w-9 min-w-min items-center justify-center rounded-sm text-lg font-bold text-white transition duration-200 ease-in-out  hover:scale-125'
-              onClick={(e) => {
-                onClick(e)
-                setIsMaximize((state) => !state)
-              }}
-            >
-              {isMaximize ? <Icons.minimize className='drop-shadow-md' /> : <Icons.maximize />}
-            </button>
-          </div>
-        )
+        //         setShowThumbnail((state) => !state)
+        //       }}
+        //     >
+        //       Click Me
+        //     </button> */}
+        //     <button
+        //       className='z-40 -mt-1 mb-4 mr-1 h-9 w-9 min-w-min items-center justify-center rounded-sm text-lg font-bold text-white transition duration-200 ease-in-out  hover:scale-125'
+        //       onClick={(e) => {
+        //         onClick(e)
+        //         // setIsMaximize((state) => !state)
+        //       }}
+        //     >
+        //       {isMaximize ? <Icons.minimize className='drop-shadow-md' /> : <Icons.maximize />}
+        //     </button>
+        //   </div>
+        // )
       }}
     />
   )

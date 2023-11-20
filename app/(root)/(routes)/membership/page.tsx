@@ -19,6 +19,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { CalendarIcon, ChevronDownIcon } from 'lucide-react'
 import { DatePickerForm } from './_components/DatePickerForm'
+import dsapOffice from 'public/images/dsap-office.png'
+import Image from 'next/image'
 
 enum STEPS {
   A = 0,
@@ -43,6 +45,75 @@ export default function MembershipPage() {
     ],
     []
   )
+  const [showForm, setShowForm] = useState(false)
+
+  const [activeStep, setActiveStep] = useState(STEPS.A)
+
+  const currentValidationSchema = newMemberSchema[activeStep]
+
+  const defaultValues = {
+    drugStoreName: '',
+    ownerFirstName: '',
+    ownerLastName: '',
+    test: ''
+  }
+
+  const form = useZodForm({
+    schema: currentValidationSchema,
+    defaultValues,
+    shouldUnregister: false
+  })
+
+  const {
+    reset,
+    setError,
+    formState: { errors },
+    getValues,
+    setValue,
+    trigger
+  } = form
+
+  if (!showForm) {
+    return (
+      <div className='mx-auto mb-20 ml-0 mt-24 min-h-screen max-w-full px-4 sm:px-6 lg:px-8 2xl:ml-16'>
+        <div className='flex items-center justify-between gap-x-1.5 space-x-10 p-10 text-sm text-gray-600 decoration-2'>
+          <div className='flex flex-col justify-center space-y-14'>
+            <h2 className='text-2xl font-bold text-teal-600 dark:text-white md:text-4xl lg:text-5xl'>Benefits of becoming a member</h2>
+            {/* <h5 className='text-xl font-semibold   text-teal-500 dark:text-gray-200 dark:group-hover:text-gray-400'>
+              Benefits of becoming a member
+            </h5> */}
+            <ul className='max px-5 text-lg font-semibold'>
+              <li className='list-disc'>Get free educational programs for drugstore owners and pharmacy assistants</li>
+              <li className='list-disc'>Get free reference book like MIMS and Better Pharmacy during DSAP Convention</li>
+              <li className='list-disc'>The Drugstores get regular updates from FDA, DOH and other government agencies</li>
+              <li className='list-disc'>Get specials rates from insurance companies accredited by DSAP for fore and theft</li>
+              <li className='list-disc'>
+                Get the privilege of using DSAP Logo in the signboard which projects the image of quality and compliance drugstore.
+              </li>
+              <li className='list-disc'>Participate in the DSAP convention with special rate</li>
+              <li className='list-disc'>Learn about good business practice</li>
+            </ul>
+            {/* <p className='text-sm font-normal text-gray-800 dark:text-gray-200 dark:group-hover:text-gray-400'>
+              Complete form below to sign up for membership.
+            </p> */}
+
+            <Button
+              variant='main'
+              className='h-20'
+              onClick={() => {
+                setShowForm(true)
+              }}
+            >
+              Proceed to Membership
+            </Button>
+          </div>
+          <div className='xs:hidden xl:block'>
+            <Image src={dsapOffice} alt='Image Description' className='w-full rounded-xl object-cover' />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const ownershipType = [
     { value: 'single', label: 'Single Proprietor' },
@@ -62,32 +133,6 @@ export default function MembershipPage() {
     { value: 'franchisor', label: 'Franchisor' },
     { value: 'wholesaler', label: 'Wholesaler' }
   ]
-
-  const [activeStep, setActiveStep] = useState(STEPS.A)
-
-  const defaultValues = {
-    drugStoreName: '',
-    ownerFirstName: '',
-    ownerLastName: '',
-    test: ''
-  }
-
-  const currentValidationSchema = newMemberSchema[activeStep]
-
-  const form = useZodForm({
-    schema: currentValidationSchema,
-    defaultValues,
-    shouldUnregister: false
-  })
-
-  const {
-    reset,
-    setError,
-    formState: { errors },
-    getValues,
-    setValue,
-    trigger
-  } = form
 
   // console.log('🚀 -> MembershipPage -> errors:', errors)
 
@@ -113,7 +158,7 @@ export default function MembershipPage() {
 
   function getStepContent(step: number) {
     switch (step) {
-      case STEPS.B:
+      case STEPS.A:
         return (
           <Card className='w-full'>
             <CardHeader>
@@ -244,7 +289,7 @@ export default function MembershipPage() {
             </CardContent>
           </Card>
         )
-      case STEPS.A:
+      case STEPS.B:
         return (
           <Card className='w-full'>
             <CardHeader>
@@ -261,6 +306,38 @@ export default function MembershipPage() {
                     name='fdaLtoNo'
                     fieldProps={{ placeholder: 'FDA LTO No.', required: true }}
                     extendedProps={{ label: 'FDA LTO No.' }}
+                  />
+
+                  <DatePickerForm
+                    control={form.control}
+                    name='fdaDateIssued'
+                    fieldProps={{ mode: 'single' }}
+                    extendedProps={{ label: 'Date Issued', required: true, disabledFuture: true }}
+                  />
+
+                  <DatePickerForm
+                    control={form.control}
+                    name='fdaDateExpiry'
+                    fieldProps={{ mode: 'single' }}
+                    extendedProps={{ label: 'Date Expiry', required: true }}
+                  />
+
+                  <InputFieldForm
+                    control={form.control}
+                    name='fdaUrlAttachment'
+                    fieldProps={{ placeholder: 'Attachment', required: true }}
+                    extendedProps={{ label: 'Attachment' }}
+                  />
+                </div>
+              </div>
+
+              <div className='mt-5 space-y-4'>
+                <div className='grid grid-cols-4 gap-4'>
+                  <InputFieldForm
+                    control={form.control}
+                    name='fdaLtoNo'
+                    fieldProps={{ placeholder: 'DTI Certificate No.', required: true }}
+                    extendedProps={{ label: 'DTI Certificate No.' }}
                   />
 
                   <DatePickerForm

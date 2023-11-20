@@ -84,7 +84,7 @@ export const newMemberSchema = [
     fdaDateIssued: z.date({
       required_error: 'FDA Date Issued is required.'
     }),
-    fdaDateExpiry: z.string({ required_error: 'Please enter Address.' }),
+    fdaDateExpiry: z.date({ required_error: 'FDA Date Expiry is required.' }),
     fdaUrlAttachment: z.string({ required_error: 'Please enter Address.' })
   }),
   z.object({
