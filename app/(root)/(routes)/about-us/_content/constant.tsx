@@ -47,7 +47,7 @@ export const officers: Person[] = [
     position: 'Treasurer',
     drugstore: 'Emmaflor Drug',
     chapter: 'South NCR Chapter',
-    img: 'emma'
+    img: 'emma-caramat'
   },
   {
     name: 'Mr. Arnulfo M. Velasco',
