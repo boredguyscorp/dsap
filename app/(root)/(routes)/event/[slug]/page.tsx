@@ -20,7 +20,7 @@ interface PostPageProps {
   }
 }
 
-export const dynamic = 'force-static'
+// export const dynamic = 'force-static'
 
 export default async function EventPagePost({ params }: PostPageProps) {
   const slug = params.slug
@@ -113,12 +113,12 @@ export default async function EventPagePost({ params }: PostPageProps) {
   )
 }
 
-export async function generateStaticParams() {
-  const posts = await getPostsForSite('event')
+// export async function generateStaticParams() {
+//   const posts = await getPostsForSite('event')
 
-  if (posts.length < 0) return []
+//   if (posts.length < 0) return []
 
-  return posts.map((post) => ({
-    slug: post.slug
-  }))
-}
+//   return posts.map((post) => ({
+//     slug: post.slug
+//   }))
+// }
