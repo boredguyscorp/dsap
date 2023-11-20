@@ -52,13 +52,13 @@ export default async function Page() {
               </div>
 
               <div className='mx-auto mt-5 max-w-3xl text-center'>
-                <Balancer>
-                  <p className='text-lg text-gray-600 dark:text-gray-400'>
+                <p className='text-lg text-gray-600 dark:text-gray-400'>
+                  <Balancer>
                     In behalf of the DSAP Board of Directors, I am happy to welcome you back to our upgraded DSAP website. Our new website
                     is now user friendly making it easier to access the information you need on demand. I encourage you to experience the
                     changes we have incorporated in our new site and feel the warm embrace of being a member of our association.
-                  </p>
-                </Balancer>
+                  </Balancer>
+                </p>
               </div>
 
               <div className='relative flex h-full flex-col'>

@@ -165,6 +165,8 @@ export const updateMetaDataSettings = async (data: MetaDataSettings) => {
     revalidatePath(`/cpanel/${result.page}`)
     revalidatePath(`posts-${result.page}`)
 
+    revalidatePath('event')
+
     return result
   } catch (error: any) {
     return {
@@ -206,6 +208,7 @@ export const updatePostImageGallery = async (data: PostImageGallery) => {
 
     revalidatePath(`/cpanel/${result.page}`)
     revalidatePath(`posts-${result.page}`)
+    revalidatePath('event')
 
     return result
   } catch (error: any) {

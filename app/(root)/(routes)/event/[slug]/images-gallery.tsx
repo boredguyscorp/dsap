@@ -39,14 +39,9 @@ export default function ImagesGallery({ imagesGallery }: ImagesProps) {
   }
 
   useEffect(() => {
-    // try {
     if (!isMaximize) {
       imageGalleryRef?.current?.exitFullScreen()
     }
-    // } catch (error) {
-    //   console.log('🚀 -> useEffect -> error:', error)
-    //   setIsMaximize(false)
-    // }
   }, [isMaximize])
 
   return (
