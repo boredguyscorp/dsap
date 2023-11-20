@@ -29,8 +29,8 @@ export function LandingNav({ children, userId }: MainNavProps) {
       <Link href='/' className='flex items-center'>
         <Logo />
         <span className='flex flex-col'>
-          <span className='text-sm font-bold tracking-[-0.03em] text-teal-600 sm:block sm:text-xl'>{siteConfig.name}</span>
-          <span className='text-xs font-normal tracking-[-0.03em] text-gray-900 sm:block sm:text-sm'>{siteConfig.description}</span>
+          <span className='text-sm font-bold tracking-[-0.03em] text-teal-600 sm:block md:text-lg'>{siteConfig.name}</span>
+          <span className='text-xs font-normal tracking-[-0.03em] text-gray-900 sm:block md:text-sm'>{siteConfig.description}</span>
         </span>
       </Link>
 
@@ -53,7 +53,7 @@ export function LandingNav({ children, userId }: MainNavProps) {
           </nav>
         ) : null}
 
-        <nav className='items-center space-x-2 sm:flex'>
+        <nav className='hidden items-center space-x-2 md:flex'>
           <Link
             href='/membership'
             className={cn(

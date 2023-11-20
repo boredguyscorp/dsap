@@ -38,6 +38,21 @@ export function MobileNav({ items, children, userId }: MobileNavProps) {
             </Link>
           ))}
 
+          <Link
+            href='/membership'
+            className={cn(
+              buttonVariants({
+                variant: 'main',
+                size: 'lg'
+              }),
+              'text-lg',
+              'min-w-[230px]',
+              'xl:ml-3'
+            )}
+          >
+            Become a Member
+          </Link>
+
           {/* {!userId && (
             <div className='flex space-x-2 lg:hidden'>
               <Link

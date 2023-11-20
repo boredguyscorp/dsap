@@ -78,11 +78,11 @@ export default function MembershipPage() {
       <div className='mx-auto mb-20 ml-0 mt-24 min-h-screen max-w-full px-4 sm:px-6 lg:px-8 2xl:ml-16'>
         <div className='flex items-center justify-between gap-x-1.5 space-x-10 p-10 text-sm text-gray-600 decoration-2'>
           <div className='flex flex-col justify-center space-y-14'>
-            <h2 className='text-2xl font-bold text-teal-600 dark:text-white md:text-4xl lg:text-5xl'>Benefits of becoming a member</h2>
+            <h2 className='text-3xl font-bold text-teal-600 dark:text-white md:text-4xl lg:text-5xl'>Benefits of becoming a member</h2>
             {/* <h5 className='text-xl font-semibold   text-teal-500 dark:text-gray-200 dark:group-hover:text-gray-400'>
               Benefits of becoming a member
             </h5> */}
-            <ul className='max px-5 text-lg font-semibold'>
+            <ul className='max space-y-3 px-5 text-base font-semibold md:text-xl'>
               <li className='list-disc'>Get free educational programs for drugstore owners and pharmacy assistants</li>
               <li className='list-disc'>Get free reference book like MIMS and Better Pharmacy during DSAP Convention</li>
               <li className='list-disc'>The Drugstores get regular updates from FDA, DOH and other government agencies</li>
@@ -99,7 +99,7 @@ export default function MembershipPage() {
 
             <Button
               variant='main'
-              className='h-20'
+              className='h-16'
               onClick={() => {
                 setShowForm(true)
               }}
@@ -107,7 +107,7 @@ export default function MembershipPage() {
               Proceed to Membership
             </Button>
           </div>
-          <div className='xs:hidden xl:block'>
+          <div className='hidden xl:block'>
             <Image src={dsapOffice} alt='Image Description' className='w-full rounded-xl object-cover' />
           </div>
         </div>
