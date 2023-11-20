@@ -34,7 +34,7 @@ export default async function Page() {
         </div>
 
         <div className='z-10 mt-5 flex justify-center space-x-4 '>
-          <Link href={url.app.signup} className={cn(buttonVariants({ variant: 'main', size: 'lg' }), 'min-h-[100px]')}>
+          <Link href='/membership' className={cn(buttonVariants({ variant: 'main', size: 'lg' }), 'min-h-[100px]')}>
             Become a Member
           </Link>
         </div>
