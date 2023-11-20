@@ -463,8 +463,8 @@ export default function AboutPage() {
                                   />
 
                                   <div className='mt-2 sm:mt-4'>
-                                    <h3 className='font-medium text-gray-800 dark:text-gray-200'>{row.name}</h3>
-                                    <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>{row.position}</p>
+                                    <h3 className='font-bold text-teal-600 dark:text-teal-500'>{row.name}</h3>
+                                    <p className='text-sm font-bold text-gray-800 dark:text-gray-400'>{row.position}</p>
                                     <p className='text-sm text-gray-600 dark:text-gray-400'>{row.drugstore}</p>
                                     <p className='text-sm text-gray-600 dark:text-gray-400'>{row.chapter}</p>
                                   </div>
@@ -497,8 +497,8 @@ export default function AboutPage() {
                                   />
 
                                   <div className='mt-2 sm:mt-4'>
-                                    <h3 className='font-medium text-gray-800 dark:text-gray-200'>{row.name}</h3>
-                                    <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>{row.position}</p>
+                                    <h3 className='font-bold text-teal-600 dark:text-teal-500'>{row.name}</h3>
+                                    <p className='text-sm font-bold text-gray-800 dark:text-gray-400'>{row.position}</p>
                                     <p className='text-sm text-gray-600 dark:text-gray-400'>{row.drugstore}</p>
                                     <p className='text-sm text-gray-600 dark:text-gray-400'>{row.chapter}</p>
                                   </div>
