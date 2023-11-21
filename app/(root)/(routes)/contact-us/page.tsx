@@ -5,11 +5,12 @@ import { ChangeEvent, MouseEvent, useState, useTransition } from 'react'
 import { contactInquiryAction } from './_docs/action'
 import { cn } from '@/lib/utils'
 import { ContactForm, ContactFormSchema } from './_docs/types'
+import { useRouter } from 'next/navigation'
 
 export default function ContactUs() {
   const [isPending, startTransition] = useTransition()
   const [response, setResponse] = useState<{ success: boolean; message: string }>()
-  const [formData, setFormData] = useState<Partial<ContactForm>>()
+  const [formData, setFormData] = useState<Partial<ContactForm> | null>()
 
   const handleContactInquiry = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -64,6 +65,7 @@ export default function ContactUs() {
                         placeholder='First Name'
                         required
                         onChange={handleChangeFormData}
+                        value={formData?.firstName}
                       />
                     </div>
 
@@ -79,6 +81,7 @@ export default function ContactUs() {
                         placeholder='Last Name'
                         required
                         onChange={handleChangeFormData}
+                        value={formData?.lastName}
                       />
                     </div>
                   </div>
@@ -96,6 +99,7 @@ export default function ContactUs() {
                       placeholder='Email'
                       required
                       onChange={handleChangeFormData}
+                      value={formData?.emailAdd}
                     />
                   </div>
 
@@ -111,6 +115,7 @@ export default function ContactUs() {
                       placeholder='Phone Number'
                       required
                       onChange={handleChangeFormData}
+                      value={formData?.phoneNo}
                     />
                   </div>
 
@@ -125,6 +130,7 @@ export default function ContactUs() {
                       className='block w-full rounded-md border border-gray-200 px-4 py-3 text-sm focus:border-teal-500 focus:ring-teal-500 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400'
                       placeholder='Message'
                       onChange={handleChangeFormData}
+                      value={formData?.message}
                     ></textarea>
                   </div>
                 </div>

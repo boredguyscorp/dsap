@@ -4,6 +4,7 @@ import { serialize } from 'next-mdx-remote/serialize'
 import { replaceExamples, replaceTweets } from '@/lib/remark-plugins'
 import url from '@/constants/url'
 import { Post } from '@prisma/client'
+import { Pages } from '@/app/(root)/_constant/constant'
 
 type PostOptions = {
   take?: number
@@ -41,7 +42,7 @@ export async function getPostsForSite(page: string, options?: PostOptions) {
   )()
 }
 
-export async function getPostsForLandingPage(page: string, options?: PostOptions) {
+export async function getPostsForLandingPage(page: Pages, options?: PostOptions) {
   return await unstable_cache(
     async () => {
       return db.post.findMany({
@@ -56,6 +57,7 @@ export async function getPostsForLandingPage(page: string, options?: PostOptions
           content: true,
           imagesGallery: true
         },
+        where: { page },
         orderBy: [
           {
             createdAt: 'desc'

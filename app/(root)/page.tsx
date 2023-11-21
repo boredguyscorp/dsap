@@ -142,6 +142,18 @@ export default async function Page() {
           </div>
         </div>
       </section>
+
+      <section className='mb-20'>
+        <div className='mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
+          <div className='mx-auto mb-10 max-w-2xl text-center lg:mb-14'>
+            <h2 className='text-2xl font-bold dark:text-white md:text-4xl md:leading-tight'>Read our latest news</h2>
+            <p className='mt-1 text-gray-600 dark:text-gray-400'>Check our latest news and updates about DSAP.</p>
+          </div>
+          <div className='grid gap-10 lg:grid-cols-2 lg:gap-y-16'>
+            <FeaturedNews />
+          </div>
+        </div>
+      </section>
     </>
   )
 }
@@ -181,6 +193,49 @@ async function FeaturedEvents() {
               />
             </svg>
           </p>
+        </div>
+      </Link>
+    )
+  })
+}
+
+async function FeaturedNews() {
+  const posts = await getPostsForLandingPage('news', { take: 4 })
+
+  return posts.map((row) => {
+    return (
+      <Link key={row.slug} className='group overflow-hidden rounded-xl' href={`/news/${row.slug}`}>
+        <div className='sm:flex'>
+          <div className='relative h-44 w-full flex-shrink-0 overflow-hidden rounded-xl sm:w-56'>
+            {/* <img className="group-hover:scale-105 transition-transform duration-500 ease-in-out w-full h-full absolute top-0 left-0 object-cover rounded-xl" src="https://images.unsplash.com/photo-1540575861501-7cf05a4b125a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="Image Description"> */}
+            <Image
+              src={row.image ?? imagePostEmpty}
+              alt='Image Description'
+              className='absolute left-0 top-0 h-full w-full rounded-xl object-cover transition-transform duration-500 ease-in-out group-hover:scale-105'
+              width={500}
+              height={400}
+              placeholder='blur'
+              blurDataURL={row.imageBlurhash ?? placeholderBlurhash}
+            />
+          </div>
+
+          <div className='mt-4 grow px-4 sm:ml-6 sm:mt-0 sm:px-0'>
+            <h3 className='text-xl font-semibold text-gray-800 group-hover:text-gray-600 dark:text-gray-300 dark:group-hover:text-white'>
+              {row.title}
+            </h3>
+            <p className='mt-3 text-gray-600 dark:text-gray-400'>{row.description}</p>
+            <p className='mt-4 inline-flex items-center gap-x-1.5 font-medium text-blue-600 decoration-2 hover:underline'>
+              Read more
+              <svg className='h-2.5 w-2.5' width='16' height='16' viewBox='0 0 16 16' fill='none'>
+                <path
+                  d='M5.27921 2L10.9257 7.64645C11.1209 7.84171 11.1209 8.15829 10.9257 8.35355L5.27921 14'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                />
+              </svg>
+            </p>
+          </div>
         </div>
       </Link>
     )
