@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { Post } from '@prisma/client'
 import BlurPostImage from './BlurPostImage'
 import { imagePostEmpty, placeholderBlurhash, toDateString } from '@/lib/utils'
-import { Pages } from '../(routes)/[page]/page'
+import { Pages } from '../_constant/constant'
 // import postImage from 'public/images/post.png'
 
 interface PostCardProps {

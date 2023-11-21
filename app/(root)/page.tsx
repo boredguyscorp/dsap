@@ -43,7 +43,7 @@ export default async function Page() {
 
       <section id='message'>
         <div className='flex items-center justify-center'>
-          <div className='relative z-20 mt-5 w-5/6 overflow-hidden rounded-lg bg-white shadow-xl before:absolute before:left-1/2 before:top-0 before:-z-[1] before:h-full before:w-full before:-translate-x-1/2 before:transform before:bg-cover before:bg-top  before:bg-no-repeat sm:-mt-16 md:w-5/6 xl:w-3/5 '>
+          <div className='relative z-20 mt-5 w-5/6 overflow-hidden rounded-lg border-8 bg-white shadow-xl before:absolute before:left-1/2 before:top-0 before:-z-[1] before:h-full before:w-full before:-translate-x-1/2 before:transform before:bg-cover before:bg-top  before:bg-no-repeat sm:-mt-16 md:w-5/6 xl:w-3/5 '>
             <div className='mx-auto max-w-[85rem] px-4 pb-10 pt-10 sm:px-6 lg:px-8'>
               <div className='mx-auto mt-5 max-w-2xl text-center'>
                 <h1 className='block text-2xl font-bold text-gray-800 dark:text-gray-200 lg:text-3xl'>

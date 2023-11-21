@@ -3,9 +3,7 @@ import React from 'react'
 import PostCard from '../../_components/PostCard'
 import { getPostsForSite } from '@/actions/fetchers'
 import { notFound } from 'next/navigation'
-
-export const PAGES = ['event', 'news', 'convention'] as const
-export type Pages = (typeof PAGES)[number]
+import { PAGES } from '../../_constant/constant'
 
 export default async function EventPage({ params }: { params: { page: string } }) {
   const page = PAGES.find((row) => row === params.page)

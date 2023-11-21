@@ -1,9 +1,41 @@
 'use client'
 
 import { Icons } from '@/components/shared/icons'
-import React from 'react'
+import { ChangeEvent, MouseEvent, useState, useTransition } from 'react'
+import { contactInquiryAction } from './_docs/action'
+import { cn } from '@/lib/utils'
+import { ContactForm, ContactFormSchema } from './_docs/types'
 
 export default function ContactUs() {
+  const [isPending, startTransition] = useTransition()
+  const [response, setResponse] = useState<{ success: boolean; message: string }>()
+  const [formData, setFormData] = useState<Partial<ContactForm>>()
+
+  const handleContactInquiry = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    const parse = ContactFormSchema.safeParse(formData)
+    if (!parse.success) throw new Error('Error Parsing Form Data.')
+
+    startTransition(async () => {
+      try {
+        await contactInquiryAction(parse.data)
+        setResponse({ success: true, message: 'Successfully send inquiry.' })
+      } catch (error) {
+        console.error('ERROR: ', error)
+        setResponse({ success: false, message: 'Error sending inquiry! Please try again.' })
+      }
+    })
+  }
+
+  const handleChangeFormData = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.currentTarget
+
+    setFormData((current) => {
+      return { ...current, [name]: value }
+    })
+  }
+
   return (
     <div className='mt-24 min-h-[calc((100vh-6rem))] '>
       <div className='mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
@@ -17,73 +49,82 @@ export default function ContactUs() {
             <div className='flex flex-col rounded-xl border p-4 dark:border-gray-700 sm:p-6 lg:p-8'>
               <h2 className='mb-8 text-xl font-semibold text-gray-800 dark:text-gray-200'>Fill in the form</h2>
 
-              <form>
+              <form onSubmit={handleContactInquiry}>
                 <div className='grid gap-4'>
                   <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
                     <div>
-                      <label htmlFor='hs-firstname-contacts-1' className='sr-only'>
+                      <label htmlFor='firstName' className='sr-only'>
                         First Name
                       </label>
                       <input
                         type='text'
-                        name='hs-firstname-contacts-1'
-                        id='hs-firstname-contacts-1'
+                        name='firstName'
+                        id='firstName'
                         className='block w-full rounded-md border border-gray-200 px-4 py-3 text-sm focus:border-teal-500 focus:ring-teal-500 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400'
                         placeholder='First Name'
+                        required
+                        onChange={handleChangeFormData}
                       />
                     </div>
 
                     <div>
-                      <label htmlFor='hs-lastname-contacts-1' className='sr-only'>
+                      <label htmlFor='lastName' className='sr-only'>
                         Last Name
                       </label>
                       <input
                         type='text'
-                        name='hs-lastname-contacts-1'
-                        id='hs-lastname-contacts-1'
+                        name='lastName'
+                        id='lastName'
                         className='block w-full rounded-md border border-gray-200 px-4 py-3 text-sm focus:border-teal-500 focus:ring-teal-500 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400'
                         placeholder='Last Name'
+                        required
+                        onChange={handleChangeFormData}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor='hs-email-contacts-1' className='sr-only'>
+                    <label htmlFor='emailAdd' className='sr-only'>
                       Email
                     </label>
                     <input
                       type='email'
-                      name='hs-email-contacts-1'
-                      id='hs-email-contacts-1'
+                      name='emailAdd'
+                      id='emailAdd'
                       autoComplete='email'
                       className='block w-full rounded-md border border-gray-200 px-4 py-3 text-sm focus:border-teal-500 focus:ring-teal-500 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400'
                       placeholder='Email'
+                      required
+                      onChange={handleChangeFormData}
                     />
                   </div>
 
                   <div>
-                    <label htmlFor='hs-phone-number-1' className='sr-only'>
+                    <label htmlFor='phoneNo' className='sr-only'>
                       Phone Number
                     </label>
                     <input
                       type='text'
-                      name='hs-phone-number-1'
-                      id='hs-phone-number-1'
+                      name='phoneNo'
+                      id='phoneNo'
                       className='block w-full rounded-md border border-gray-200 px-4 py-3 text-sm focus:border-teal-500 focus:ring-teal-500 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400'
                       placeholder='Phone Number'
+                      required
+                      onChange={handleChangeFormData}
                     />
                   </div>
 
                   <div>
-                    <label htmlFor='hs-about-contacts-1' className='sr-only'>
+                    <label htmlFor='message' className='sr-only'>
                       Details
                     </label>
                     <textarea
-                      id='hs-about-contacts-1'
-                      name='hs-about-contacts-1'
+                      id='message'
+                      name='message'
                       rows={4}
                       className='block w-full rounded-md border border-gray-200 px-4 py-3 text-sm focus:border-teal-500 focus:ring-teal-500 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400'
-                      placeholder='Details'
+                      placeholder='Message'
+                      onChange={handleChangeFormData}
                     ></textarea>
                   </div>
                 </div>
@@ -92,11 +133,28 @@ export default function ContactUs() {
                   <button
                     type='submit'
                     className='inline-flex items-center justify-center gap-x-3 rounded-md border border-transparent bg-teal-600 px-4 py-3 text-center text-sm font-medium text-white transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800 lg:text-base'
-                    onClick={(e) => e.preventDefault()}
+                    // onClick={handleContactInquiry}
+                    disabled={isPending}
                   >
-                    Send inquiry
+                    {isPending ? 'Sending inquiry...' : 'Send inquiry'}
+                    {isPending && <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />}
                   </button>
+                  {/* {response && <p>{response?.message}</p>} */}
                 </div>
+
+                {response && (
+                  <div className='mt-3 text-center'>
+                    <p
+                      className={cn(
+                        'flex items-center justify-center gap-2 text-lg font-bold text-teal-600',
+                        !response.success && 'text-red-600'
+                      )}
+                    >
+                      {response.message}
+                      <span>{response.success && <Icons.check className='mr-2 h-6 w-6' />}</span>
+                    </p>
+                  </div>
+                )}
 
                 <div className='mt-3 text-center'>
                   <p className='text-sm text-gray-500'>We'll get back to you in 1-2 business days.</p>
@@ -148,8 +206,8 @@ export default function ContactUs() {
                       xmlns='http://www.w3.org/2000/svg'
                     >
                       <path
-                        fill-rule='evenodd'
-                        clip-rule='evenodd'
+                        fillRule='evenodd'
+                        clipRule='evenodd'
                         d='M0.975821 6.92249C0.43689 6.92249 -3.50468e-07 7.34222 -3.27835e-07 7.85999C-3.05203e-07 8.37775 0.43689 8.79749 0.975821 8.79749L12.7694 8.79748L7.60447 13.7596C7.22339 14.1257 7.22339 14.7193 7.60447 15.0854C7.98555 15.4515 8.60341 15.4515 8.98449 15.0854L15.6427 8.68862C16.1191 8.23098 16.1191 7.48899 15.6427 7.03134L8.98449 0.634573C8.60341 0.268455 7.98555 0.268456 7.60447 0.634573C7.22339 1.00069 7.22339 1.59428 7.60447 1.9604L12.7694 6.92248L0.975821 6.92249Z'
                         fill='currentColor'
                       />
