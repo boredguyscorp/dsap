@@ -22,14 +22,17 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
+    setFocus
   } = useForm<LoginDto>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { username: 'test', password: '@Test123' }
+    defaultValues: { username: '', password: '' }
+    // defaultValues: { username: 'test', password: '@Test123' }
   })
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [isGoogleLoading, setIsGoogleHubLoading] = React.useState<boolean>(false)
+
   // const searchParams = useSearchParams()
 
   const router = useRouter()
@@ -54,6 +57,8 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
     // console.log('🚀 -> onSubmit -> signInResult v3:', signInResult)
 
     if (signInResult && signInResult.ok === false) {
+      setIsLoading(false)
+
       return toast({
         title: 'Something went wrong.',
         description: 'Your sign in request failed. Please try again.',
@@ -63,17 +68,25 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
 
     // router.push(url.app.overview)
     // setSignInRes(signInResult)
+    // router.replace(url.app.overview)
 
     router.push(url.app.overview)
-    // router.refresh()
+    router.refresh()
 
-    setIsLoading(false)
+    // setIsLoading(false)
 
     toast({
       title: 'Login successful',
       description: 'Welcome to DSAP Portal.'
     })
   }
+
+  React.useEffect(() => {
+    if (!isLoading)
+      setTimeout(() => {
+        setFocus('username')
+      }, 100)
+  }, [isLoading])
 
   return (
     <div className={cn('grid gap-6', className)} {...props}>
@@ -118,7 +131,7 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
         </div>
       </form>
 
-      <div className='relative'>
+      {/* <div className='relative'>
         <div className='absolute inset-0 flex items-center'>
           <span className='w-full border-t' />
         </div>
@@ -136,7 +149,7 @@ export function SignInForm({ className, ...props }: UserAuthFormProps) {
         disabled={isLoading || isGoogleLoading}
       >
         {isGoogleLoading ? <Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> : <Icons.google className='mr-2 h-4 w-4' />} Google
-      </button>
+      </button> */}
     </div>
   )
 }

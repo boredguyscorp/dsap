@@ -26,7 +26,8 @@ export default async function CPanelContentPage({ params }: PageProps) {
 
   const posts = await db.post.findMany({
     where: {
-      AND: { authorId: user.id, page }
+      // AND: { authorId: user.id, page }
+      AND: { page }
     },
     select: {
       id: true,

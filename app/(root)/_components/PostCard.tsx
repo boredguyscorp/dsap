@@ -3,11 +3,12 @@ import Link from 'next/link'
 import type { Post } from '@prisma/client'
 import BlurPostImage from './BlurPostImage'
 import { imagePostEmpty, placeholderBlurhash, toDateString } from '@/lib/utils'
+import { Pages } from '../(routes)/[page]/page'
 // import postImage from 'public/images/post.png'
 
 interface PostCardProps {
   data: Pick<Post, 'slug' | 'image' | 'imageBlurhash' | 'title' | 'description' | 'createdAt'>
-  page: 'event' | 'news' | 'convention'
+  page: Pages
 }
 
 export default function PostCard({ data, page }: PostCardProps) {

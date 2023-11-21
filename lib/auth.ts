@@ -35,7 +35,7 @@ export const authOptions: NextAuthOptions = {
 
           const { username, password } = credentials
 
-          const user = await db.user.findUnique({ where: { username } })
+          const user = await db.user.findUnique({ where: { username, password } })
 
           if (user) {
             // Any object returned will be saved in `user` property of the JWT

@@ -5,7 +5,43 @@ import { replaceExamples, replaceTweets } from '@/lib/remark-plugins'
 import url from '@/constants/url'
 import { Post } from '@prisma/client'
 
-export async function getPostsForSite(page: string) {
+type PostOptions = {
+  take?: number
+}
+
+export async function getPostsForSite(page: string, options?: PostOptions) {
+  return await unstable_cache(
+    async () => {
+      return db.post.findMany({
+        select: {
+          title: true,
+          description: true,
+          slug: true,
+          image: true,
+          imageBlurhash: true,
+          createdAt: true,
+          page: true,
+          content: true,
+          imagesGallery: true
+        },
+        where: { page },
+        orderBy: [
+          {
+            createdAt: 'desc'
+          }
+        ],
+        ...(options?.take && { take: options?.take })
+      })
+    },
+    [`posts-${page}`],
+    {
+      revalidate: 20, // 86400 = 1 day cache (900 = 15 minutes)
+      tags: [`posts-${page}`]
+    }
+  )()
+}
+
+export async function getPostsForLandingPage(page: string, options?: PostOptions) {
   return await unstable_cache(
     async () => {
       return db.post.findMany({
@@ -24,13 +60,14 @@ export async function getPostsForSite(page: string) {
           {
             createdAt: 'desc'
           }
-        ]
+        ],
+        ...(options?.take && { take: options?.take })
       })
     },
-    [`posts-${page}`],
+    [`posts-landing-${page}`],
     {
       revalidate: 20, // 86400 = 1 day cache (900 = 15 minutes)
-      tags: [`posts-${page}`]
+      tags: [`posts-landing-${page}`]
     }
   )()
 }
