@@ -21,7 +21,7 @@ export default function ContactUs() {
       try {
         await contactInquiryAction(parse.data)
 
-        await new Promise((res) => setTimeout(() => res('sending...'), 1500))
+        await new Promise((res) => setTimeout(() => res('sending...'), 1000))
 
         setResponse({ success: true, message: 'Successfully send inquiry.' })
         setFormData({ firstName: '', lastName: '', emailAdd: '', phoneNo: '', message: '' })

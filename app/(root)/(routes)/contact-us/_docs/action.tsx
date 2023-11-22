@@ -21,7 +21,8 @@ export async function contactInquiryAction(formData: ContactForm) {
     from: 'test@boredguyscorp.com',
     to: 'bginside.dev@gmail.com',
     subject: 'Website Contact Inquiry',
-    html: render(<Email formData={formData} />)
+    text: 'this is a test message.'
+    // html: render(<Email formData={formData} />)
   }
 
   transporter.sendMail(options, (error) => {
