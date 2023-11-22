@@ -29,14 +29,16 @@ export async function contactInquiryAction(formData: ContactForm) {
     html: render(<Email formData={formData} />)
   }
 
-  transporter.sendMail(options, (error) => {
-    if (error) {
-      throw new Error(error.message)
-    } else {
-      console.log('Email Sent')
-      return true
-    }
-  })
+  await transporter.sendMail(options)
+
+  // transporter.sendMail(options, (error) => {
+  //   if (error) {
+  //     throw new Error(error.message)
+  //   } else {
+  //     console.log('Email Sent')
+  //     return true
+  //   }
+  // })
 }
 
 // pdjl hhdj hloi ylbj
