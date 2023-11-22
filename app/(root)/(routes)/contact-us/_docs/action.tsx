@@ -10,8 +10,8 @@ export async function contactInquiryAction(formData: ContactForm) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'oscarresonable2008@gmail.com',
-      pass: 'pdjl hhdj hloi ylbj'
+      user: process.env.NODEMAILER_EMAIL,
+      pass: process.env.NODEMAILER_PW
     }
     // host: 'sg3plcpnl0118.prod.sin3.secureserver.net',
     // port: 465,
@@ -23,7 +23,7 @@ export async function contactInquiryAction(formData: ContactForm) {
   })
 
   const options: Mail.Options = {
-    from: 'oscarresonable2008@gmail.com',
+    from: process.env.NODEMAILER_EMAIL,
     to: 'bginside.dev@gmail.com',
     subject: 'Website Contact Inquiry',
     html: render(<Email formData={formData} />)
