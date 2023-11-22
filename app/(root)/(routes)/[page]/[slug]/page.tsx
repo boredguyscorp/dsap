@@ -77,7 +77,7 @@ export default async function EventPagePost({ params }: PostPageProps) {
             <div className='group mb-8 mt-20 flex items-center gap-x-3 border-b border-gray-200 pb-8 dark:border-gray-700'>
               <div className='block grow'>
                 <h5 className='text-lg font-bold text-gray-800 dark:text-gray-200 dark:group-hover:text-gray-400'>Related content</h5>
-                <p className='text-sm text-gray-500'>and more event post.</p>
+                <p className='text-sm text-gray-500'>and more {page} post.</p>
               </div>
             </div>
 
