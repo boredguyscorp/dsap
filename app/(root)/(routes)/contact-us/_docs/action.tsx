@@ -24,7 +24,7 @@ export async function contactInquiryAction(formData: ContactForm) {
 
   const options: Mail.Options = {
     from: process.env.NODEMAILER_EMAIL,
-    to: 'bginside.dev@gmail.com',
+    to: process.env.NODEMAILER_EMAIL_RECEIVER,
     subject: 'Website Contact Inquiry',
     html: render(<Email formData={formData} />)
   }
