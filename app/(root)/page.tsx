@@ -73,9 +73,9 @@ export default async function Page() {
                   </svg>
                 </div>
 
-                <div className='relative z-10 h-full'>
-                  <p className='serif px-6 py-6 text-xl font-normal italic text-gray-600 md:px-16 md:py-10 md:text-2xl'>
-                    "When the time is right, I the Lord will make it happen." --Isaiah 60:22
+                <div className='relative z-10 mx-auto text-center'>
+                  <p className='serif px-6 py-6 text-xl font-normal italic text-gray-600 md:px-16 md:py-10 md:text-4xl'>
+                    "When the time is right, I the Lord will make it happen." <span className='text-lg md:text-xl'>--Isaiah 60:22</span>
                   </p>
                 </div>
 
