@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer'
 import { render } from '@react-email/render'
 import { Email } from './email'
 import { ContactForm } from './types'
+import Mail from 'nodemailer/lib/mailer'
 
 export async function contactInquiryAction(formData: ContactForm) {
   const transporter = nodemailer.createTransport({
@@ -16,14 +17,19 @@ export async function contactInquiryAction(formData: ContactForm) {
     }
   })
 
-  const options = {
+  const options: Mail.Options = {
     from: 'test@boredguyscorp.com',
     to: 'bginside.dev@gmail.com',
     subject: 'Website Contact Inquiry',
     html: render(<Email formData={formData} />)
   }
 
-  const result = await transporter.sendMail(options)
-
-  return result
+  transporter.sendMail(options, (error) => {
+    if (error) {
+      throw new Error(error.message)
+    } else {
+      console.log('Email Sent')
+      return true
+    }
+  })
 }

@@ -1,11 +1,10 @@
 'use client'
 
 import { Icons } from '@/components/shared/icons'
-import { ChangeEvent, MouseEvent, useState, useTransition } from 'react'
+import { ChangeEvent, useState, useTransition } from 'react'
 import { contactInquiryAction } from './_docs/action'
 import { cn } from '@/lib/utils'
 import { ContactForm, ContactFormSchema } from './_docs/types'
-import { useRouter } from 'next/navigation'
 
 export default function ContactUs() {
   const [isPending, startTransition] = useTransition()
@@ -21,7 +20,11 @@ export default function ContactUs() {
     startTransition(async () => {
       try {
         await contactInquiryAction(parse.data)
+
+        await new Promise((res) => setTimeout(() => res('sending...'), 1500))
+
         setResponse({ success: true, message: 'Successfully send inquiry.' })
+        setFormData({ firstName: '', lastName: '', emailAdd: '', phoneNo: '', message: '' })
       } catch (error) {
         console.error('ERROR: ', error)
         setResponse({ success: false, message: 'Error sending inquiry! Please try again.' })
@@ -126,7 +129,7 @@ export default function ContactUs() {
                     <textarea
                       id='message'
                       name='message'
-                      rows={4}
+                      rows={6}
                       className='block w-full rounded-md border border-gray-200 px-4 py-3 text-sm focus:border-teal-500 focus:ring-teal-500 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400'
                       placeholder='Message'
                       onChange={handleChangeFormData}
