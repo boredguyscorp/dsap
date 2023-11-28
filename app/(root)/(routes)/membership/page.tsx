@@ -2,7 +2,7 @@
 
 import { Icons } from '@/components/shared/icons'
 import { cn } from '@/lib/utils'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 
@@ -10,7 +10,7 @@ import { InputFieldForm } from './_components/InputFieldForm'
 import { TextAreaForm } from './_components/TextAreaForm'
 
 import { useZodForm } from '@/lib/zod-form'
-import { newMemberSchema } from '@/lib/schema'
+import { Ownership, memberRegistrationFormSchema, memberRegistrationMergeSchema } from '@/lib/schema'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -19,14 +19,32 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { CalendarIcon, ChevronDownIcon } from 'lucide-react'
 import { DatePickerForm } from './_components/DatePickerForm'
+import { DevTool } from '@hookform/devtools'
+
+const RHFDevTool = dynamic(() => import('./_components/DevTools'), { ssr: false })
+
 import dsapOffice from 'public/images/dsap-office.png'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
+import { UploadButton, UploadDropzone } from '@/lib/uploadthing'
+import { FileUpload } from '@/components/editor/settings/file-upload'
+import { registerMember } from '@/actions/members'
+import {
+  dpInvSystem,
+  dpLocation,
+  dpSetup,
+  dpStoreHours,
+  drugstoreClassType,
+  membershipType,
+  opStatus,
+  ownershipType
+} from '@/app/(app.domain.com)/dashboard/membership/_components/membership'
 
 enum STEPS {
-  A = 0,
-  B = 1,
-  C = 2,
-  D = 3
+  GENERAL_INFO = 0,
+  DRUGSTORE_PROFILE = 1,
+  OWNER_PROFILE = 2,
+  REGISTRATION_DETAIL = 3
 }
 
 export default function MembershipPage() {
@@ -36,27 +54,35 @@ export default function MembershipPage() {
         label: 'General Information',
         icon: <Icons.home />
       },
-      { label: 'Registration Details', icon: <Icons.laptop /> },
       { label: 'Drugstore Profile', icon: <Icons.billing /> },
-      { label: 'Owner Profile', icon: <Icons.laptop /> }
+      { label: 'Owner Profile', icon: <Icons.laptop /> },
+      { label: 'Registration Details', icon: <Icons.laptop /> }
       // { label: 'Step 4', icon: <Icons.bell /> },
       // { label: 'Step 5', icon: <Icons.download /> },
       // { label: 'Step 6', icon: <Icons.check /> }
     ],
     []
   )
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(true)
 
-  const [activeStep, setActiveStep] = useState(STEPS.A)
+  const [activeStep, setActiveStep] = useState(STEPS.REGISTRATION_DETAIL)
 
-  const currentValidationSchema = newMemberSchema[activeStep]
+  const currentValidationSchema = memberRegistrationFormSchema[activeStep]
 
   const defaultValues = {
-    drugStoreName: '',
-    ownerFirstName: '',
-    ownerLastName: '',
-    test: ''
-  }
+    drugStoreName: 'XXX Drugstore',
+    address: 'zzz address',
+    emailAdd: 'test@gmail.com',
+    mobileNo: '123',
+    ownershipType: 'single',
+    membershipType: 'regular',
+    drugstoreClass: 'regular',
+    ownershipTypeDetails: { type: 'single' },
+    opLastName: 'aaaLN',
+    opFirstName: 'aaaFN'
+  } as const
+
+  const [isPending, startTransition] = useTransition()
 
   const form = useZodForm({
     schema: currentValidationSchema,
@@ -69,9 +95,17 @@ export default function MembershipPage() {
     setError,
     formState: { errors },
     getValues,
+    watch,
     setValue,
     trigger
   } = form
+
+  // useEffect(() => {
+  //   setFileUrl(watch('fdaUrlAttachment'))
+  // }, [watch('fdaUrlAttachment')])
+
+  // console.log(watch('fdaUrlAttachment'))
+  // console.log('🚀 -> MembershipPage -> errors:', errors)
 
   if (!showForm) {
     return (
@@ -115,27 +149,6 @@ export default function MembershipPage() {
     )
   }
 
-  const ownershipType = [
-    { value: 'single', label: 'Single Proprietor' },
-    { value: 'partnership', label: 'Partnership' },
-    { value: 'corporation', label: 'Corporation' }
-  ]
-
-  const membershipType = [
-    { value: 'regular', label: 'Regular' },
-    { value: 'associate', label: 'Associate' }
-  ]
-
-  const drugstoreClassType = [
-    { value: 'regular', label: 'Regular' },
-    { value: 'distributor', label: 'Distributor' },
-    { value: 'chain', label: 'Chain' },
-    { value: 'franchisor', label: 'Franchisor' },
-    { value: 'wholesaler', label: 'Wholesaler' }
-  ]
-
-  // console.log('🚀 -> MembershipPage -> errors:', errors)
-
   const onBack = () => {
     setActiveStep((value) => value - 1)
   }
@@ -146,19 +159,36 @@ export default function MembershipPage() {
   }
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    if (activeStep !== STEPS.D) {
+    if (activeStep !== STEPS.REGISTRATION_DETAIL) {
       return onNext()
     }
 
-    if (activeStep === STEPS.D) {
+    if (activeStep === STEPS.REGISTRATION_DETAIL) {
       // console.log(data)
-      console.log(' getValues:', getValues())
+      // console.log(' getValues:', getValues())
+
+      const validationResult = memberRegistrationMergeSchema.safeParse(getValues())
+      console.log('🚀 -> constonSubmit:SubmitHandler<FieldValues>= -> validationResult:', validationResult)
+
+      if (!validationResult.success) throw new Error('Error Parsing Form Data.')
+
+      startTransition(async () => {
+        try {
+          const response = await registerMember(validationResult.data)
+          console.log('🚀 -> startTransition -> response:', response)
+
+          // await new Promise((res) => setTimeout(() => res('sending...'), 1000))
+        } catch (error) {
+          console.error('ERROR: ', error)
+          // setResponse({ success: false, message: 'Error sending inquiry! Please try again.' })
+        }
+      })
     }
   }
 
   function getStepContent(step: number) {
     switch (step) {
-      case STEPS.A:
+      case STEPS.GENERAL_INFO:
         return (
           <Card className='w-full'>
             <CardHeader>
@@ -187,20 +217,20 @@ export default function MembershipPage() {
                   <InputFieldForm
                     control={form.control}
                     name='emailAdd'
-                    fieldProps={{ placeholder: 'Email Address' }}
+                    fieldProps={{ placeholder: 'Email Address', required: true }}
                     extendedProps={{ label: 'Email Address' }}
+                  />
+                  <InputFieldForm
+                    control={form.control}
+                    name='mobileNo'
+                    fieldProps={{ placeholder: 'Mobile No.', required: true }}
+                    extendedProps={{ label: 'Mobile No.' }}
                   />
                   <InputFieldForm
                     control={form.control}
                     name='telNo'
                     fieldProps={{ placeholder: 'Telephone No.' }}
                     extendedProps={{ label: 'Telephone No.' }}
-                  />
-                  <InputFieldForm
-                    control={form.control}
-                    name='mobileNo'
-                    fieldProps={{ placeholder: 'Mobile No.' }}
-                    extendedProps={{ label: 'Mobile No.' }}
                   />
                 </div>
 
@@ -212,7 +242,15 @@ export default function MembershipPage() {
                       <FormItem className='space-y-3'>
                         <FormLabel>Ownership Type</FormLabel>
                         <FormControl>
-                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                          <RadioGroup
+                            // onValueChange={(e) => {
+                            //   field.onChange(e)
+                            //   setValue('ownershipTypeDetails.type', e as Ownership)
+                            // }}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className='flex flex-col space-y-1'
+                          >
                             {ownershipType.map((row) => {
                               return (
                                 <FormItem className='flex items-center space-x-3 space-y-0'>
@@ -260,7 +298,7 @@ export default function MembershipPage() {
 
                   <FormField
                     control={form.control}
-                    name='drugstoreClassification'
+                    name='drugstoreClass'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Drugstore Classification</FormLabel>
@@ -289,11 +327,12 @@ export default function MembershipPage() {
             </CardContent>
           </Card>
         )
-      case STEPS.B:
+
+      case STEPS.DRUGSTORE_PROFILE:
         return (
           <Card className='w-full'>
             <CardHeader>
-              <CardTitle>Registration Details</CardTitle>
+              <CardTitle>Drugstore Profile</CardTitle>
               <CardDescription className='mb-5'>Please fill up the form below. * is required.</CardDescription>
             </CardHeader>
             <Separator />
@@ -301,6 +340,264 @@ export default function MembershipPage() {
             <CardContent className='mt-5'>
               <div className='space-y-4'>
                 <div className='grid grid-cols-4 gap-4'>
+                  <FormField
+                    control={form.control}
+                    name='dpSetup'
+                    render={({ field }) => (
+                      <FormItem className='space-y-3'>
+                        <FormLabel>Setup</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                            {dpSetup.map((row) => {
+                              return (
+                                <FormItem className='flex items-center space-x-3 space-y-0'>
+                                  <React.Fragment key={row.value}>
+                                    <FormControl>
+                                      <RadioGroupItem value={row.value} />
+                                    </FormControl>
+                                    <FormLabel className='font-normal'>{row.label}</FormLabel>
+                                  </React.Fragment>
+                                </FormItem>
+                              )
+                            })}
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='dpLocation'
+                    render={({ field }) => (
+                      <FormItem className='space-y-3'>
+                        <FormLabel>Location</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                            {dpLocation.map((row) => {
+                              return (
+                                <FormItem className='flex items-center space-x-3 space-y-0'>
+                                  <React.Fragment key={row.value}>
+                                    <FormControl>
+                                      <RadioGroupItem value={row.value} />
+                                    </FormControl>
+                                    <FormLabel className='font-normal'>{row.label}</FormLabel>
+                                  </React.Fragment>
+                                </FormItem>
+                              )
+                            })}
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='dpStoreHours'
+                    render={({ field }) => (
+                      <FormItem className='space-y-3'>
+                        <FormLabel>Store Hours</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                            {dpStoreHours.map((row) => {
+                              return (
+                                <FormItem className='flex items-center space-x-3 space-y-0'>
+                                  <React.Fragment key={row.value}>
+                                    <FormControl>
+                                      <RadioGroupItem value={row.value} />
+                                    </FormControl>
+                                    <FormLabel className='font-normal'>{row.label}</FormLabel>
+                                  </React.Fragment>
+                                </FormItem>
+                              )
+                            })}
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='dpInvSystem'
+                    render={({ field }) => (
+                      <FormItem className='space-y-3'>
+                        <FormLabel>Inventory System</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                            {dpInvSystem.map((row) => {
+                              return (
+                                <FormItem className='flex items-center space-x-3 space-y-0'>
+                                  <React.Fragment key={row.value}>
+                                    <FormControl>
+                                      <RadioGroupItem value={row.value} />
+                                    </FormControl>
+                                    <FormLabel className='font-normal'>{row.label}</FormLabel>
+                                  </React.Fragment>
+                                </FormItem>
+                              )
+                            })}
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      case STEPS.OWNER_PROFILE:
+        return (
+          <Card className='w-full'>
+            <CardHeader>
+              <CardTitle>Owners Profile</CardTitle>
+              <CardDescription className='mb-5'>Please fill up the form below. * is required.</CardDescription>
+            </CardHeader>
+            <Separator />
+
+            <CardContent className='mt-5'>
+              <div className='space-y-4'>
+                <div className='grid grid-cols-3 gap-4'>
+                  <InputFieldForm
+                    control={form.control}
+                    name='opLastName'
+                    fieldProps={{ placeholder: 'Last Name', required: true }}
+                    extendedProps={{ label: 'Last Name' }}
+                  />
+                  <InputFieldForm
+                    control={form.control}
+                    name='opFirstName'
+                    fieldProps={{ placeholder: 'First Name', required: true }}
+                    extendedProps={{ label: 'First Name' }}
+                  />
+                  <InputFieldForm
+                    control={form.control}
+                    name='opMiddleName'
+                    fieldProps={{ placeholder: 'Middle Initial' }}
+                    extendedProps={{ label: 'Middle Initial' }}
+                  />
+                </div>
+
+                <TextAreaForm
+                  control={form.control}
+                  name='opAddress'
+                  fieldProps={{ placeholder: 'Address' }}
+                  extendedProps={{ label: 'Address' }}
+                />
+
+                <div className='grid grid-cols-2 gap-8'>
+                  <div className='flex flex-col space-y-2'>
+                    <DatePickerForm
+                      control={form.control}
+                      name='opBirthday'
+                      fieldProps={{ mode: 'single' }}
+                      extendedProps={{ label: 'Birthday', disabledFuture: true }}
+                    />
+
+                    <InputFieldForm
+                      control={form.control}
+                      name='opEmail'
+                      fieldProps={{ placeholder: 'Email Add' }}
+                      extendedProps={{ label: 'Email Add' }}
+                    />
+                  </div>
+
+                  <div className='flex flex-col space-y-2'>
+                    <InputFieldForm
+                      control={form.control}
+                      name='opCellNo'
+                      fieldProps={{ placeholder: 'Cellphone No.' }}
+                      extendedProps={{ label: 'Cellphone No.' }}
+                    />
+                    <InputFieldForm
+                      control={form.control}
+                      name='opTelNo'
+                      fieldProps={{ placeholder: 'Telephone No.' }}
+                      extendedProps={{ label: 'Telephone No.' }}
+                    />
+                  </div>
+                </div>
+
+                <div className='grid grid-cols-2 gap-8'>
+                  <FormField
+                    control={form.control}
+                    name='opStatus'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <div className='relative w-full'>
+                          <FormControl>
+                            <select
+                              className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')}
+                              {...field}
+                            >
+                              {opStatus.map((row) => (
+                                <option key={row.value} value={row.value}>
+                                  {row.label}
+                                </option>
+                              ))}
+                            </select>
+                          </FormControl>
+                          <ChevronDownIcon className='absolute right-3 top-2.5 h-4 w-4 opacity-50' />
+                        </div>
+                        {/* <FormDescription>Select Owner Status.</FormDescription> */}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='opGender'
+                    render={({ field }) => (
+                      <FormItem className='space-y-3'>
+                        <FormLabel>Gender</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                            {[
+                              { value: 'male', label: 'Male' },
+                              { value: 'female', label: 'Female' }
+                            ].map((row) => {
+                              return (
+                                <FormItem className='flex items-center space-x-3 space-y-0'>
+                                  <React.Fragment key={row.value}>
+                                    <FormControl>
+                                      <RadioGroupItem value={row.value} />
+                                    </FormControl>
+                                    <FormLabel className='font-normal'>{row.label}</FormLabel>
+                                  </React.Fragment>
+                                </FormItem>
+                              )
+                            })}
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      case STEPS.REGISTRATION_DETAIL:
+        return (
+          <Card className='w-full'>
+            <CardHeader>
+              <CardTitle>Registration Details and Attachment</CardTitle>
+              <CardDescription className='mb-5'>Please fill up the form below. * is required.</CardDescription>
+            </CardHeader>
+            <Separator />
+
+            <CardContent className='mt-5 grid grid-cols-3 gap-10'>
+              <div className='space-y-4'>
+                <div className='flex flex-col gap-4'>
                   <InputFieldForm
                     control={form.control}
                     name='fdaLtoNo'
@@ -322,97 +619,77 @@ export default function MembershipPage() {
                     extendedProps={{ label: 'Date Expiry', required: true }}
                   />
 
-                  <InputFieldForm
-                    control={form.control}
-                    name='fdaUrlAttachment'
-                    fieldProps={{ placeholder: 'Attachment', required: true }}
-                    extendedProps={{ label: 'Attachment' }}
+                  <FileUpload
+                    endpoint='pdfUploader'
+                    value={watch('fdaUrlAttachment')}
+                    onChange={(urlValue) => setValue('fdaUrlAttachment', urlValue ?? '')}
                   />
                 </div>
               </div>
 
-              <div className='mt-5 space-y-4'>
-                <div className='grid grid-cols-4 gap-4'>
+              <div className='space-y-4'>
+                <div className='flex flex-col gap-4'>
                   <InputFieldForm
                     control={form.control}
-                    name='fdaLtoNo'
-                    fieldProps={{ placeholder: 'DTI Certificate No.', required: true }}
-                    extendedProps={{ label: 'DTI Certificate No.' }}
+                    name='bpNo'
+                    fieldProps={{ placeholder: 'Business Permit No.', required: true }}
+                    extendedProps={{ label: 'Business Permit No.' }}
                   />
 
                   <DatePickerForm
                     control={form.control}
-                    name='fdaDateIssued'
+                    name='bpDateIssued'
                     fieldProps={{ mode: 'single' }}
                     extendedProps={{ label: 'Date Issued', required: true, disabledFuture: true }}
                   />
 
                   <DatePickerForm
                     control={form.control}
-                    name='fdaDateExpiry'
+                    name='bpDateExpiry'
                     fieldProps={{ mode: 'single' }}
                     extendedProps={{ label: 'Date Expiry', required: true }}
                   />
 
+                  <FileUpload
+                    endpoint='pdfUploader'
+                    value={watch('bpUrlAttachment')}
+                    onChange={(urlValue) => setValue('bpUrlAttachment', urlValue ?? '')}
+                  />
+                </div>
+              </div>
+
+              <div className='space-y-4'>
+                <div className='flex flex-col gap-4'>
                   <InputFieldForm
                     control={form.control}
-                    name='fdaUrlAttachment'
-                    fieldProps={{ placeholder: 'Attachment', required: true }}
-                    extendedProps={{ label: 'Attachment' }}
+                    name='docNo'
+                    fieldProps={{ placeholder: 'Document No.', required: true }}
+                    extendedProps={{ label: 'Document No.' }}
+                  />
+
+                  <DatePickerForm
+                    control={form.control}
+                    name='docDateIssued'
+                    fieldProps={{ mode: 'single' }}
+                    extendedProps={{ label: 'Date Issued', required: true, disabledFuture: true }}
+                  />
+
+                  <DatePickerForm
+                    control={form.control}
+                    name='docDateExpiry'
+                    fieldProps={{ mode: 'single' }}
+                    extendedProps={{ label: 'Date Expiry', required: true }}
+                  />
+
+                  <FileUpload
+                    endpoint='pdfUploader'
+                    value={watch('docUrlAttachment')}
+                    onChange={(urlValue) => setValue('docUrlAttachment', urlValue ?? '')}
                   />
                 </div>
               </div>
             </CardContent>
           </Card>
-        )
-      case STEPS.C:
-        return (
-          <>
-            <FormField
-              control={form.control}
-              name='ownerFirstName'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Owner First Name *</FormLabel>
-                  <FormControl>
-                    <Input {...field} value={getValues('ownerFirstName')} placeholder='Owner First Name' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='ownerLastName'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Owner Last Name *</FormLabel>
-                  <FormControl>
-                    <Input {...field} value={getValues('ownerLastName')} placeholder='Owner Last Name' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )
-      case STEPS.D:
-        return (
-          <>
-            <FormField
-              control={form.control}
-              name='test'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Test *</FormLabel>
-                  <FormControl>
-                    <Input {...field} value={getValues('test')} placeholder='Test' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
         )
       case 3:
         return <>STEP D</>
@@ -479,7 +756,6 @@ export default function MembershipPage() {
             })}
           </div>
         </div>
-
         <div className='mt-8 p-4'>
           <Form {...form}>
             <form className='mt-10 space-y-4 '>{getStepContent(activeStep)}</form>
@@ -488,24 +764,30 @@ export default function MembershipPage() {
             <button
               className={cn(
                 'flex cursor-pointer justify-center rounded border bg-gray-100 px-4 py-2 text-base font-bold text-gray-700  transition duration-200 ease-in-out focus:outline-none enabled:border-gray-400 enabled:hover:scale-110 enabled:hover:bg-gray-200',
-                activeStep === STEPS.A && 'cursor-not-allowed'
+                activeStep === STEPS.GENERAL_INFO && 'cursor-not-allowed'
               )}
-              disabled={activeStep === STEPS.A}
+              disabled={activeStep === STEPS.GENERAL_INFO}
               onClick={() => onBack()}
             >
               Previous
             </button>
             <div className='flex flex-auto flex-row-reverse'>
               <button
-                className='ml-2 flex min-w-[150px]  cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out hover:scale-110 hover:bg-teal-600 focus:outline-none'
+                className={cn(
+                  'ml-2 flex min-w-[150px]  cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out focus:outline-none enabled:hover:scale-110 enabled:hover:bg-teal-600',
+                  isPending && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
+                )}
                 onClick={form.handleSubmit(onSubmit)}
+                disabled={isPending}
                 // onClick={onNext}
               >
-                {activeStep === STEPS.D ? 'Submit Application' : 'Next'}
+                {activeStep === STEPS.REGISTRATION_DETAIL ? (isPending ? 'Submitting Application' : 'Submit Application') : 'Next'}
               </button>
             </div>
           </div>
         </div>
+
+        <RHFDevTool control={form.control} />
       </div>
     </div>
   )

@@ -12,6 +12,15 @@ export const ourFileRouter = {
 
       return { userId: user.id }
     })
+    .onUploadComplete(async ({ metadata, file }) => {}),
+  pdfUploader: f({ pdf: { maxFileSize: '2MB', maxFileCount: 1 } })
+    .middleware(async (req) => {
+      const user = await getToken(req)
+
+      if (!user) throw new Error('Unauthorized')
+
+      return { userId: user.id }
+    })
     .onUploadComplete(async ({ metadata, file }) => {})
 } satisfies FileRouter
 

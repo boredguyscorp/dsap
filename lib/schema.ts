@@ -65,33 +65,98 @@ export const postPatchSchema = z.object({
   content: z.any(),
   isPublish: z.boolean().optional()
 })
-
 export type PostCreationRequest = z.infer<typeof postPatchSchema>
 
-export const newMemberSchema = [
-  z.object({
-    drugStoreName: z.string().min(1, { message: 'Please enter Drugstore name.' }),
-    address: z.string({ required_error: 'Please enter Address.' }),
-    emailAdd: z.string().nullish(),
-    telNo: z.string().nullish(),
-    mobileNo: z.string().nullish(),
-    ownershipType: z.string({ required_error: 'Please select a ownership type' }),
-    membershipType: z.string({ required_error: 'Please select a membership type' }),
-    drugstoreClassification: z.string({ required_error: 'Please select a drugstore classification' })
-  }),
-  z.object({
-    fdaLtoNo: z.string({ required_error: 'Please enter Address.' }),
-    fdaDateIssued: z.date({
-      required_error: 'FDA Date Issued is required.'
-    }),
-    fdaDateExpiry: z.date({ required_error: 'FDA Date Expiry is required.' }),
-    fdaUrlAttachment: z.string({ required_error: 'Please enter Address.' })
-  }),
-  z.object({
-    ownerFirstName: z.string().min(1, { message: 'Please enter Owner first name.' }),
-    ownerLastName: z.string().min(1, { message: 'Please enter Owner last name.' })
-  }),
-  z.object({
-    test: z.string().min(1, { message: 'Please enter test.' })
-  })
-]
+// MEMBERSHIP FORM
+const owType = ['single', 'partnership', 'corporation'] as const
+export type Ownership = (typeof owType)[number]
+
+// const owRegDetails = z.object({
+//   docNo: z.string({ required_error: 'Document No. is required.' }).min(1, { message: 'Please enter Document No.' }),
+//   docDateIssued: z.date({ required_error: 'Document date issued is required.' }),
+//   docDateExpiry: z.date({ required_error: 'Document date expiry is required.' }),
+//   docUrlAttachment: z.string({ required_error: 'Document attachment is required.' }).min(1, { message: 'Please attached Document.' })
+// })
+
+// const owTypeEnum = z.enum(owType)
+// const singleProp = z.object({
+//   type: z.literal(owTypeEnum.enum.single),
+//   dtiNo: z.string({ required_error: 'DTI No. is required.' }).min(1, { message: 'Please enter DTI No.' }),
+//   dtiDateIssued: z.date({ required_error: 'DTI date issued is required.' }),
+//   dtiDateExpiry: z.date({ required_error: 'DTI date expiry is required.' }),
+//   dtiUrlAttachment: z.string({ required_error: 'DTI attachment is required.' }).min(1, { message: 'Please attached DTI File.' })
+// })
+
+// const corporatePartnershipSchema = z.object({
+//   cpNo: z.string({ required_error: 'SEC No. is required.' }).min(1, { message: 'Please enter SEC No.' }),
+//   cpDateIssued: z.date({ required_error: 'SEC date issued is required.' }),
+//   cpDateExpiry: z.date({ required_error: 'SEC date expiry is required.' }),
+//   cpUrlAttachment: z.string({ required_error: 'SEC attachment is required.' }).min(1, { message: 'Please attached SEC File.' })
+// })
+
+// const corporate = corporatePartnershipSchema.extend({ type: z.literal(owTypeEnum.enum.corporation) })
+// const partnership = corporatePartnershipSchema.extend({ type: z.literal(owTypeEnum.enum.partnership) })
+
+// const corporate = z.object({
+//   type: z.literal(owTypeEnum.enum.corporation),
+// })
+
+const generalInfo = z.object({
+  drugStoreName: z.string({ required_error: 'Drugstore Name is required.' }).min(1, { message: 'Please enter Drugstore name.' }),
+  address: z.string({ required_error: 'Please enter Address.' }),
+  emailAdd: z.string({ required_error: 'Email Address is required.' }).min(1, { message: 'Please enter Email Address.' }),
+  mobileNo: z.string({ required_error: 'Mobile No. is required.' }).min(1, { message: 'Please enter Mobile No.' }),
+  telNo: z.string().nullish(),
+  ownershipType: z.enum(owType),
+  membershipType: z.string({ required_error: 'Please select a membership type' }),
+  drugstoreClass: z.string({ required_error: 'Please select a drugstore classification' }).default('regular')
+})
+
+const dsProfile = z.object({
+  dpSetup: z.string().optional(),
+  dpLocation: z.string().optional(),
+  dpStoreHours: z.string().optional(),
+  dpInvSystem: z.string().optional()
+})
+
+const ownerProfile = z.object({
+  opFirstName: z.string({ required_error: 'Owner First Name is required.' }).min(1, { message: 'Please enter Owner first name.' }),
+  opLastName: z.string({ required_error: 'Owner First Name is required.' }).min(1, { message: 'Please enter Owner last name.' }),
+  opMiddleName: z.string().optional(),
+  opAddress: z.string().optional(),
+  opBirthday: z.date().optional(),
+  opEmail: z.string().optional(),
+  opTelNo: z.string().optional(),
+  opCellNo: z.string().optional(),
+  opStatus: z.string().optional(),
+  opGender: z.string().optional()
+})
+
+const registrationDetails = z.object({
+  fdaLtoNo: z.string({ required_error: 'FDA LTO No. is required.' }).min(1, { message: 'Please enter FDA LTO No.' }),
+  fdaDateIssued: z.date({ required_error: 'FDA LTO date issued is required.' }),
+  fdaDateExpiry: z.date({ required_error: 'FDA LTO date expiry is required.' }),
+  fdaUrlAttachment: z.string({ required_error: 'FDA LTO attachment is required.' }).min(1, { message: 'Please attached FDA LTO File.' }),
+  bpNo: z.string({ required_error: 'Business Permit No. is required.' }).min(1, { message: 'Please enter Business Permit No.' }),
+  bpDateIssued: z.date({ required_error: 'Business Permit date issued is required.' }),
+  bpDateExpiry: z.date({ required_error: 'Business Permit date expiry is required.' }),
+  bpUrlAttachment: z
+    .string({ required_error: 'Business Permit attachment is required.' })
+    .min(1, { message: 'Please attached Business Permit File.' }),
+  docNo: z.string({ required_error: 'Document No. is required.' }).min(1, { message: 'Please enter Document No.' }),
+  docDateIssued: z.date({ required_error: 'Document date issued is required.' }),
+  docDateExpiry: z.date({ required_error: 'Document date expiry is required.' }),
+  docUrlAttachment: z.string({ required_error: 'Document attachment is required.' }).min(1, { message: 'Please attached Document.' })
+  // ownershipTypeDetails: z.discriminatedUnion('type', [singleProp, corporate, partnership])
+})
+
+export const memberRegistrationFormSchema = [generalInfo, dsProfile, ownerProfile, registrationDetails]
+export const memberRegistrationMergeSchema = generalInfo.merge(dsProfile).merge(ownerProfile).merge(registrationDetails)
+
+export type MemberGeneralInfo = z.infer<typeof generalInfo>
+export type MemberDrugStoreProfile = z.infer<typeof dsProfile>
+export type MemberOwnerProfile = z.infer<typeof ownerProfile>
+export type MemberRegistrationDetails = z.infer<typeof registrationDetails>
+export type MemberRegistrationForm = MemberGeneralInfo & MemberDrugStoreProfile & MemberOwnerProfile & MemberRegistrationDetails
+
+// const zzz:MemberRegistrationForm =  {ownershipTypeDetails: {type: ''}}

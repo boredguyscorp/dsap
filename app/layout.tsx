@@ -12,6 +12,7 @@ import './globals.css'
 import { TailwindIndicator } from '@/components/tailwind-indicator'
 import { siteConfig } from './config'
 import { NextAuthProvider } from '@/providers/next-auth-provider'
+import { ToasterSonner } from '@/components/toaster-sonner'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -73,6 +74,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             }
           }}
         />
+        <ToasterSonner />
       </body>
     </html>
   )

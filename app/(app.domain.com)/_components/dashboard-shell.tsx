@@ -10,8 +10,9 @@ export function DashboardShell(props: {
   className?: string
 }) {
   return (
-    <div className={props.className}>
-      <div className='mb-10 flex h-36 border-b'>
+    // <div className={props.className}>
+    <>
+      <div className={cn('mb-10 flex h-36 border-b', props.className)}>
         <MaxWidthWrapper className='flex items-center justify-between'>
           <div className='space-y-1'>
             <h1 className='text-xl font-semibold leading-none tracking-tight'>{props.title}</h1>
@@ -23,7 +24,8 @@ export function DashboardShell(props: {
         </MaxWidthWrapper>
       </div>
       <MaxWidthWrapper>{props.children}</MaxWidthWrapper>
-    </div>
+    </>
+    // </div>
   )
 }
 

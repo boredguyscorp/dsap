@@ -3,6 +3,8 @@ import { twMerge } from 'tailwind-merge'
 import { format } from 'date-fns'
 
 import formatDistance from 'date-fns/formatDistance'
+import { z } from 'zod'
+import { toast } from 'sonner'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -42,6 +44,26 @@ export function generateCode() {
   return new Date().getFullYear() + '-' + generateRandomNumber(1000, 9999)
 }
 
+export const generateRandomString = (length: number) => {
+  let result = ''
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+  const charactersLength = characters.length
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength))
+  }
+  return result
+}
+
+export const generateNumberString = (length: number) => {
+  let result = ''
+  const characters = '0123456789'
+  const charactersLength = characters.length
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength))
+  }
+  return result
+}
+
 export function slugify(str: string) {
   return String(str)
     .normalize('NFKD') // split accented characters into their base characters and diacritical marks
@@ -78,5 +100,18 @@ export const getBlurDataURL = async (url: string | null) => {
     return `data:image/png;base64,${base64}`
   } catch (error) {
     return 'data:image/webp;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
+  }
+}
+
+export function catchError(err: unknown) {
+  if (err instanceof z.ZodError) {
+    const errors = err.issues.map((issue) => {
+      return issue.message
+    })
+    return toast(errors.join('\n'))
+  } else if (err instanceof Error) {
+    return toast(err.message)
+  } else {
+    return toast('Something went wrong, please try again later.')
   }
 }

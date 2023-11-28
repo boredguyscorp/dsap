@@ -172,3 +172,63 @@ model Post {
   @@index([authorId])
   @@map(name: "Posts")
 }
+
+model Members {
+  id             String    @id @default(cuid())
+  status         String    @default("pending")
+  code           String
+  drugStoreName  String
+  address        String
+  emailAdd       String
+  mobileNo       String
+  telNo          String?
+  ownershipType  String
+  membershipType String
+  drugstoreClass String
+  dpSetup        String?
+  dpLocation     String?
+  dpStoreHours   String?
+  dpInvSystem    String?
+  opLastName     String
+  opFirstName    String
+  opMiddleName   String?
+  opAddress      String?
+  opBirthday     DateTime? @db.Date()
+  opEmail        String?
+  opTelNo        String?
+  opCellNo       String?
+  opStatus       String?
+  opGender       String?
+
+  fdaLtoNo         String
+  fdaDateIssued    DateTime @db.Date()
+  fdaDateExpiry    DateTime @db.Date()
+  fdaUrlAttachment String   @db.Text
+
+  bpNo            String
+  bpDateIssued    DateTime @db.Date()
+  bpDateExpiry    DateTime @db.Date()
+  bpUrlAttachment String   @db.Text
+
+  docNo            String
+  docDateIssued    DateTime @db.Date()
+  docDateExpiry    DateTime @db.Date()
+  docUrlAttachment String   @db.Text
+
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+
+  @@unique([code])
+  @@map(name: "Members")
+}
+
+model Tasks {
+  id       String @id @default(cuid())
+  code     String
+  title    String
+  status   String
+  label    String
+  priority String
+
+  @@map(name: "Tasks")
+}
