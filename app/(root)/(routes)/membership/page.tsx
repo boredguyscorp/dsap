@@ -63,8 +63,7 @@ export default function MembershipPage() {
     ],
     []
   )
-  const [showForm, setShowForm] = useState(true)
-
+  const [showForm, setShowForm] = useState(false)
   const [activeStep, setActiveStep] = useState(STEPS.GENERAL_INFO)
 
   const currentValidationSchema = memberRegistrationFormSchema[activeStep]

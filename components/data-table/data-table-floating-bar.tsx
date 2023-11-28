@@ -57,7 +57,8 @@ export function DataTableFloatingBar<TData>({ table, deleteRowsAction, className
         <Cross2Icon className='h-4 w-4' aria-hidden='true' />
       </Button>
       {table.getFilteredSelectedRowModel().rows.length} row(s) selected
-      <Select onValueChange={(value) => updateTasksStatus(table, value)}>
+      {/* TODO: */}
+      {/* <Select onValueChange={(value) => updateTasksStatus(table, value)}>
         <SelectTrigger asChild>
           <Button aria-label='Delete selected rows' title='Status' className='h-auto bg-transparent p-1 text-white hover:bg-zinc-700'>
             <CheckCircledIcon className='h-4 w-4' aria-hidden='true' />
@@ -88,7 +89,7 @@ export function DataTableFloatingBar<TData>({ table, deleteRowsAction, className
             ))}
           </SelectGroup>
         </SelectContent>
-      </Select>
+      </Select> */}
       <Button
         aria-label='Change status of selected rows'
         title='Delete'
