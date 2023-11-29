@@ -1,3 +1,4 @@
+import { conventionEnum, typeEnum } from '@/app/(app.domain.com)/dashboard/convention/_components/constant'
 import { z } from 'zod'
 
 export const signUpSchema = z.object({
@@ -150,8 +151,8 @@ const registrationDetails = z.object({
   // ownershipTypeDetails: z.discriminatedUnion('type', [singleProp, corporate, partnership])
 })
 
-export const memberRegistrationFormSchema = [generalInfo, dsProfile, ownerProfile, registrationDetails]
-export const memberRegistrationMergeSchema = generalInfo.merge(dsProfile).merge(ownerProfile).merge(registrationDetails)
+export const MemberRegistrationFormSchema = [generalInfo, dsProfile, ownerProfile, registrationDetails]
+export const MmemberRegistrationMergeSchema = generalInfo.merge(dsProfile).merge(ownerProfile).merge(registrationDetails)
 
 export type MemberGeneralInfo = z.infer<typeof generalInfo>
 export type MemberDrugStoreProfile = z.infer<typeof dsProfile>
@@ -159,4 +160,31 @@ export type MemberOwnerProfile = z.infer<typeof ownerProfile>
 export type MemberRegistrationDetails = z.infer<typeof registrationDetails>
 export type MemberRegistrationForm = MemberGeneralInfo & MemberDrugStoreProfile & MemberOwnerProfile & MemberRegistrationDetails
 
-// const zzz:MemberRegistrationForm =  {ownershipTypeDetails: {type: ''}}
+// NATIONAL CONVENTION
+export const title = ['Select Title', 'Mr.', 'Mrs.', 'Ms.', 'Rph.', 'Dr.'] as const
+
+export const ConventionRegistrationFormSchema = z.object({
+  convention: z.enum(conventionEnum),
+  type: z.enum(typeEnum),
+  title: z.string().optional(),
+  firstName: z.string({ required_error: 'First Name is required.' }).min(1, { message: 'Please enter First Name.' }),
+  middleName: z.string().optional(),
+  lastName: z.string({ required_error: 'Last Name is required.' }).min(1, { message: 'Please enter Last Name.' }),
+  contactNo: z.string({ required_error: 'Contact No. is required.' }).min(1, { message: 'Please enter Contact No.' }),
+  emailAdd: z.string({ required_error: 'Email Address is required.' }).min(1, { message: 'Please enter Email Address.' }).email(),
+  address: z
+    .object({ street: z.string().optional(), brgy: z.string().optional(), city: z.string().optional(), province: z.string().optional() })
+    .optional(),
+  drugstoreInfo: z
+    .object({
+      establishment: z.string().optional(),
+      chapter: z.string().optional(),
+      owner: z.string().optional(),
+      mainAddress: z.string().optional()
+    })
+    .optional(),
+  proofOfPaymentUrl: z.string().optional()
+  // proofOfPaymentUrl: z.string({ required_error: 'Proof of Payment is required.' }).min(1, { message: 'Please enter Proof of Payment.' })
+})
+
+export type ConventionRegistrationForm = z.infer<typeof ConventionRegistrationFormSchema>

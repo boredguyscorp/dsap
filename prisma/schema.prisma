@@ -232,3 +232,26 @@ model Tasks {
 
   @@map(name: "Tasks")
 }
+
+model Registration {
+  id                String  @id @default(cuid())
+  status            String  @default("pending")
+  code              String
+  convention        String
+  type              String
+  title             String?
+  firstName         String
+  middleName        String?
+  lastName          String
+  contactNo         String
+  emailAdd          String
+  address           Json?
+  drugstoreInfo     Json?
+  proofOfPaymentUrl String?
+
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+
+  @@unique([code])
+  @@map(name: "Registration")
+}

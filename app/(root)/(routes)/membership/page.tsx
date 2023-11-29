@@ -10,7 +10,7 @@ import { InputFieldForm } from './_components/InputFieldForm'
 import { TextAreaForm } from './_components/TextAreaForm'
 
 import { useZodForm } from '@/lib/zod-form'
-import { Ownership, memberRegistrationFormSchema, memberRegistrationMergeSchema } from '@/lib/schema'
+import { Ownership, MemberRegistrationFormSchema, MmemberRegistrationMergeSchema } from '@/lib/schema'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -48,6 +48,8 @@ enum STEPS {
 }
 
 export default function MembershipPage() {
+  const showBanner = process.env.NEXT_PUBLIC_SHOW_BANNER === 'true'
+
   const steps = useMemo(
     () => [
       {
@@ -66,7 +68,7 @@ export default function MembershipPage() {
   const [showForm, setShowForm] = useState(false)
   const [activeStep, setActiveStep] = useState(STEPS.GENERAL_INFO)
 
-  const currentValidationSchema = memberRegistrationFormSchema[activeStep]
+  const currentValidationSchema = MemberRegistrationFormSchema[activeStep]
 
   const defaultValues = {
     drugStoreName: 'XXX Drugstore',
@@ -108,7 +110,7 @@ export default function MembershipPage() {
 
   if (!showForm) {
     return (
-      <div className='mx-auto mb-20 ml-0 mt-24 min-h-screen max-w-full px-4 sm:px-6 lg:px-8 2xl:ml-16'>
+      <div className={cn('mx-auto mb-20 ml-0 mt-28 min-h-screen max-w-full px-4 sm:px-6 lg:px-8 2xl:ml-16', showBanner && 'mt-36')}>
         <div className='flex items-center justify-between gap-x-1.5 space-x-10 p-10 text-sm text-gray-600 decoration-2'>
           <div className='flex flex-col justify-center space-y-14'>
             <h2 className='text-3xl font-bold text-teal-600 dark:text-white md:text-4xl lg:text-5xl'>Benefits of becoming a member</h2>
@@ -166,7 +168,7 @@ export default function MembershipPage() {
       // console.log(data)
       // console.log(' getValues:', getValues())
 
-      const validationResult = memberRegistrationMergeSchema.safeParse(getValues())
+      const validationResult = MmemberRegistrationMergeSchema.safeParse(getValues())
       console.log('🚀 -> constonSubmit:SubmitHandler<FieldValues>= -> validationResult:', validationResult)
 
       if (!validationResult.success) throw new Error('Error Parsing Form Data.')
@@ -698,7 +700,7 @@ export default function MembershipPage() {
   }
 
   return (
-    <div className='mx-auto mb-20 ml-0 mt-24 min-h-screen max-w-full px-4 sm:px-6 lg:px-8 2xl:ml-16'>
+    <div className={cn('mx-auto mb-20 ml-0 mt-24 min-h-screen max-w-full px-4 sm:px-6 lg:px-8 2xl:ml-16', showBanner && 'mt-36')}>
       <div className='flex items-center justify-between gap-x-1.5 p-10 text-sm text-gray-600 decoration-2 hover:text-teal-500'>
         <div className='flex flex-col justify-center'>
           <h5 className='text-xl font-bold text-gray-800 dark:text-gray-200 dark:group-hover:text-gray-400'>

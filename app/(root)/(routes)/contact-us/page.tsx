@@ -40,8 +40,10 @@ export default function ContactUs() {
     })
   }
 
+  const showBanner = process.env.NEXT_PUBLIC_SHOW_BANNER === 'true'
+
   return (
-    <div className='mt-24 min-h-[calc((100vh-6rem))] '>
+    <div className={cn('mt-24 min-h-[calc((100vh-6rem))]', showBanner && 'mt-36')}>
       <div className='mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
         <div className='mx-auto max-w-2xl lg:max-w-5xl'>
           <div className='text-center'>

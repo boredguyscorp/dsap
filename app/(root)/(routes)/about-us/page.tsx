@@ -6,10 +6,13 @@ import image2 from 'public/images/image2.jpg'
 import person1 from 'public/images/person1.png'
 import dsapOffice from 'public/images/dsap-office.png'
 import { bod, officers } from './_content/constant'
+import { cn } from '@/lib/utils'
 
 export default function AboutPage() {
+  const showBanner = process.env.SHOW_BANNER === 'true'
+
   return (
-    <div className='mx-auto mt-20 min-h-screen lg:pl-28 '>
+    <div className={cn('mx-auto mt-20 min-h-screen lg:pl-28', showBanner && 'mt-32')}>
       <div className='grid w-full grid-cols-7'>
         <div id='mobile-navbar' className='fixed mb-10 mt-4 block w-full bg-slate-200 lg:hidden'>
           <nav id='sidebar-nav' className='relative w-full space-y-8'>

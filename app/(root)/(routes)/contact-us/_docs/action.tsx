@@ -1,10 +1,10 @@
 'use server'
 
 import nodemailer from 'nodemailer'
+import Mail from 'nodemailer/lib/mailer'
 import { render } from '@react-email/render'
 import { Email } from './email'
 import { ContactForm } from './types'
-import Mail from 'nodemailer/lib/mailer'
 
 export async function contactInquiryAction(formData: ContactForm) {
   const transporter = nodemailer.createTransport({
