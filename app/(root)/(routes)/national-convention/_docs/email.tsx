@@ -94,7 +94,7 @@ export function EmailRegistrationConfirm({ data }: { data: EmailRegistrationConf
       </Text>
       <br />
       <Text style={paragraph}>
-        Your Registration as Delegate at {conventionDetails?.title} is CONFIRMED with Ref No.{' '}
+        Your Registration as Delegate at {conventionDetails?.title} is <b>CONFIRMED</b> with Ref No.{' '}
         <u>
           <b>{data.code}</b>
         </u>
