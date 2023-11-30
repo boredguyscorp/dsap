@@ -183,7 +183,7 @@ export const ConventionRegistrationFormSchema = z.object({
       mainAddress: z.string().optional()
     })
     .optional(),
-  proofOfPaymentUrl: z.string().optional()
+  proofOfPaymentUrl: z.string()
   // proofOfPaymentUrl: z.string({ required_error: 'Proof of Payment is required.' }).min(1, { message: 'Please enter Proof of Payment.' })
 })
 

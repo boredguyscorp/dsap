@@ -10,7 +10,7 @@ import nodemailer from 'nodemailer'
 import Mail from 'nodemailer/lib/mailer'
 import { render } from '@react-email/render'
 
-import { EmailRegistrationConvention } from '@/app/(root)/(routes)/national-convention/_docs/email'
+import { EmailRegistrationConfirm, EmailRegistrationConvention } from '@/app/(root)/(routes)/national-convention/_docs/email'
 
 export async function registerConvention(formData: ConventionRegistrationForm) {
   const code = generateRandomString(4).toUpperCase() + '-' + generateNumberString(4)
@@ -45,7 +45,32 @@ export async function registerConvention(formData: ConventionRegistrationForm) {
 }
 
 export async function updateRegistrationStatusAction({ id, status }: UpdateMembershipStatus) {
-  await db.registration.update({ where: { id }, data: { status } })
+  try {
+    const result = await db.registration.update({
+      where: { id },
+      data: { status },
+      select: { code: true, firstName: true, lastName: true, drugstoreInfo: true, emailAdd: true, convention: true }
+    })
 
-  revalidatePath('/national-convention')
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.NODEMAILER_EMAIL,
+        pass: process.env.NODEMAILER_PW
+      }
+    })
+
+    const options: Mail.Options = {
+      from: process.env.NODEMAILER_EMAIL,
+      to: result.emailAdd,
+      subject: `Registration Confirmation ${result.convention} DSAP National Convention`,
+      html: render(<EmailRegistrationConfirm data={result} />)
+    }
+
+    await transporter.sendMail(options)
+
+    revalidatePath('/national-convention')
+  } catch (error) {
+    throw error
+  }
 }

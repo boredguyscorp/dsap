@@ -49,11 +49,11 @@ export default function NationalConventionPage() {
 
   const defaultValues = {
     convention: '25th',
-    type: 'm',
-    firstName: 'BG',
-    lastName: 'Dev',
-    contactNo: '+63 123 456 789',
-    emailAdd: 'bginside.dev@gmail.com'
+    type: 'm'
+    // firstName: 'BG',
+    // lastName: 'Dev',
+    // contactNo: '+63 123 456 789',
+    // emailAdd: 'bginside.dev@gmail.com'
     // proofOfPaymentUrl: 'https://uploadthing.com/'
   } as const
 

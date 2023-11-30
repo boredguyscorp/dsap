@@ -3,6 +3,7 @@ import { ConventionRegistrationForm } from '@/lib/schema'
 import { Html } from '@react-email/html'
 import { Text } from '@react-email/text'
 import { Link } from '@react-email/link'
+import { Prisma } from '@prisma/client'
 
 const paragraph = {
   fontSize: 16
@@ -62,6 +63,60 @@ export function EmailRegistrationConvention(props: { formData: ConventionRegistr
       >
         Click here to view your attach proof of payment
       </Link>
+
+      <br />
+      <Text style={paragraph}>Thank you,</Text>
+      <Text style={paragraph}>
+        <b>DSAP Office </b>
+      </Text>
+    </Html>
+  )
+}
+
+type EmailRegistrationConfirmProps = {
+  convention: string
+  code: string
+  firstName: string
+  lastName: string
+  emailAdd: string
+  drugstoreInfo: Prisma.JsonValue
+}
+
+export function EmailRegistrationConfirm({ data }: { data: EmailRegistrationConfirmProps }) {
+  const conventionDetails = conventions.find((row) => row.code == data.convention)
+  const dsInfo = data.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
+
+  return (
+    <Html lang='en'>
+      <Text style={paragraph}>
+        Dear <b>{data.firstName + ' ' + data.lastName}</b>,
+        {/* <b>Thank you for your Registration to {conventionDetails?.title}. For verification, here is what was received;</b> */}
+      </Text>
+      <br />
+      <Text style={paragraph}>
+        Your Registration as Delegate at {conventionDetails?.title} is CONFIRMED with Ref No.{' '}
+        <u>
+          <b>{data.code}</b>
+        </u>
+      </Text>
+      <br />
+      <Text style={paragraph}>
+        <b>Full Name: </b>
+        {data.firstName + ' ' + data.lastName}
+      </Text>
+
+      {dsInfo?.establishment && (
+        <Text style={paragraph}>
+          <b>Drugstore/Establishment: </b>
+          {dsInfo.establishment}
+        </Text>
+      )}
+      {dsInfo?.chapter && (
+        <Text style={paragraph}>
+          <b>Chapter: </b>
+          {dsInfo.chapter}
+        </Text>
+      )}
 
       <br />
       <Text style={paragraph}>Thank you,</Text>

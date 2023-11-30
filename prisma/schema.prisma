@@ -247,7 +247,7 @@ model Registration {
   emailAdd          String
   address           Json?
   drugstoreInfo     Json?
-  proofOfPaymentUrl String?
+  proofOfPaymentUrl String
 
   createdAt DateTime @default(now()) @map(name: "created_at")
   updatedAt DateTime @default(now()) @map(name: "updated_at")
