@@ -376,7 +376,12 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                       <Separator />
                       <div className='space-y-2'>
                         <Label className={cn('font-medium', !watch('proofOfPaymentUrl') && errors.proofOfPaymentUrl && 'text-red-500')}>
-                          Proof of Payment {!watch('proofOfPaymentUrl') && errors.proofOfPaymentUrl ? ' is required.' : '*'}
+                          Proof of Payment{' '}
+                          {!watch('proofOfPaymentUrl') && errors.proofOfPaymentUrl ? (
+                            ' is required.'
+                          ) : (
+                            <span className='text-lg font-bold text-teal-500'> * </span>
+                          )}
                         </Label>
                         <FileUpload
                           endpoint='pdfUploader'
