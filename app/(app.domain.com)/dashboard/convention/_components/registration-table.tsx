@@ -48,7 +48,7 @@ import { DataTable } from '@/components/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { deleteTask, updateTaskLabelAction } from '@/actions/tasks'
 import { MembershipStatus, membershipStatusEnum, ownershipType } from './membership'
-import { ClipboardEdit, Command, Delete, Edit, Eye, Receipt, Trash, User, UserPlus, Users } from 'lucide-react'
+import { ClipboardEdit, Command, Delete, Edit, Eye, FileText, Receipt, Trash, User, UserPlus, Users } from 'lucide-react'
 import { conventions, rateValues } from './constant'
 import { ConventionRegistrationForm } from '@/lib/schema'
 import { updateRegistrationStatusAction } from '@/actions/convention'
@@ -89,7 +89,7 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([])
   const [openDialog, setOpenDialog] = React.useState<{
     isOpen: boolean
-    type: MembershipStatus
+    type: MembershipStatus | 'details'
     row: Registration
   } | null>(null)
 
@@ -248,18 +248,18 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
             </DropdownMenuTrigger>
             <DropdownMenuContent className='w-48'>
               <DropdownMenuGroup>
-                {/* <DropdownMenuItem>
-                  <Edit className='mr-2 h-4 w-4' />
-                  <span>Edit</span>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setOpenDialog({ isOpen: true, type: 'details', row: row.original })
+                  }}
+                >
+                  <Eye className='mr-2 h-4 w-4' />
+                  <span>View Details</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Trash className='mr-2 h-4 w-4' />
-                  <span>Delete</span>
-                </DropdownMenuItem> */}
                 <DropdownMenuItem>
                   {/* <Receipt className='mr-2 h-4 w-4' />
                   <span>Proof of Payment</span> */}
-                  <a href={row.original.proofOfPaymentUrl} target='_blank' className='flex items-center'>
+                  <a href={row.original.proofOfPaymentUrl} target='_blank' rel='noopener noreferrer' className='flex items-center'>
                     <Receipt className='mr-2 h-4 w-4' />
                     <span>Proof of Payment</span>
                   </a>
@@ -337,6 +337,9 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
 
   function RegDetails() {
     if (!openDialog) return null
+
+    const dsInfo = openDialog.row.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
+
     return (
       <>
         <div className='grid grid-cols-12 gap-1 text-base'>
@@ -346,14 +349,39 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
           <h1 className='col-span-3'>Last Name:</h1>
           <h1 className='col-span-9'>{openDialog.row.lastName}</h1>
 
-          <h1 className='col-span-3'>Drugstore:</h1>
-          <h1 className='col-span-9'>{(openDialog.row.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo'])?.establishment}</h1>
+          <h1 className='col-span-3'>Contact:</h1>
+          <h1 className='col-span-9'>{openDialog.row.contactNo}</h1>
 
-          <h1 className='col-span-3'>Chapter:</h1>
-          <h1 className='col-span-9'>{(openDialog.row.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo'])?.chapter}</h1>
+          <h1 className='col-span-3'>Email:</h1>
+          <h1 className='col-span-9'>{openDialog.row.emailAdd}</h1>
+
+          {dsInfo && dsInfo.establishment && (
+            <>
+              <h1 className='col-span-3'>Drugstore:</h1>
+              <h1 className='col-span-9'>{dsInfo.establishment}</h1>
+            </>
+          )}
+
+          {dsInfo && dsInfo.chapter && (
+            <>
+              <h1 className='col-span-3'>Chapter:</h1>
+              <h1 className='col-span-9'>{dsInfo.chapter}</h1>
+            </>
+          )}
 
           <h1 className='col-span-3'>Reg Fee:</h1>
           <h1 className='col-span-9'>{rateValues.find((c) => c.value === openDialog.row.type)?.label}</h1>
+
+          <div className='col-span-12 mt-2 flex items-center rounded-md bg-background/10 '>
+            <a
+              href={openDialog.row.proofOfPaymentUrl}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-sm text-indigo-500 hover:underline dark:text-indigo-400'
+            >
+              Click here to see proof of payment.
+            </a>
+          </div>
         </div>
       </>
     )
@@ -410,7 +438,7 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
               <Button
                 type='button'
                 onClick={() => {
-                  handleUpdateStatus(openDialog.row.id, openDialog.type)
+                  openDialog.type !== 'details' && handleUpdateStatus(openDialog.row.id, openDialog.type)
                 }}
                 disabled={isPending}
               >
@@ -448,6 +476,27 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
               >
                 {isPending ? 'Processing' : 'Proceed'}
                 {isPending && <Icons.spinner className='ml-2 h-4 w-4 animate-spin' />}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {openDialog && openDialog.type === 'details' && (
+        <Dialog open={openDialog?.isOpen} onOpenChange={() => setOpenDialog(null)}>
+          <DialogContent className='sm:max-w-md'>
+            <DialogHeader>
+              <DialogTitle>Registration Details</DialogTitle>
+              {/* <DialogDescription>Your message or the basis for the registration rejection..</DialogDescription> */}
+            </DialogHeader>
+            <div className='flex items-center space-x-2'>
+              <div className='grid flex-1 gap-2'>
+                <RegDetails />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type='button' onClick={() => setOpenDialog(null)} disabled={isPending}>
+                Close
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -14,7 +14,7 @@ export default function AboutPage() {
   return (
     <div className={cn('mx-auto mt-20 min-h-screen lg:pl-28', showBanner && 'mt-32')}>
       <div className='grid w-full grid-cols-7'>
-        <div id='mobile-navbar' className='fixed mb-10 mt-4 block w-full bg-slate-200 lg:hidden'>
+        <div id='mobile-navbar' className={cn('fixed mb-10 mt-4 block w-full bg-slate-200 lg:hidden', showBanner && 'mt-6')}>
           <nav id='sidebar-nav' className='relative w-full space-y-8'>
             <ul
               className='z-50 ml-0.5 flex items-center justify-center gap-9 border-l-2 border-slate-100 p-5 text-center text-xs dark:border-slate-800 md:text-sm'
@@ -66,7 +66,10 @@ export default function AboutPage() {
 
         <aside
           id='docs-sidebar'
-          className='hs-overlay hs-overlay-open:translate-x-0 scrollbar-y dark:scrollbar-y fixed bottom-0 left-0 top-0 z-[60] hidden  w-60 -translate-x-full transform overflow-y-auto border-r border-gray-200 bg-white px-8 py-10 transition-all duration-300  lg:bottom-0 lg:left-[max(0px,calc(13%-10rem))] lg:right-auto lg:top-[90px] lg:z-10 lg:block lg:translate-x-0'
+          className={cn(
+            'hs-overlay hs-overlay-open:translate-x-0 scrollbar-y dark:scrollbar-y fixed bottom-0 left-0 top-0 z-[60] hidden  w-60 -translate-x-full transform overflow-y-auto border-r border-gray-200 bg-white px-8 py-10 transition-all duration-300  lg:bottom-0 lg:left-[max(0px,calc(13%-10rem))] lg:right-auto lg:top-[90px] lg:z-10 lg:block lg:translate-x-0',
+            showBanner && 'mt-10'
+          )}
         >
           <nav id='sidebar-nav' className='relative space-y-8'>
             <ul className='ml-0.5 space-y-2 border-l-2 border-slate-100 dark:border-slate-800' data-hs-scrollspy='#scrollspy'>
@@ -178,7 +181,7 @@ export default function AboutPage() {
                     </div>
                   </div>
 
-                  <div id='mission' className='min-h-[25rem] scroll-mt-24 '>
+                  <div id='mission' className={cn('min-h-[25rem] scroll-mt-24 ', showBanner && 'scroll-mt-32')}>
                     <div className='mx-auto max-w-full px-4 pb-6 sm:px-6 lg:-mt-2 lg:px-8'>
                       <div className='max-w-full'>
                         <div className='space-y-5 md:space-y-5'>
@@ -312,7 +315,7 @@ export default function AboutPage() {
                     </div>
                   </div>
 
-                  <div id='vision' className='min-h-[25rem] scroll-mt-24 '>
+                  <div id='vision' className={cn('min-h-[25rem] scroll-mt-24 ', showBanner && 'scroll-mt-32')}>
                     <div className='mx-auto max-w-full px-4 sm:px-6 lg:-mt-2 lg:px-8'>
                       <div className='max-w-full'>
                         <div className='space-y-5 md:space-y-5'>
@@ -446,7 +449,7 @@ export default function AboutPage() {
                     </div>
                   </div>
 
-                  <div id='national-officer' className='min-h-[25rem] scroll-mt-24 '>
+                  <div id='national-officer' className={cn('min-h-[25rem] scroll-mt-24 ', showBanner && 'scroll-mt-32')}>
                     <div className='mx-auto mb-20 max-w-full px-4 sm:px-6 lg:-mt-2 lg:px-8'>
                       <div className='max-w-full'>
                         <div className='space-y-5 md:space-y-8'>
@@ -480,7 +483,7 @@ export default function AboutPage() {
                     </div>
                   </div>
 
-                  <div id='board-of-director' className='min-h-[25rem] scroll-mt-24 '>
+                  <div id='board-of-director' className={cn('min-h-[25rem] scroll-mt-24 ', showBanner && 'scroll-mt-32')}>
                     <div className='mx-auto mb-20 max-w-full px-4 sm:px-6 lg:-mt-2 lg:px-8'>
                       <div className='max-w-full'>
                         <div className='space-y-5 md:space-y-8'>

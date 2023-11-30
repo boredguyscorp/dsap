@@ -61,11 +61,11 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
 
   const defaultValues = {
     convention: currentConvention,
-    type: isPreReg ? '25th-prm' : '25th-m',
-    firstName: 'BG',
-    lastName: 'Dev',
+    type: isPreReg ? '25th-prm' : '25th-m'
+    // firstName: 'BG',
+    // lastName: 'Dev',
     // contactNo: '+63 123 456 789',
-    emailAdd: 'bginside.dev@gmail.com'
+    // emailAdd: 'bginside.dev@gmail.com'
     // proofOfPaymentUrl: 'https://uploadthing.com/'
   } as const
 

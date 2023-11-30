@@ -3,7 +3,7 @@ import BlurPostImage from '@/app/(root)/_components/BlurPostImage'
 import { MultiImage } from '@/components/editor/settings/multi-image-uploader'
 import MDX from '@/components/mdx'
 import { Icons } from '@/components/shared/icons'
-import { imagePostEmpty, placeholderBlurhash, toDateString } from '@/lib/utils'
+import { cn, imagePostEmpty, placeholderBlurhash, toDateString } from '@/lib/utils'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import React from 'react'
@@ -39,8 +39,10 @@ export default async function EventPagePost({ params }: PostPageProps) {
   const mdxSource = await getMdxSource(selectedSlug.content!)
   const imagesGallery = selectedSlug.imagesGallery as MultiImage[]
 
+  const showBanner = process.env.SHOW_BANNER === 'true'
+
   return (
-    <div className='mx-auto mb-20 mt-24 min-h-screen max-w-[85rem] px-4 sm:px-6 lg:px-8'>
+    <div className={cn('mx-auto mb-20 mt-24 min-h-screen max-w-[85rem] px-4 sm:px-6 lg:px-8', showBanner && 'mt-32')}>
       <div className='grid gap-y-8 md:gap-x-6 lg:grid-cols-3 lg:gap-x-12 lg:gap-y-0'>
         <div className='lg:col-span-2'>
           <div className='py-8 md:pr-4 lg:pr-8'>
@@ -74,7 +76,12 @@ export default async function EventPagePost({ params }: PostPageProps) {
 
         <div className=' dark:from-slate-800 lg:col-span-1 lg:h-full lg:w-full lg:bg-gradient-to-r lg:from-gray-50 lg:via-transparent lg:to-transparent'>
           <div className='sticky left-0 top-0 py-8 md:pl-4 lg:pl-8'>
-            <div className='group mb-8 mt-20 flex items-center gap-x-3 border-b border-gray-200 pb-8 dark:border-gray-700'>
+            <div
+              className={cn(
+                'group mb-8 mt-20 flex items-center gap-x-3 border-b border-gray-200 pb-8 dark:border-gray-700'
+                // showBanner && 'mt-36'
+              )}
+            >
               <div className='block grow'>
                 <h5 className='text-lg font-bold text-gray-800 dark:text-gray-200 dark:group-hover:text-gray-400'>Related content</h5>
                 <p className='text-sm text-gray-500'>and more {page} post.</p>
