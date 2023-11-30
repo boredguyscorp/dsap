@@ -21,11 +21,11 @@ export const appDashboardMenuItems = [
     href: '/convention',
     icon: Icons.media
   },
-  {
-    title: 'Registration',
-    href: '/registration',
-    icon: Icons.edit
-  },
+  // {
+  //   title: 'Registration',
+  //   href: '/registration',
+  //   icon: Icons.edit
+  // },
   {
     title: 'Election',
     href: '/election',

@@ -4,8 +4,15 @@ import { Tasks } from '@prisma/client'
 import { searchParamsSchema } from './_components/schema'
 import { ActionButton } from './_components/action-button'
 import { DashboardShell } from '../../_components/dashboard-shell'
+import Link from 'next/link'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
+import { getRandomPatternStyle } from '@/lib/generate-pattern'
+import { Convention, conventions } from './_components/constant'
+import BlurImage from '@/components/shared/blur-image'
+
+import dsap25th from 'public/images/dsap25th.jpg'
 // import { TasksTableShell } from './_components/tasks-table-shell'
-import { RegistrationTableShell } from './_components/registration-table'
+// import { MembershipTableShell } from './_components/membership-table'
 
 interface IndexPageProps {
   searchParams: {
@@ -14,44 +21,39 @@ interface IndexPageProps {
 }
 
 export default async function IndexPage({ searchParams }: IndexPageProps) {
-  // Parse search params using zod schema
-  const { page, per_page, sort, title, status, priority, operator } = searchParamsSchema.parse(searchParams)
-
-  // Fallback page for invalid page numbers
-  const pageAsNumber = Number(page)
-  const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber
-  // Number of items per page
-  const perPageAsNumber = Number(per_page)
-  const limit = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
-  // Number of items to skip
-  const offset = fallbackPage > 0 ? (fallbackPage - 1) * limit : 0
-  // Column and order to sort by
-  // Spliting the sort string by "." to get the column and order
-  // Example: "title.desc" => ["title", "desc"]
-  const [column, order] = (sort?.split('.') as [keyof Tasks | undefined, 'asc' | 'desc' | undefined]) ?? ['title', 'desc']
-
-  const statuses = (status?.split('.') as Tasks['status'][]) ?? []
-
-  const priorities = (priority?.split('.') as Tasks['priority'][]) ?? []
-
-  // Transaction is used to ensure both queries are executed in a single transaction
-  const { allTasks, totalTasks } = await db.$transaction(async (tx) => {
-    const allTasks = await tx.registration.findMany({ skip: offset, take: limit })
-    const totalTasks = await tx.registration.count()
-
-    return {
-      allTasks,
-      totalTasks
-    }
-  })
-
-  const pageCount = Math.ceil(totalTasks / limit)
-
   return (
-    <DashboardShell title='Membership' description='Manage your member(s) data.' className='mb-0' headerAction={<ActionButton />}>
-      <div className='pb-8 pt-6 md:py-8'>
-        <RegistrationTableShell data={allTasks} pageCount={pageCount} />
+    <DashboardShell
+      title='Convention & Registration'
+      description='DSAP National Convention & Event'
+      className='mb-0'
+      // headerAction={<ActionButton />}
+    >
+      <div className='mt-10 grid h-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+        {conventions.map((convention) => (
+          <ConventionCardSkeleton convention={convention} />
+        ))}
       </div>
     </DashboardShell>
+  )
+}
+
+function ConventionCardSkeleton({ convention }: { convention: Convention }) {
+  return (
+    <Link href={`/convention/${convention.code}/`} className='group'>
+      <Card className='overflow-hidden group-hover:border-primary'>
+        <div className='relative mt-10 h-64'>
+          <BlurImage fill src={dsap25th} alt='No links yet' className='pointer-events-none relative object-contain object-center' />
+        </div>
+
+        <CardHeader className='flex flex-row items-center justify-between p-4'>
+          <div className='flex w-full flex-col gap-1'>
+            <span className='text-xs font-semibold'>{convention.code.toUpperCase() + ' DSAP National Convention'}</span>
+            <CardTitle className='overflow-hidden text-ellipsis whitespace-nowrap text-lg leading-tight'>{convention.title}</CardTitle>
+            <p className='overflow-hidden text-ellipsis whitespace-nowrap text-xs text-muted-foreground'>{convention.description}</p>
+            <p className='overflow-hidden text-ellipsis whitespace-nowrap text-xs text-muted-foreground'>{convention.date}</p>
+          </div>
+        </CardHeader>
+      </Card>
+    </Link>
   )
 }

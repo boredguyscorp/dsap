@@ -4,6 +4,7 @@ import { Html } from '@react-email/html'
 import { Text } from '@react-email/text'
 import { Link } from '@react-email/link'
 import { Prisma } from '@prisma/client'
+import { MembershipStatus } from '@/app/(app.domain.com)/dashboard/convention/_components/membership'
 
 const paragraph = {
   fontSize: 16
@@ -80,9 +81,11 @@ type EmailRegistrationConfirmProps = {
   lastName: string
   emailAdd: string
   drugstoreInfo: Prisma.JsonValue
+  message: string | null
+  status: string
 }
 
-export function EmailRegistrationConfirm({ data }: { data: EmailRegistrationConfirmProps }) {
+export function EmailRegistrationStatus({ data }: { data: EmailRegistrationConfirmProps }) {
   const conventionDetails = conventions.find((row) => row.code == data.convention)
   const dsInfo = data.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
 
@@ -93,12 +96,30 @@ export function EmailRegistrationConfirm({ data }: { data: EmailRegistrationConf
         {/* <b>Thank you for your Registration to {conventionDetails?.title}. For verification, here is what was received;</b> */}
       </Text>
       <br />
-      <Text style={paragraph}>
-        Your Registration as Delegate at {conventionDetails?.title} is <b>CONFIRMED</b> with Ref No.{' '}
-        <u>
-          <b>{data.code}</b>
-        </u>
-      </Text>
+
+      {data.status === 'approved' && (
+        <Text style={paragraph}>
+          Your Registration as Delegate at {conventionDetails?.title} is <b>CONFIRMED</b> with Ref No.{' '}
+          <u>
+            <b>{data.code}</b>
+          </u>
+        </Text>
+      )}
+
+      {data.status === 'rejected' && (
+        <>
+          <Text style={paragraph}>
+            Your Registration as Delegate at {conventionDetails?.title} is <b>REJECTED</b>
+          </Text>
+          {data.message && (
+            <Text style={paragraph}>
+              <b>Message/Reason: </b>
+              {data.message}
+            </Text>
+          )}
+        </>
+      )}
+
       <br />
       <Text style={paragraph}>
         <b>Full Name: </b>

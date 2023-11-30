@@ -10,6 +10,19 @@ type PostOptions = {
   take?: number
 }
 
+export async function getChapters() {
+  return await unstable_cache(
+    async () => {
+      return db.chapter.findMany({ orderBy: { name: 'asc' }, select: { name: true } })
+    },
+    [`chapters`],
+    {
+      revalidate: 86400, // 86400 = 1 day cache (900 = 15 minutes)
+      tags: [`chapters`]
+    }
+  )()
+}
+
 export async function getPostsForSite(page: string, options?: PostOptions) {
   return await unstable_cache(
     async () => {

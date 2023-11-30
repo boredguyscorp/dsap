@@ -249,9 +249,24 @@ model Registration {
   drugstoreInfo     Json?
   proofOfPaymentUrl String
 
+  message String? @db.Text()
+
   createdAt DateTime @default(now()) @map(name: "created_at")
   updatedAt DateTime @default(now()) @map(name: "updated_at")
 
   @@unique([code])
   @@map(name: "Registration")
+}
+
+model Chapter {
+  id            String    @id @default(cuid())
+  code          String
+  name          String
+  isActive      Boolean   @default(true) @db.Bit(1)
+  organizationd String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@unique([code])
 }

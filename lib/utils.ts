@@ -115,3 +115,7 @@ export function catchError(err: unknown) {
     return toast('Something went wrong, please try again later.')
   }
 }
+
+export function strProperCase(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}

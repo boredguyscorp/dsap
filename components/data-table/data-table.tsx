@@ -274,7 +274,7 @@ export function DataTable<TData, TValue>({
       </div>
       <div className='space-y-2.5'>
         <DataTablePagination table={table} />
-        {floatingBar ? <DataTableFloatingBar table={table} deleteRowsAction={deleteRowsAction} /> : null}
+        {/* {floatingBar ? <DataTableFloatingBar table={table} deleteRowsAction={deleteRowsAction} /> : null} */}
       </div>
     </div>
   )

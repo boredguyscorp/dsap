@@ -3,7 +3,7 @@
 import { FileIcon, FileText, X } from 'lucide-react'
 import Image from 'next/image'
 
-import { UploadDropzone } from '@/lib/uploadthing'
+import { UploadDropzone, UploadButton, Uploader } from '@/lib/uploadthing'
 
 import '@uploadthing/react/styles.css'
 import { useToast } from '@/components/ui/use-toast'
@@ -13,9 +13,10 @@ interface FileUploadProps {
   onChange: (url?: string) => void
   value: string | null | undefined
   endpoint?: keyof OurFileRouter
+  uploader?: 'dropzone' | 'button'
 }
 
-export const FileUpload = ({ onChange, value, endpoint = 'imageUploader' }: FileUploadProps) => {
+export const FileUpload = ({ onChange, value, endpoint = 'imageUploader', uploader = 'dropzone' }: FileUploadProps) => {
   const fileType = value?.split('.').pop()
 
   const toaster = useToast()
@@ -59,6 +60,32 @@ export const FileUpload = ({ onChange, value, endpoint = 'imageUploader' }: File
     )
   }
 
+  const UploadComponent = uploader === 'dropzone' ? UploadDropzone : UploadButton
+
+  return (
+    <UploadComponent
+      endpoint={endpoint}
+      onClientUploadComplete={(res) => {
+        // console.log('🚀 -> onClientUploadComplete -> res:', res)
+        onChange(res?.[0].url)
+      }}
+      onUploadError={(error: Error) => {
+        console.log('onUploadError', error)
+        let message = error.message
+
+        if (message.includes('limit') && endpoint === 'pdfUploader') {
+          message = 'PDF file up to 4MB only, maximum of 1 file.'
+        }
+
+        toaster.toast({
+          title: `Error uploading files.`,
+          description: message,
+          variant: 'destructive'
+        })
+      }}
+    />
+  )
+
   return (
     <UploadDropzone
       endpoint={endpoint}
@@ -67,7 +94,7 @@ export const FileUpload = ({ onChange, value, endpoint = 'imageUploader' }: File
         onChange(res?.[0].url)
       }}
       onUploadError={(error: Error) => {
-        // console.log(error)
+        console.log('onUploadError', error)
         let message = error.message
 
         if (message.includes('limit') && endpoint === 'pdfUploader') {

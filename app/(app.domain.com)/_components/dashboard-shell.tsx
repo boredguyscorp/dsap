@@ -1,4 +1,5 @@
 import MaxWidthWrapper from '@/components/shared/max-width-wrapper'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { Balancer } from 'react-wrap-balancer'
 
@@ -15,9 +16,14 @@ export function DashboardShell(props: {
       <div className={cn('mb-10 flex h-36 border-b', props.className)}>
         <MaxWidthWrapper className='flex items-center justify-between'>
           <div className='space-y-1'>
-            <h1 className='text-xl font-semibold leading-none tracking-tight'>{props.title}</h1>
+            {props.title === 'skeleton' ? (
+              <Skeleton className='h-[38px] w-[600px]' />
+            ) : (
+              <h1 className='text-xl font-semibold leading-none tracking-tight'>{props.title}</h1>
+            )}
+
             <h2 className='text-base text-muted-foreground'>
-              <Balancer>{props.description}</Balancer>
+              {props.title === 'skeleton' ? <Skeleton className='h-[24px] w-[500px]' /> : <Balancer>{props.description}</Balancer>}
             </h2>
           </div>
           {props.headerAction}

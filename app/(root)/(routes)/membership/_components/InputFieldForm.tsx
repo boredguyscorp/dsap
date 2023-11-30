@@ -35,7 +35,10 @@ export function InputFieldForm<T extends FieldValues>(props: TextFieldFormProps<
           <FormItem>
             <FormLabel className='w-52'>{labelText}</FormLabel>
             <FormControl>
-              <Input {...field} {...fieldProps} value={getValues(name)} />
+              <div className='relative w-full'>
+                <Input {...field} {...fieldProps} value={getValues(name)} />
+                {fieldProps?.required && <p className='absolute right-1 top-0 text-lg font-bold text-teal-500'> * </p>}
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>

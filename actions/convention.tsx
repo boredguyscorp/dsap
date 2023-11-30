@@ -10,7 +10,7 @@ import nodemailer from 'nodemailer'
 import Mail from 'nodemailer/lib/mailer'
 import { render } from '@react-email/render'
 
-import { EmailRegistrationConfirm, EmailRegistrationConvention } from '@/app/(root)/(routes)/national-convention/_docs/email'
+import { EmailRegistrationStatus, EmailRegistrationConvention } from '@/app/(root)/(routes)/national-convention/_docs/email'
 
 export async function registerConvention(formData: ConventionRegistrationForm) {
   const code = generateRandomString(4).toUpperCase() + '-' + generateNumberString(4)
@@ -28,6 +28,13 @@ export async function registerConvention(formData: ConventionRegistrationForm) {
       }
     })
 
+    // const options: Mail.Options = {
+    //   from: process.env.NODEMAILER_EMAIL,
+    //   to: formData.emailAdd,
+    //   subject: `New Registration ${formData.convention} DSAP National Convention`,
+    //   html: render(<EmailRegistrationConvention formData={formData} />)
+    // }
+
     const options: Mail.Options = {
       from: process.env.NODEMAILER_EMAIL,
       to: formData.emailAdd,
@@ -44,12 +51,23 @@ export async function registerConvention(formData: ConventionRegistrationForm) {
   }
 }
 
-export async function updateRegistrationStatusAction({ id, status }: UpdateMembershipStatus) {
+type UpdateRegOptions = { options?: { message: string } }
+
+export async function updateRegistrationStatusAction({ id, status, options }: UpdateMembershipStatus & UpdateRegOptions) {
   try {
     const result = await db.registration.update({
       where: { id },
-      data: { status },
-      select: { code: true, firstName: true, lastName: true, drugstoreInfo: true, emailAdd: true, convention: true }
+      data: { status, message: options?.message },
+      select: {
+        code: true,
+        firstName: true,
+        lastName: true,
+        drugstoreInfo: true,
+        emailAdd: true,
+        convention: true,
+        message: true,
+        status: true
+      }
     })
 
     const transporter = nodemailer.createTransport({
@@ -60,14 +78,17 @@ export async function updateRegistrationStatusAction({ id, status }: UpdateMembe
       }
     })
 
-    const options: Mail.Options = {
+    const mailOptions: Mail.Options = {
       from: process.env.NODEMAILER_EMAIL,
       to: result.emailAdd,
-      subject: `Registration Confirmation ${result.convention} DSAP National Convention`,
-      html: render(<EmailRegistrationConfirm data={result} />)
+      subject:
+        result.status === 'approved'
+          ? `Registration Confirmation ${result.convention} DSAP National Convention`
+          : 'DSAP Registration Rejected',
+      html: render(<EmailRegistrationStatus data={result} />)
     }
 
-    await transporter.sendMail(options)
+    await transporter.sendMail(mailOptions)
 
     revalidatePath('/national-convention')
   } catch (error) {
