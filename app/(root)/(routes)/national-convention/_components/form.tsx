@@ -99,16 +99,13 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
   // console.log('🚀 -> NationalConventionPage -> errors:', errors)
 
   // UPLOADER
-  const refUploadButton = useRef<HTMLButtonElement>(null)
   const refUploaderBrowser = useRef<HTMLDivElement>(null)
 
-  const [newImages, setNewImages] = useState<MultiImage[]>([])
   const [files, setFiles] = useState<File[]>([])
   const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
     setFiles(acceptedFiles)
     setValue('proofOfPaymentUrl', 'uploaded')
     clearErrors('proofOfPaymentUrl')
-    // setValue('proofOfPaymentUrl', acceptedFiles[0])
   }, [])
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -120,16 +117,6 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
     onClientUploadComplete: (data) => {
       // setFiles([])
       if (!data) return
-      // setValue('proofOfPaymentUrl', data[0].url)
-      // setNewImages(
-      //   data.map((item) => {
-      //     return {
-      //       url: item.url,
-      //       alt: item.key.split('_')[1],
-      //       id: item.key
-      //     }
-      //   })
-      // )
 
       startTransition(async () => {
         try {
@@ -170,8 +157,19 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
     // console.log(errors.proofOfPaymentUrl)
     const errorKeys = Object.keys(errors)
 
-    errorKeys.length == 1 && errors.proofOfPaymentUrl?.message === 'Required' && refUploaderBrowser.current?.click()
+    errorKeys.length == 1 &&
+      errorKeys[0] === 'proofOfPaymentUrl' &&
+      errors.proofOfPaymentUrl?.message?.toLocaleLowerCase().includes('required') &&
+      refUploaderBrowser.current?.click()
   }, [errors.proofOfPaymentUrl])
+
+  useEffect(() => {
+    if (files.length > 0) {
+      if (Number((files[0].size / 1024 ** 2).toPrecision(4)) > 2) {
+        setError('proofOfPaymentUrl', { message: 'Image is too big. Max 2mb' })
+      }
+    }
+  }, [files])
 
   if (!showForm) {
     return (
@@ -237,6 +235,13 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
 
     // refUploadButton.current?.click()
 
+    if (errors.proofOfPaymentUrl?.message?.includes('big')) {
+      // console.log('zzzzzzzzz')
+      setError('proofOfPaymentUrl', { message: 'Too big' })
+      toast.error('Image is too big. Max (2MB)')
+      return
+    }
+
     startUpload(files)
 
     return
@@ -275,6 +280,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
     num = num.trim()
 
     setValue('contactNo', num)
+    clearErrors('contactNo')
   }
 
   const onKeyPressNumber = (event: any) => {
@@ -472,13 +478,9 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
 
                       <Separator />
                       <div className='space-y-2'>
-                        <Label className={cn('font-medium', !watch('proofOfPaymentUrl') && errors.proofOfPaymentUrl && 'text-red-500')}>
-                          Proof of Payment{' '}
-                          {!watch('proofOfPaymentUrl') && errors.proofOfPaymentUrl ? (
-                            ' is required.'
-                          ) : (
-                            <span className='text-lg font-bold text-teal-500'> * </span>
-                          )}
+                        <Label className={cn('font-medium', errors.proofOfPaymentUrl && 'text-red-500')}>
+                          Proof of Payment {!watch('proofOfPaymentUrl') && errors.proofOfPaymentUrl && ' is required. '}
+                          <span className={cn('text-lg font-bold text-teal-500', errors.proofOfPaymentUrl && 'text-red-500')}> * </span>
                         </Label>
                         {/* <FileUpload
                           endpoint='proofOfPaymentUploader'
@@ -486,14 +488,22 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                           onChange={(urlValue) => setValue('proofOfPaymentUrl', urlValue ?? '')}
                           uploader='button'
                         /> */}
-                        {files.length === 0 && (
+                        {(files.length === 0 || errors.proofOfPaymentUrl?.message?.includes('big')) && (
                           <div
                             {...getRootProps()}
                             ref={refUploaderBrowser}
-                            className='h-36 w-36 rounded-md border-2 border-dashed border-border'
+                            className='h-48 w-full cursor-pointer rounded-md border-2 border-dashed border-border'
                           >
-                            <p className='relative top-[50px] flex flex-col items-center justify-center text-sm'>
-                              <span className='mr-1 font-semibold'>Click to upload</span>
+                            <p
+                              className={cn(
+                                'relative top-[60px] flex flex-col items-center justify-center text-sm',
+                                errors.proofOfPaymentUrl?.message?.includes('big') && 'top-[50px]'
+                              )}
+                            >
+                              {errors.proofOfPaymentUrl?.message?.includes('big') && (
+                                <span className='mb-2 text-base font-semibold text-red-500'>Image is too big. (Max 2MB)</span>
+                              )}
+                              <span className='mr-1 font-semibold text-teal-500'>Click to upload image</span>
                               <span>or drag and drop.</span>
                               <span className='text-xs text-muted-foreground'>(Max {permittedFileInfo?.config.image?.maxFileSize})</span>
                             </p>
@@ -509,7 +519,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                         {files.length > 0 && (
                           <div className='mt-4'>
                             <li key={files[0].name} className='flex items-center'>
-                              {files[0].name} - {(files[0].size / 1024 ** 2).toPrecision(4)} mb
+                              {files[0].name} - {(files[0].size / 1024 ** 2).toPrecision(4)} MB
                               {isPending || isUploading ? (
                                 <span>
                                   <Icons.spinner className='ml-2 h-6 w-6 animate-spin text-teal-500' />
@@ -522,12 +532,29 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                                   variant='link'
                                   onClick={() => {
                                     setFiles([])
+                                    setValue('proofOfPaymentUrl', '')
+                                    clearErrors('proofOfPaymentUrl')
                                   }}
+                                  className='text-red-500'
                                 >
                                   Remove
                                 </Button>
                               )}
                             </li>
+
+                            {/* {errors.proofOfPaymentUrl && (
+                              <li key='imgError' className='flex items-center text-red-500'>
+                                Image is too big. Max 2mb
+                                <Button
+                                  type='button'
+                                  variant='link'
+                                  onClick={() => refUploaderBrowser.current?.click()}
+                                  className='text-blue-500'
+                                >
+                                  Browse again
+                                </Button>
+                              </li>
+                            )} */}
                           </div>
                         )}
                       </div>
@@ -586,52 +613,6 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                 </div>
               </div>
             )}
-
-            {/* {response ? (
-              <div
-                className='mt-10 flex cursor-pointer justify-center text-center'
-                onClick={() => {
-                  window.location.reload()
-                }}
-              >
-                <p
-                  className={cn(
-                    'flex flex-col items-center justify-center gap-2 text-lg font-bold text-teal-600',
-                    !response.success && 'text-red-600'
-                  )}
-                >
-                  <div className='flex items-center gap-2'>
-                    {response.message}
-                    <span>{response.success && <Icons.check className='mr-2 h-6 w-6' />}</span>
-                  </div>
-
-                  {response.success && (
-                    <span className='inline-flex items-center justify-center gap-x-2 text-xs font-semibold text-gray-800 decoration-2 group-hover:underline sm:text-sm '>
-                      Click here to create new registration.
-                    </span>
-                  )}
-                </p>
-              </div>
-            ) : (
-              <div className='mt-10 flex items-center p-2'>
-                <div>
-                  <p>Registration Fee:</p>
-                  <Label className='text-xl font-semibold text-teal-600'>{rateValues.find((r) => r.value === watch('type'))?.label}</Label>
-                </div>
-                <div className='flex flex-auto flex-row-reverse'>
-                  <button
-                    className={cn(
-                      'ml-2 flex h-16 min-w-[150px] cursor-pointer items-center justify-center rounded border border-teal-500 bg-teal-500 px-4 py-2 text-lg font-semibold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:bg-teal-400',
-                      isPending && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
-                    )}
-                    onClick={form.handleSubmit(onSubmit)}
-                    disabled={isPending}
-                  >
-                    {isPending ? 'Submitting Registration' : 'Submit Registration'}
-                  </button>
-                </div>
-              </div>
-            )} */}
           </div>
 
           <RHFDevTool control={form.control} />
