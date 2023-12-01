@@ -40,11 +40,11 @@ export default async function RootLayout({ children }: MarketingLayoutProps) {
           className='group fixed top-0 z-50 block w-full  bg-teal-500 p-4 text-center transition-all duration-300 hover:bg-teal-400 '
           href='/national-convention'
         >
-          <div className='mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8'>
-            <p className='me-2 inline-block text-xs text-gray-800 dark:text-gray-200 sm:text-sm'>
+          <div className='mx-auto max-w-[85rem] px-4 font-bold sm:px-6 lg:px-8'>
+            <p className='me-2 inline-block text-xs text-gray-800 dark:text-gray-200 sm:text-base'>
               25th DSAP National Convention April 24-26, 2024
             </p>
-            <span className='inline-flex items-center justify-center gap-x-2 text-xs font-semibold text-white decoration-2 group-hover:underline sm:text-sm '>
+            <span className='inline-flex items-center justify-center gap-x-2 text-xs  text-white decoration-2 group-hover:underline sm:text-base '>
               Register Now
               <ChevronRight className='h-4 w-4' />
             </span>

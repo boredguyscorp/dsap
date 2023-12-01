@@ -128,6 +128,17 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
         enableHiding: false
       },
       {
+        accessorKey: 'refNo',
+        header: ({ column }) => <DataTableColumnHeader column={column} title='Ref. No' />,
+        cell: ({ row }) => {
+          return (
+            <div className='flex space-x-2'>
+              <span className='max-w-[500px] truncate font-medium'>{row.original.code}</span>
+            </div>
+          )
+        }
+      },
+      {
         accessorKey: 'firstName',
         header: ({ column }) => <DataTableColumnHeader column={column} title='First Name' />,
         cell: ({ row }) => {
@@ -343,6 +354,9 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
     return (
       <>
         <div className='grid grid-cols-12 gap-1 text-base'>
+          <h1 className='col-span-3'>Ref. No:</h1>
+          <h1 className='col-span-9'>{openDialog.row.code}</h1>
+
           <h1 className='col-span-3'>First Name:</h1>
           <h1 className='col-span-9'>{openDialog.row.firstName}</h1>
 

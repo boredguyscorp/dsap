@@ -54,7 +54,7 @@ export function MultiImageUploader(props: {
     },
     onUploadError: () => {
       toast({
-        title: 'Sorry, an error occured while uploading your image(s).'
+        title: 'Sorry, an error occurred while uploading your image(s).'
       })
     }
   })

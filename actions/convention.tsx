@@ -28,13 +28,6 @@ export async function registerConvention(formData: ConventionRegistrationForm) {
       }
     })
 
-    // const options: Mail.Options = {
-    //   from: process.env.NODEMAILER_EMAIL,
-    //   to: formData.emailAdd,
-    //   subject: `New Registration ${formData.convention} DSAP National Convention`,
-    //   html: render(<EmailRegistrationConvention formData={formData} />)
-    // }
-
     const options: Mail.Options = {
       from: process.env.NODEMAILER_EMAIL,
       to: formData.emailAdd,
@@ -43,6 +36,8 @@ export async function registerConvention(formData: ConventionRegistrationForm) {
     }
 
     await transporter.sendMail(options)
+
+    // await new Promise((res) => setTimeout(res, 2500))
 
     return { code }
   } catch (error) {

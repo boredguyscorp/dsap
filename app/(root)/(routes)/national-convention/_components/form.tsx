@@ -2,7 +2,7 @@
 
 import { Icons } from '@/components/shared/icons'
 import { cn } from '@/lib/utils'
-import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -43,6 +43,10 @@ import { Label } from '@/components/ui/label'
 import { ConventionEnum, conventions, rateValues } from '@/app/(app.domain.com)/dashboard/convention/_components/constant'
 import { registerConvention } from '@/actions/convention'
 import { toast } from 'react-hot-toast'
+import { FileWithPath, useDropzone } from 'react-dropzone'
+import { generateClientDropzoneAccept } from 'uploadthing/client'
+import { useUploadThing } from '@/lib/uploadthing'
+import { MultiImage } from '@/components/editor/settings/multi-image-uploader'
 
 type NationalConventionFormProps = {
   chapters: Array<{ name: string }>
@@ -84,6 +88,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
   const {
     reset,
     setError,
+    clearErrors,
     formState: { errors },
     getValues,
     watch,
@@ -92,6 +97,81 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
   } = form
 
   // console.log('🚀 -> NationalConventionPage -> errors:', errors)
+
+  // UPLOADER
+  const refUploadButton = useRef<HTMLButtonElement>(null)
+  const refUploaderBrowser = useRef<HTMLDivElement>(null)
+
+  const [newImages, setNewImages] = useState<MultiImage[]>([])
+  const [files, setFiles] = useState<File[]>([])
+  const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
+    setFiles(acceptedFiles)
+    setValue('proofOfPaymentUrl', 'uploaded')
+    clearErrors('proofOfPaymentUrl')
+    // setValue('proofOfPaymentUrl', acceptedFiles[0])
+  }, [])
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: generateClientDropzoneAccept(['image'])
+  })
+
+  const { startUpload, isUploading, permittedFileInfo } = useUploadThing('proofOfPaymentUploader', {
+    onClientUploadComplete: (data) => {
+      // setFiles([])
+      if (!data) return
+      // setValue('proofOfPaymentUrl', data[0].url)
+      // setNewImages(
+      //   data.map((item) => {
+      //     return {
+      //       url: item.url,
+      //       alt: item.key.split('_')[1],
+      //       id: item.key
+      //     }
+      //   })
+      // )
+
+      startTransition(async () => {
+        try {
+          // refUpload.current?.click()
+
+          console.log('🚀 -> startTransition -> getValues():', getValues())
+          const { proofOfPaymentUrl, ...restOfFormData } = getValues()
+          const paymentUrl = data[0].url
+
+          const response = await registerConvention({ ...restOfFormData, proofOfPaymentUrl: paymentUrl })
+          // console.log('🚀 -> startTransition -> response:', response)
+          // await new Promise((res) => setTimeout(() => res('sending...'), 1000))
+          setResponse({ success: true, message: 'Successfully submitted your registration.' })
+          // setFiles([])
+          toast.success('Successfully submitted your registration', { position: 'top-center' })
+
+          // setShowForm(false)
+
+          // setTimeout(() => {
+          //   // router.refresh()
+          //   // setShowForm(false)
+          //   window.location.reload()
+          // }, 3000)
+        } catch (error) {
+          console.error('ERROR: ', error)
+          setResponse({ success: false, message: 'Error submitting registration! Please try again.' })
+          toast.error('Error submitting registration! Please try again.', { position: 'top-center' })
+        }
+      })
+    },
+    onUploadError: () => {
+      toast.error('Sorry, an error occurred while uploading your image(s).')
+      setResponse({ success: false, message: 'Error uploading proof of payment! Please try again.' })
+    }
+  })
+
+  useEffect(() => {
+    // console.log(errors.proofOfPaymentUrl)
+    const errorKeys = Object.keys(errors)
+
+    errorKeys.length == 1 && errors.proofOfPaymentUrl?.message === 'Required' && refUploaderBrowser.current?.click()
+  }, [errors.proofOfPaymentUrl])
 
   if (!showForm) {
     return (
@@ -149,9 +229,22 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
   }
 
   const onSubmit: SubmitHandler<ConventionRegistrationForm> = async (data) => {
+    // if (files.length == 0) {
+    //   setError('proofOfPaymentUrl', { message: 'Proof of payment is required.' })
+    //   refUploaderBrowser.current?.click()
+    //   return
+    // }
+
+    // refUploadButton.current?.click()
+
+    startUpload(files)
+
+    return
     // console.log('🚀 -> constonSubmit:SubmitHandler<ConventionRegistrationForm>= -> data:', data)
     startTransition(async () => {
       try {
+        // refUpload.current?.click()
+
         const response = await registerConvention(data)
         // console.log('🚀 -> startTransition -> response:', response)
         // await new Promise((res) => setTimeout(() => res('sending...'), 1000))
@@ -387,12 +480,56 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                             <span className='text-lg font-bold text-teal-500'> * </span>
                           )}
                         </Label>
-                        <FileUpload
+                        {/* <FileUpload
                           endpoint='proofOfPaymentUploader'
                           value={watch('proofOfPaymentUrl')}
                           onChange={(urlValue) => setValue('proofOfPaymentUrl', urlValue ?? '')}
                           uploader='button'
-                        />
+                        /> */}
+                        {files.length === 0 && (
+                          <div
+                            {...getRootProps()}
+                            ref={refUploaderBrowser}
+                            className='h-36 w-36 rounded-md border-2 border-dashed border-border'
+                          >
+                            <p className='relative top-[50px] flex flex-col items-center justify-center text-sm'>
+                              <span className='mr-1 font-semibold'>Click to upload</span>
+                              <span>or drag and drop.</span>
+                              <span className='text-xs text-muted-foreground'>(Max {permittedFileInfo?.config.image?.maxFileSize})</span>
+                            </p>
+                            <input
+                              id='dataImages-images'
+                              className='relative z-10 h-[100px] w-full border-2 opacity-0'
+                              {...getInputProps()}
+                              style={{ display: 'block' }}
+                            />
+                          </div>
+                        )}
+
+                        {files.length > 0 && (
+                          <div className='mt-4'>
+                            <li key={files[0].name} className='flex items-center'>
+                              {files[0].name} - {(files[0].size / 1024 ** 2).toPrecision(4)} mb
+                              {isPending || isUploading ? (
+                                <span>
+                                  <Icons.spinner className='ml-2 h-6 w-6 animate-spin text-teal-500' />
+                                </span>
+                              ) : response?.success ? (
+                                <Icons.check className='ml-2 h-6 w-6 text-teal-500' />
+                              ) : (
+                                <Button
+                                  type='button'
+                                  variant='link'
+                                  onClick={() => {
+                                    setFiles([])
+                                  }}
+                                >
+                                  Remove
+                                </Button>
+                              )}
+                            </li>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -438,13 +575,13 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                     ref={refSubmit}
                     className={cn(
                       'ml-2 flex h-16 min-w-[150px] cursor-pointer items-center justify-center rounded border border-teal-500 bg-teal-500 px-4 py-2 text-lg font-semibold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:bg-teal-400',
-                      isPending && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
+                      (isPending || isUploading) && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
                     )}
                     onClick={form.handleSubmit(onSubmit)}
-                    disabled={isPending}
+                    disabled={isPending || isUploading}
                   >
-                    {isPending ? 'Submitting Registration' : 'Submit Registration'}
-                    {isPending && <Icons.spinner className='ml-2 h-8 w-8 animate-spin' />}
+                    {isPending || isUploading ? 'Submitting Registration' : 'Submit Registration'}
+                    {(isPending || isUploading) && <Icons.spinner className='ml-2 h-8 w-8 animate-spin' />}
                   </button>
                 </div>
               </div>
