@@ -1,13 +1,16 @@
 import db from '@/lib/db'
-import { Tasks } from '@prisma/client'
+import { Prisma, Registration } from '@prisma/client'
 
 import { searchParamsSchema } from '../_components/schema'
 import { ActionButton } from '../_components/action-button'
 import { DashboardShell } from '../../../_components/dashboard-shell'
 // import { TasksTableShell } from './_components/tasks-table-shell'
 import { RegistrationTableShell } from '../_components/registration-table'
-import { conventions } from '../_components/constant'
+import { Convention, conventions } from '../_components/constant'
 import { notFound } from 'next/navigation'
+import { ChapterList, getChapters } from '@/actions/fetchers'
+import { Suspense } from 'react'
+import { DataTableLoading } from '@/components/data-table/data-table-loading'
 
 interface IndexPageProps {
   searchParams: {
@@ -23,7 +26,9 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
   if (!convention) throw notFound()
 
   // Parse search params using zod schema
-  const { page, per_page, sort, title, status, priority, operator } = searchParamsSchema.parse(searchParams)
+  const { page, per_page, sort, firstName, status, drugstoreInfo, type, priority, operator } = searchParamsSchema.parse(searchParams)
+
+  const searchVal = firstName
 
   // Fallback page for invalid page numbers
   const pageAsNumber = Number(page)
@@ -36,24 +41,71 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
   // Column and order to sort by
   // Spliting the sort string by "." to get the column and order
   // Example: "title.desc" => ["title", "desc"]
-  const [column, order] = (sort?.split('.') as [keyof Tasks | undefined, 'asc' | 'desc' | undefined]) ?? ['title', 'desc']
+  const [column, order] = (sort?.split('.') as [keyof Registration | undefined, 'asc' | 'desc' | undefined]) ?? ['title', 'desc']
 
-  const statuses = (status?.split('.') as Tasks['status'][]) ?? []
+  const statuses = (status?.split('.') as Registration['status'][]) ?? []
+  const chapterFilter = drugstoreInfo?.split('.') ?? []
+  const regFeeType = type?.split('.') ?? []
 
-  const priorities = (priority?.split('.') as Tasks['priority'][]) ?? []
+  const whereSearchVal: Prisma.RegistrationWhereInput['OR'] = []
 
-  // Transaction is used to ensure both queries are executed in a single transaction
-  const { allRegistration, totalRegistration } = await db.$transaction(async (tx) => {
-    const allRegistration = await tx.registration.findMany({ skip: offset, take: limit })
-    const totalRegistration = await tx.registration.count()
+  if (searchVal) {
+    whereSearchVal.push(
+      { code: { contains: searchVal } },
+      { firstName: { contains: searchVal } },
+      { lastName: { contains: searchVal } },
+      { emailAdd: { contains: searchVal } },
+      { contactNo: { contains: searchVal } },
+      { drugstoreInfo: { path: '$.establishment', string_contains: searchVal.toLowerCase() } },
+      { drugstoreInfo: { path: '$.establishment', string_contains: searchVal.toUpperCase() } }
+    )
+  }
 
-    return {
-      allRegistration,
-      totalRegistration
-    }
+  const statusFilterVal: Prisma.RegistrationWhereInput['OR'] = []
+
+  statuses.forEach((el) => {
+    statusFilterVal.push({ status: { equals: el } })
   })
 
-  const pageCount = Math.ceil(totalRegistration / limit)
+  const chapterFilterVal: Prisma.RegistrationWhereInput['OR'] = []
+
+  chapterFilter.forEach((el) => {
+    chapterFilterVal.push({ drugstoreInfo: { path: '$.chapter', string_contains: el } })
+  })
+
+  const regFeeTypeFilterVal: Prisma.RegistrationWhereInput['OR'] = []
+
+  regFeeType.forEach((el) => {
+    regFeeTypeFilterVal.push({ type: { equals: el } })
+  })
+
+  const whereVal: Prisma.RegistrationWhereInput = {
+    AND: [
+      {
+        AND: [
+          { convention: convention.code },
+          { OR: whereSearchVal },
+          { OR: statusFilterVal },
+          { OR: chapterFilterVal },
+          { OR: regFeeTypeFilterVal }
+        ]
+      }
+    ]
+  }
+
+  const allRegistration = db.registration.findMany({
+    skip: offset,
+    take: limit,
+    where: whereVal
+  })
+
+  const totalRegistration = db.registration.count({
+    where: whereVal
+  })
+
+  const chapters = getChapters()
+
+  const registrationPromise = Promise.all([allRegistration, totalRegistration, chapters])
 
   return (
     <DashboardShell
@@ -63,8 +115,32 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
       headerAction={<ActionButton />}
     >
       <div className='pb-8 pt-6 md:py-8'>
-        <RegistrationTableShell data={allRegistration} pageCount={pageCount} />
+        <Suspense fallback={<DataTableLoading columnCount={4} />}>
+          <Await promise={registrationPromise}>
+            {(data) => {
+              const [allRegistration, totalRegistration, chapters] = data
+
+              const pageCount = Math.ceil(totalRegistration / limit)
+
+              return (
+                <RegistrationTableShell data={allRegistration} pageCount={pageCount} chapters={chapters} conventionCode={convention.code} />
+              )
+            }}
+          </Await>
+        </Suspense>
       </div>
     </DashboardShell>
   )
+}
+
+async function Await<T>({ promise, children }: { promise: Promise<T> | undefined; children: (value: T) => JSX.Element }) {
+  if (!promise) return null
+
+  // await new Promise((resolve) => {
+  //   setTimeout(resolve, 3000)
+  // })
+
+  const data = await promise
+
+  return children(data)
 }

@@ -3,7 +3,7 @@ import { ConventionRegistrationForm } from '@/lib/schema'
 import { Html } from '@react-email/html'
 import { Text } from '@react-email/text'
 import { Link } from '@react-email/link'
-import { Prisma } from '@prisma/client'
+import { Prisma, Registration } from '@prisma/client'
 import { MembershipStatus } from '@/app/(app.domain.com)/dashboard/convention/_components/membership'
 
 const paragraph = {
@@ -85,7 +85,7 @@ type EmailRegistrationConfirmProps = {
   status: string
 }
 
-export function EmailRegistrationStatus({ data }: { data: EmailRegistrationConfirmProps }) {
+export function EmailRegistrationStatus({ data }: { data: Partial<Registration> }) {
   const conventionDetails = conventions.find((row) => row.code == data.convention)
   const dsInfo = data.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
 

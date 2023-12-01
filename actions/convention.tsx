@@ -11,6 +11,7 @@ import Mail from 'nodemailer/lib/mailer'
 import { render } from '@react-email/render'
 
 import { EmailRegistrationStatus, EmailRegistrationConvention } from '@/app/(root)/(routes)/national-convention/_docs/email'
+import { Registration } from '@prisma/client'
 
 export async function registerConvention(formData: ConventionRegistrationForm) {
   const code = generateRandomString(4).toUpperCase() + '-' + generateNumberString(4)
@@ -65,28 +66,32 @@ export async function updateRegistrationStatusAction({ id, status, options }: Up
       }
     })
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PW
-      }
-    })
-
-    const mailOptions: Mail.Options = {
-      from: process.env.NODEMAILER_EMAIL,
-      to: result.emailAdd,
-      subject:
-        result.status === 'approved'
-          ? `Registration Confirmation ${result.convention} DSAP National Convention`
-          : 'DSAP Registration Rejected',
-      html: render(<EmailRegistrationStatus data={result} />)
-    }
-
-    await transporter.sendMail(mailOptions)
+    await emailRegistrationStatus(result)
 
     revalidatePath('/national-convention')
   } catch (error) {
     throw error
   }
+}
+
+export async function emailRegistrationStatus(result: Partial<Registration>) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.NODEMAILER_EMAIL,
+      pass: process.env.NODEMAILER_PW
+    }
+  })
+
+  const mailOptions: Mail.Options = {
+    from: process.env.NODEMAILER_EMAIL,
+    to: result.emailAdd,
+    subject:
+      result.status === 'approved'
+        ? `Registration Confirmation ${result.convention} DSAP National Convention`
+        : 'DSAP Registration Rejected',
+    html: render(<EmailRegistrationStatus data={result} />)
+  }
+
+  await transporter.sendMail(mailOptions)
 }

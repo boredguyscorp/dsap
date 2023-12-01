@@ -5,11 +5,13 @@ import { replaceExamples, replaceTweets } from '@/lib/remark-plugins'
 import url from '@/constants/url'
 import { Post } from '@prisma/client'
 import { Pages } from '@/app/(root)/_constant/constant'
+import { AsyncReturnType } from '@/types'
 
 type PostOptions = {
   take?: number
 }
 
+export type ChapterList = AsyncReturnType<typeof getChapters>
 export async function getChapters() {
   return await unstable_cache(
     async () => {

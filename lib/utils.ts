@@ -24,6 +24,19 @@ export function formatDate(input: string | number): string {
   })
 }
 
+export function toDateTime(date: Date) {
+  // 11/30/23, 3:20 AM
+
+  return new Intl.DateTimeFormat('en-US', {
+    year: '2-digit',
+    month: '2-digit',
+    day: '2-digit',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+  }).format(date)
+}
+
 export function toDateNormal(val: Date) {
   return format(val, 'MM/dd/yyyy HH:mm:ss a')
 }

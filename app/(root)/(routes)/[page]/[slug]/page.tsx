@@ -42,7 +42,7 @@ export default async function EventPagePost({ params }: PostPageProps) {
   const showBanner = process.env.SHOW_BANNER === 'true'
 
   return (
-    <div className={cn('mx-auto mb-20 mt-24 min-h-screen max-w-[85rem] px-4 sm:px-6 lg:px-8', showBanner && 'mt-32')}>
+    <div className={cn('mx-auto mb-20 mt-24 min-h-screen max-w-[85rem] px-4 sm:px-6 lg:px-8', showBanner && 'mt-36')}>
       <div className='grid gap-y-8 md:gap-x-6 lg:grid-cols-3 lg:gap-x-12 lg:gap-y-0'>
         <div className='lg:col-span-2'>
           <div className='py-8 md:pr-4 lg:pr-8'>

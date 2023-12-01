@@ -34,6 +34,7 @@ interface DataTableProps<TData, TValue> {
   advancedFilter?: boolean
   floatingBar?: boolean
   deleteRowsAction?: React.MouseEventHandler<HTMLButtonElement>
+  hideColumns?: string[]
 }
 
 export function DataTable<TData, TValue>({
@@ -44,8 +45,11 @@ export function DataTable<TData, TValue>({
   searchableColumns = [],
   advancedFilter = false,
   floatingBar = false,
-  deleteRowsAction
+  deleteRowsAction,
+  hideColumns
 }: DataTableProps<TData, TValue>) {
+  const isFirstLoad = React.useRef(true)
+
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -59,6 +63,8 @@ export function DataTable<TData, TValue>({
   const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
   const sort = searchParams?.get('sort')
   const [column, order] = sort?.split('.') ?? []
+
+  // console.log(columns)
 
   // Create query string
   const createQueryString = React.useCallback(
@@ -103,6 +109,29 @@ export function DataTable<TData, TValue>({
       pageSize: fallbackPerPage
     })
   }, [fallbackPage, fallbackPerPage])
+
+  // React.useEffect(() => {
+  //   // console.log(isFirstLoad.current)
+  //   // if (isFirstLoad.current) {
+  //   //   isFirstLoad.current = false
+  //   //   let obj = {}
+  //   //   const cols = columns.filter((r: any) => r.hidden == true)
+  //   //   if (cols.length > 0) {
+  //   //     cols.forEach((el: any) => {
+  //   //       obj = { ...obj, [el.accessorKey]: false }
+  //   //     })
+  //   //     setColumnVisibility(obj)
+  //   //   }
+  //   // }
+  //   let obj = {}
+  //   const cols = columns.filter((r: any) => r.hidden == true)
+  //   if (cols.length > 0) {
+  //     cols.forEach((el: any) => {
+  //       obj = { ...obj, [el.accessorKey]: false }
+  //     })
+  //     setColumnVisibility(obj)
+  //   }
+  // }, [])
 
   React.useEffect(() => {
     router.push(
@@ -203,6 +232,18 @@ export function DataTable<TData, TValue>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(filterableColumnFilters)])
 
+  const initHideCols = React.useMemo(() => {
+    let obj = {}
+
+    const cols = columns.filter((r: any) => r.hidden == true)
+
+    cols.forEach((el: any) => {
+      obj = { ...obj, [el.accessorKey]: false }
+    })
+
+    return obj
+  }, [])
+
   const table = useReactTable({
     data,
     columns,
@@ -210,10 +251,11 @@ export function DataTable<TData, TValue>({
     state: {
       pagination,
       sorting,
-      columnVisibility,
+      columnVisibility: Object.keys(columnVisibility).length === 0 ? initHideCols : columnVisibility,
       rowSelection,
       columnFilters
     },
+    initialState: { columnVisibility: initHideCols },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,

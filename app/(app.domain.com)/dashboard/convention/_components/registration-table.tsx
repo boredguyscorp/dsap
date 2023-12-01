@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label'
 import { type ColumnDef } from '@tanstack/react-table'
 import { toast } from 'sonner'
 
-import { catchError, strProperCase } from '@/lib/utils'
+import { catchError, strProperCase, toDateTime } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -48,13 +48,14 @@ import { DataTable } from '@/components/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { deleteTask, updateTaskLabelAction } from '@/actions/tasks'
 import { MembershipStatus, membershipStatusEnum, ownershipType } from './membership'
-import { ClipboardEdit, Command, Delete, Edit, Eye, FileText, Receipt, Trash, User, UserPlus, Users } from 'lucide-react'
+import { ClipboardEdit, Command, Delete, Edit, Eye, FileText, Mail, Receipt, Trash, User, UserPlus, Users } from 'lucide-react'
 import { conventions, rateValues } from './constant'
 import { ConventionRegistrationForm } from '@/lib/schema'
-import { updateRegistrationStatusAction } from '@/actions/convention'
+import { emailRegistrationStatus, updateRegistrationStatusAction } from '@/actions/convention'
 import { Textarea } from '@/components/ui/textarea'
 import { Icons } from '@/components/shared/icons'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 
 // import { deleteTask, updateTaskLabel } from '@/app/_actions/task'
 
@@ -82,9 +83,11 @@ const status: {
 interface RegistrationTableShellProps {
   data: Registration[]
   pageCount: number
+  chapters: Array<{ name: string }>
+  conventionCode: string
 }
 
-export function RegistrationTableShell({ data, pageCount }: RegistrationTableShellProps) {
+export function RegistrationTableShell({ data, pageCount, chapters, conventionCode }: RegistrationTableShellProps) {
   const [isPending, startTransition] = React.useTransition()
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([])
   const [openDialog, setOpenDialog] = React.useState<{
@@ -92,6 +95,20 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
     type: MembershipStatus | 'details'
     row: Registration
   } | null>(null)
+
+  const chapterList = React.useMemo(() => {
+    return chapters.map(({ name }) => {
+      return { label: name, value: name }
+    })
+  }, [])
+
+  const regFeeList = React.useMemo(() => {
+    return rateValues
+      .filter((row) => row.convention === conventionCode)
+      .map((row) => {
+        return { label: row.label, value: row.value }
+      })
+  }, [])
 
   const refMessage = React.useRef<HTMLTextAreaElement | null>(null)
 
@@ -129,7 +146,7 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
       },
       {
         accessorKey: 'refNo',
-        header: ({ column }) => <DataTableColumnHeader column={column} title='Ref. No' />,
+        header: ({ column }) => <DataTableColumnHeader column={column} hidden title='Ref. No' />,
         cell: ({ row }) => {
           return (
             <div className='flex space-x-2'>
@@ -161,6 +178,30 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
         }
       },
       {
+        accessorKey: 'emailAdd',
+        header: ({ column }) => <DataTableColumnHeader column={column} hidden title='Email Add' />,
+        cell: ({ row }) => {
+          return (
+            <div className='flex space-x-2'>
+              <span className='max-w-[500px] truncate font-medium'>{row.original.emailAdd}</span>
+            </div>
+          )
+        },
+        hidden: true
+      },
+      {
+        accessorKey: 'contactNo',
+        header: ({ column }) => <DataTableColumnHeader column={column} hidden title='Contact No.' />,
+        cell: ({ row }) => {
+          return (
+            <div className='flex space-x-2'>
+              <span className='max-w-[500px] truncate font-medium'>{row.original.contactNo}</span>
+            </div>
+          )
+        },
+        hidden: true
+      },
+      {
         accessorKey: 'establishment',
         header: ({ column }) => <DataTableColumnHeader column={column} title='Drugstore/Establishment' />,
         cell: ({ row }) => {
@@ -174,7 +215,7 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
         }
       },
       {
-        accessorKey: 'chapter',
+        accessorKey: 'drugstoreInfo',
         header: ({ column }) => <DataTableColumnHeader column={column} title='Chapter' />,
         cell: ({ row }) => {
           const dsInfo = row.original.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
@@ -187,8 +228,8 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
         }
       },
       {
-        accessorKey: 'regFee',
-        header: ({ column }) => <DataTableColumnHeader column={column} title='Reg. Fee' />,
+        accessorKey: 'type',
+        header: ({ column }) => <DataTableColumnHeader column={column} title='Reg. Fee Type' />,
         cell: ({ row }) => {
           const fee = rateValues.find((c) => c.value === row.original.type)?.label
 
@@ -204,14 +245,7 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
         accessorKey: 'regDate',
         header: ({ column }) => <DataTableColumnHeader column={column} title='Reg. Date' />,
         cell: ({ row }) => {
-          const createdAt = new Intl.DateTimeFormat('en-US', {
-            year: '2-digit',
-            month: '2-digit',
-            day: '2-digit',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: true
-          }).format(row.original.createdAt)
+          const createdAt = toDateTime(row.original.createdAt)
 
           return (
             <div className='flex space-x-2'>
@@ -275,6 +309,22 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
                     <span>Proof of Payment</span>
                   </a>
                 </DropdownMenuItem>
+                {row.original.status !== 'pending' && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      startTransition(() => {
+                        toast.promise(emailRegistrationStatus(row.original), {
+                          loading: `Sending email to ${row.original.emailAdd}.`,
+                          success: () => 'Successfully send email.',
+                          error: (err: unknown) => catchError(err)
+                        })
+                      })
+                    }}
+                  >
+                    <Mail className='mr-2 h-4 w-4' />
+                    <span>Email {row.original.status === 'approved' ? 'Confirmation' : 'Rejection'}</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
@@ -386,12 +436,15 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
           <h1 className='col-span-3'>Reg Fee:</h1>
           <h1 className='col-span-9'>{rateValues.find((c) => c.value === openDialog.row.type)?.label}</h1>
 
+          <h1 className='col-span-3'>Reg Date:</h1>
+          <h1 className='col-span-9'>{toDateTime(openDialog.row.createdAt)}</h1>
+
           <div className='col-span-12 mt-2 flex items-center rounded-md bg-background/10 '>
             <a
               href={openDialog.row.proofOfPaymentUrl}
               target='_blank'
               rel='noopener noreferrer'
-              className='text-sm text-indigo-500 hover:underline dark:text-indigo-400'
+              className='text-sm text-blue-500 hover:underline dark:text-blue-400'
             >
               Click here to see proof of payment.
             </a>
@@ -418,18 +471,28 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
               label: status[0]?.toUpperCase() + status.slice(1),
               value: status
             }))
+          },
+          {
+            id: 'drugstoreInfo',
+            title: 'Chapter',
+            options: chapterList
+          },
+          {
+            id: 'type',
+            title: 'Reg. Fee',
+            options: regFeeList
           }
         ]}
         // Render dynamic searchable filters
         searchableColumns={[
           {
             id: 'firstName',
-            title: 'First Name'
-          },
-          {
-            id: 'lastName',
-            title: 'Last Name'
+            title: 'Registration'
           }
+          // {
+          //   id: 'lastName',
+          //   title: 'Last Name'
+          // }
         ]}
         // Render floating filters at the bottom of the table on column selection
         floatingBar={true}
@@ -452,7 +515,8 @@ export function RegistrationTableShell({ data, pageCount }: RegistrationTableShe
               <Button
                 type='button'
                 onClick={() => {
-                  openDialog.type !== 'details' && handleUpdateStatus(openDialog.row.id, openDialog.type)
+                  ;(openDialog.type === 'approved' || openDialog.type === 'pending') &&
+                    handleUpdateStatus(openDialog.row.id, openDialog.type)
                 }}
                 disabled={isPending}
               >
