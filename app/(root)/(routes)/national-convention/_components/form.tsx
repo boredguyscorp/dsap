@@ -388,7 +388,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                           )}
                         </Label>
                         <FileUpload
-                          endpoint='pdfUploader'
+                          endpoint='proofOfPaymentUploader'
                           value={watch('proofOfPaymentUrl')}
                           onChange={(urlValue) => setValue('proofOfPaymentUrl', urlValue ?? '')}
                           uploader='button'
