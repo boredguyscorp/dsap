@@ -102,9 +102,9 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
           </div>
 
           <div className='mt-5 sm:mt-10 lg:mt-0'>
-            <div className='space-y-6 sm:space-y-8'>
+            <div className='  space-y-6 sm:space-y-8'>
               <div className='space-y-2 md:space-y-4'>
-                <p className='text-lg'>
+                <p className='text-center text-lg'>
                   <Balancer>
                     Those who wish to join <span className='font-bold'>DSAP Convention 2024</span> shall submit registration together with
                     the corresponding fee and requirements.
@@ -112,9 +112,11 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                 </p>
               </div>
 
-              <h2 className='text-center text-2xl font-bold text-teal-600 dark:text-white md:text-3xl lg:text-4xl'>How to Register</h2>
+              <Separator />
+              {/* <div className='flex flex-col items-center justify-center space-y-2 md:space-y-4'> */}
+              <h2 className=' text-center text-2xl font-bold text-teal-600 dark:text-white md:text-3xl lg:text-4xl'>How to Register</h2>
 
-              <ol className='max space-y-3  px-6 text-base font-semibold md:text-lg'>
+              <ol className='max space-y-3 px-6 text-base font-semibold md:text-lg'>
                 <li className='list-decimal'>Fill up required fields.</li>
                 <ul className='max space-y-3 px-5  font-semibold'>
                   <li className='list-disc'>First Name</li>
@@ -127,7 +129,9 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                 <li className='list-decimal'>Submit Registration Form</li>
                 <li className='list-decimal'>Wait for the Email Confirmation</li>
               </ol>
+              {/* </div> */}
 
+              <Separator />
               <Button
                 variant='main'
                 className='h-16 w-64'
