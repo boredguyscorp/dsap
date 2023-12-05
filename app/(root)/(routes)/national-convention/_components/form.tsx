@@ -4,30 +4,17 @@ import { Icons } from '@/components/shared/icons'
 import { cn } from '@/lib/utils'
 import React, { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
 // import { InputFieldForm } from '../membership/_components/InputFieldForm'
 
 import { useZodForm } from '@/lib/zod-form'
-import {
-  ConventionRegistrationForm,
-  Ownership,
-  ConventionRegistrationFormSchema,
-  MemberRegistrationFormSchema,
-  MmemberRegistrationMergeSchema,
-  title
-} from '@/lib/schema'
-import { FieldValues, SubmitHandler } from 'react-hook-form'
+import { ConventionRegistrationForm, ConventionRegistrationFormSchema } from '@/lib/schema'
+import { SubmitHandler } from 'react-hook-form'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Button, buttonVariants } from '@/components/ui/button'
-import { CalendarIcon, Check, ChevronDownIcon, ChevronsUpDown, MapPin } from 'lucide-react'
-// import { DatePickerForm } from './_components/DatePickerForm'
 
-import { InputFieldForm } from '../../membership/_components/InputFieldForm'
+import { Button } from '@/components/ui/button'
+
+// import { DatePickerForm } from './_components/DatePickerForm'
 
 const RHFDevTool = dynamic(() => import('../../membership/_components/DevTools'), { ssr: false })
 
@@ -36,35 +23,32 @@ import dsap25th from 'public/images/dsap25th.jpg'
 
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
-import { FileUpload } from '@/components/editor/settings/file-upload'
 
 import Balancer from 'react-wrap-balancer'
 import { Label } from '@/components/ui/label'
-import { ConventionEnum, conventions, rateValues } from '@/app/(app.domain.com)/dashboard/convention/_components/constant'
+import { CURRENT_CONVENTION, CURRENT_DATE, conventions, rateValues } from '@/app/(app.domain.com)/dashboard/convention/_components/constant'
 import { registerConvention } from '@/actions/convention'
 import { toast } from 'react-hot-toast'
 import { FileWithPath, useDropzone } from 'react-dropzone'
 import { generateClientDropzoneAccept } from 'uploadthing/client'
 import { useUploadThing } from '@/lib/uploadthing'
-import { MultiImage } from '@/components/editor/settings/multi-image-uploader'
+import { Form } from '@/components/ui/form'
+import { RegistrationFormInputs } from './form-input'
+import { ChapterList } from '@/actions/fetchers'
 
 type NationalConventionFormProps = {
-  chapters: Array<{ name: string }>
+  chapters: ChapterList
 }
-
-const currentConvention: ConventionEnum = '25th'
 
 export function NationalConventionForm({ chapters }: NationalConventionFormProps) {
   const [showForm, setShowForm] = useState(false)
 
-  const convention = useMemo(() => conventions.find((row) => row.code === currentConvention), [])
-
-  const currentDate = new Date().toISOString().split('T')[0]
+  const convention = useMemo(() => conventions.find((row) => row.code === CURRENT_CONVENTION), [])
   const cutOffDate = convention?.preRegCutOff ?? '2024-02-16'
-  const isPreReg = cutOffDate > currentDate
+  const isPreReg = cutOffDate > CURRENT_DATE
 
   const defaultValues = {
-    convention: currentConvention,
+    convention: CURRENT_CONVENTION,
     type: isPreReg ? '25th-prm' : '25th-m'
     // firstName: 'BG',
     // lastName: 'Dev',
@@ -76,8 +60,6 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
   const [isPending, startTransition] = useTransition()
   const [response, setResponse] = useState<{ success: boolean; message: string }>()
   const refSubmit = useRef<HTMLButtonElement>(null)
-
-  const [openChapter, setOpenChapter] = useState<boolean>(false)
 
   const form = useZodForm({
     schema: ConventionRegistrationFormSchema,
@@ -271,24 +253,6 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
     })
   }
 
-  const onContactChange = (event: any) => {
-    let val = event.target.value
-    val = val.replace(/ /gm, '')
-
-    let num = `${val.substring(0, 4)} ${val.substring(4, 7)} ${val.substring(7, val.length)}`
-
-    num = num.trim()
-
-    setValue('contactNo', num)
-    clearErrors('contactNo')
-  }
-
-  const onKeyPressNumber = (event: any) => {
-    if (!/[0-9+]/.test(event.key)) {
-      event.preventDefault()
-    }
-  }
-
   return (
     // <div className="w-full bg-[url('/images/logo.png')] bg-[length:500px_500px]">
     <div className='w-full bg-gradient-to-br from-teal-400 to-cyan-100'>
@@ -307,257 +271,75 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                   <Separator />
 
                   <CardContent className='mt-5'>
-                    <div className='space-y-5'>
-                      <FormField
-                        control={form.control}
-                        name='type'
-                        render={({ field }) => (
-                          <FormItem className='space-y-3'>
-                            {/* <FormLabel>Ownership Type</FormLabel> */}
-                            <FormControl>
-                              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex items-center space-x-2'>
-                                {convention?.rate
-                                  .filter((r) => r.preReg === isPreReg)
-                                  .map((row) => {
-                                    return (
-                                      <FormItem key={row.value} className='flex items-center space-x-3 space-y-0'>
-                                        <React.Fragment key={row.value}>
-                                          <FormControl>
-                                            <RadioGroupItem value={row.value} />
-                                          </FormControl>
-                                          <FormLabel className={cn('font-normal', row.value === field.value && 'font-semibold')}>
-                                            {row.label}
-                                          </FormLabel>
-                                        </React.Fragment>
-                                      </FormItem>
-                                    )
-                                  })}
-                              </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <RegistrationFormInputs chapters={chapters} />
 
-                      <div className='space-y-2'>
-                        <Label>Personal Information</Label>
-                        <FormField
-                          control={form.control}
-                          name='title'
-                          render={({ field }) => (
-                            <FormItem>
-                              {/* <FormLabel>Status</FormLabel> */}
-                              <div className='relative w-full'>
-                                <FormControl>
-                                  <select
-                                    className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')}
-                                    placeholder='Select Title'
-                                    {...field}
-                                  >
-                                    {title.map((row) => (
-                                      <option key={row} value={row}>
-                                        {row}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </FormControl>
-                                <ChevronDownIcon className='absolute right-3 top-2.5 h-4 w-4 opacity-50' />
-                              </div>
-                              {/* <FormDescription>Select Owner Status.</FormDescription> */}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <InputFieldForm
-                          control={form.control}
-                          name='firstName'
-                          fieldProps={{ placeholder: 'First Name', required: true }}
-                        />
-                        <InputFieldForm control={form.control} name='middleName' fieldProps={{ placeholder: 'Middle Name' }} />
-                        <InputFieldForm control={form.control} name='lastName' fieldProps={{ placeholder: 'Last Name', required: true }} />
-
-                        <InputFieldForm
-                          control={form.control}
-                          name='contactNo'
-                          fieldProps={{
-                            placeholder: 'Contact No.',
-                            required: true,
-                            onChange: onContactChange,
-                            onKeyPress: onKeyPressNumber,
-                            maxLength: watch('contactNo')?.includes('+') ? 15 : 13
-                          }}
-                        />
-
-                        <InputFieldForm
-                          control={form.control}
-                          name='emailAdd'
-                          fieldProps={{ placeholder: 'Email Address', required: true, type: 'email' }}
-                        />
-                      </div>
-
-                      <Separator />
-                      <div className='space-y-2'>
-                        <Label>Address</Label>
-                        <InputFieldForm control={form.control} name='address.street' fieldProps={{ placeholder: 'No./Street' }} />
-                        <InputFieldForm control={form.control} name='address.brgy' fieldProps={{ placeholder: 'Barangay' }} />
-                        <InputFieldForm control={form.control} name='address.city' fieldProps={{ placeholder: 'City' }} />
-                        <InputFieldForm control={form.control} name='address.province' fieldProps={{ placeholder: 'Province' }} />
-                      </div>
-
-                      <Separator />
-                      <div className='space-y-2'>
-                        <Label>Drugstore Information</Label>
-                        <InputFieldForm
-                          control={form.control}
-                          name='drugstoreInfo.establishment'
-                          fieldProps={{ placeholder: 'Establishment Represented' }}
-                        />
-                        {/* <InputFieldForm control={form.control} name='drugstoreInfo.chapter' fieldProps={{ placeholder: 'Chapter' }} /> */}
-
-                        <FormField
-                          control={form.control}
-                          name='drugstoreInfo.chapter'
-                          render={({ field }) => {
-                            return (
-                              <FormItem className='flex flex-col'>
-                                <Popover open={openChapter} onOpenChange={setOpenChapter}>
-                                  <PopoverTrigger asChild>
-                                    <FormControl>
-                                      <Button
-                                        variant='outline'
-                                        role='combobox'
-                                        className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
-                                      >
-                                        {field.value ? chapters.find((chapter) => chapter.name === field.value)?.name : 'Select chapter'}
-                                        <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-                                      </Button>
-                                    </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent align='start' className='z-50 w-full min-w-[var(--radix-popover-trigger-width)] p-0'>
-                                    <Command>
-                                      <CommandInput placeholder='Search chapter...' />
-                                      <CommandEmpty>No chapter found.</CommandEmpty>
-                                      <CommandGroup>
-                                        {chapters.map((chapter) => (
-                                          <CommandItem
-                                            value={chapter.name}
-                                            key={chapter.name}
-                                            onSelect={() => {
-                                              setValue('drugstoreInfo.chapter', chapter.name)
-                                              setOpenChapter(false)
-                                            }}
-                                          >
-                                            <Check
-                                              className={cn('mr-2 h-4 w-4', chapter.name === field.value ? 'opacity-100' : 'opacity-0')}
-                                            />
-                                            {chapter.name}
-                                          </CommandItem>
-                                        ))}
-                                      </CommandGroup>
-                                    </Command>
-                                  </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                              </FormItem>
-                            )
-                          }}
-                        />
-
-                        <InputFieldForm
-                          control={form.control}
-                          name='drugstoreInfo.owner'
-                          fieldProps={{ placeholder: 'Owner of Drugstore/Establishment' }}
-                        />
-                        <InputFieldForm
-                          control={form.control}
-                          name='drugstoreInfo.mainAddress'
-                          fieldProps={{ placeholder: 'Main Address' }}
-                        />
-                      </div>
-
-                      <Separator />
-                      <div className='space-y-2'>
-                        <Label className={cn('font-medium', errors.proofOfPaymentUrl && 'text-red-500')}>
-                          Proof of Payment {!watch('proofOfPaymentUrl') && errors.proofOfPaymentUrl && ' is required. '}
-                          <span className={cn('text-lg font-bold text-teal-500', errors.proofOfPaymentUrl && 'text-red-500')}> * </span>
-                        </Label>
-                        {/* <FileUpload
+                    <Separator className='mb-2 mt-6' />
+                    <div className='space-y-2'>
+                      <Label className={cn('font-medium', errors.proofOfPaymentUrl && 'text-red-500')}>
+                        Proof of Payment {!watch('proofOfPaymentUrl') && errors.proofOfPaymentUrl && ' is required. '}
+                        <span className={cn('text-lg font-bold text-teal-500', errors.proofOfPaymentUrl && 'text-red-500')}> * </span>
+                      </Label>
+                      {/* <FileUpload
                           endpoint='proofOfPaymentUploader'
                           value={watch('proofOfPaymentUrl')}
                           onChange={(urlValue) => setValue('proofOfPaymentUrl', urlValue ?? '')}
                           uploader='button'
                         /> */}
-                        {(files.length === 0 || errors.proofOfPaymentUrl?.message?.includes('big')) && (
-                          <div
-                            {...getRootProps()}
-                            ref={refUploaderBrowser}
-                            className='h-48 w-full cursor-pointer rounded-md border-2 border-dashed border-border'
+                      {(files.length === 0 || errors.proofOfPaymentUrl?.message?.includes('big')) && (
+                        <div
+                          {...getRootProps()}
+                          ref={refUploaderBrowser}
+                          className='h-48 w-full cursor-pointer rounded-md border-2 border-dashed border-border'
+                        >
+                          <p
+                            className={cn(
+                              'relative top-[60px] flex flex-col items-center justify-center text-sm',
+                              errors.proofOfPaymentUrl?.message?.includes('big') && 'top-[50px]'
+                            )}
                           >
-                            <p
-                              className={cn(
-                                'relative top-[60px] flex flex-col items-center justify-center text-sm',
-                                errors.proofOfPaymentUrl?.message?.includes('big') && 'top-[50px]'
-                              )}
-                            >
-                              {errors.proofOfPaymentUrl?.message?.includes('big') && (
-                                <span className='mb-2 text-base font-semibold text-red-500'>Image is too big. (Max 2MB)</span>
-                              )}
-                              <span className='mr-1 font-semibold text-teal-500'>Click to upload image</span>
-                              <span>or drag and drop.</span>
-                              <span className='text-xs text-muted-foreground'>(Max {permittedFileInfo?.config.image?.maxFileSize})</span>
-                            </p>
-                            <input
-                              id='dataImages-images'
-                              className='relative z-10 h-[100px] w-full border-2 opacity-0'
-                              {...getInputProps()}
-                              style={{ display: 'block' }}
-                            />
-                          </div>
-                        )}
+                            {errors.proofOfPaymentUrl?.message?.includes('big') && (
+                              <span className='mb-2 text-base font-semibold text-red-500'>Image is too big. (Max 2MB)</span>
+                            )}
+                            <span className='mr-1 font-semibold text-teal-500'>Click to upload image</span>
+                            <span>or drag and drop.</span>
+                            <span className='text-xs text-muted-foreground'>(Max {permittedFileInfo?.config.image?.maxFileSize})</span>
+                          </p>
+                          <input
+                            id='dataImages-images'
+                            className='relative z-10 h-[100px] w-full border-2 opacity-0'
+                            {...getInputProps()}
+                            style={{ display: 'block' }}
+                          />
+                        </div>
+                      )}
 
-                        {files.length > 0 && (
-                          <div className='mt-4'>
-                            <li key={files[0].name} className='flex items-center'>
-                              {files[0].name} - {(files[0].size / 1024 ** 2).toPrecision(4)} MB
-                              {isPending || isUploading ? (
-                                <span>
-                                  <Icons.spinner className='ml-2 h-6 w-6 animate-spin text-teal-500' />
-                                </span>
-                              ) : response?.success ? (
-                                <Icons.check className='ml-2 h-6 w-6 text-teal-500' />
-                              ) : (
-                                <Button
-                                  type='button'
-                                  variant='link'
-                                  onClick={() => {
-                                    setFiles([])
-                                    setValue('proofOfPaymentUrl', '')
-                                    clearErrors('proofOfPaymentUrl')
-                                  }}
-                                  className='text-red-500'
-                                >
-                                  Remove
-                                </Button>
-                              )}
-                            </li>
-
-                            {/* {errors.proofOfPaymentUrl && (
-                              <li key='imgError' className='flex items-center text-red-500'>
-                                Image is too big. Max 2mb
-                                <Button
-                                  type='button'
-                                  variant='link'
-                                  onClick={() => refUploaderBrowser.current?.click()}
-                                  className='text-blue-500'
-                                >
-                                  Browse again
-                                </Button>
-                              </li>
-                            )} */}
-                          </div>
-                        )}
-                      </div>
+                      {files.length > 0 && (
+                        <div className='mt-4'>
+                          <li key={files[0].name} className='flex items-center'>
+                            {files[0].name} - {(files[0].size / 1024 ** 2).toPrecision(4)} MB
+                            {isPending || isUploading ? (
+                              <span>
+                                <Icons.spinner className='ml-2 h-6 w-6 animate-spin text-teal-500' />
+                              </span>
+                            ) : response?.success ? (
+                              <Icons.check className='ml-2 h-6 w-6 text-teal-500' />
+                            ) : (
+                              <Button
+                                type='button'
+                                variant='link'
+                                onClick={() => {
+                                  setFiles([])
+                                  setValue('proofOfPaymentUrl', '')
+                                  clearErrors('proofOfPaymentUrl')
+                                }}
+                                className='text-red-500'
+                              >
+                                Remove
+                              </Button>
+                            )}
+                          </li>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

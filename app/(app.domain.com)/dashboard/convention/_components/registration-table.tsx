@@ -48,14 +48,20 @@ import { DataTable } from '@/components/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { deleteTask, updateTaskLabelAction } from '@/actions/tasks'
 import { MembershipStatus, membershipStatusEnum, ownershipType } from './membership'
-import { ClipboardEdit, Command, Delete, Edit, Eye, FileText, Mail, Receipt, Trash, User, UserPlus, Users } from 'lucide-react'
-import { conventions, rateValues } from './constant'
-import { ConventionRegistrationForm } from '@/lib/schema'
-import { emailRegistrationStatus, updateRegistrationStatusAction } from '@/actions/convention'
+import { ClipboardEdit, Command, Delete, Edit, Eye, FileText, Mail, PencilIcon, Receipt, Trash, User, UserPlus, Users } from 'lucide-react'
+import { CURRENT_CONVENTION, conventions, rateValues } from './constant'
+import { ConventionRegistrationForm, ConventionRegistrationFormSchema } from '@/lib/schema'
+import { emailRegistrationStatus, updateRegistrationDetails, updateRegistrationStatusAction } from '@/actions/convention'
 import { Textarea } from '@/components/ui/textarea'
 import { Icons } from '@/components/shared/icons'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { RegistrationFormInputs } from '@/app/(root)/(routes)/national-convention/_components/form-input'
+import { Form } from '@/components/ui/form'
+import { useZodForm } from '@/lib/zod-form'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { SubmitHandler } from 'react-hook-form'
+import { ChapterList } from '@/actions/fetchers'
 
 // import { deleteTask, updateTaskLabel } from '@/app/_actions/task'
 
@@ -83,7 +89,7 @@ const status: {
 interface RegistrationTableShellProps {
   data: Registration[]
   pageCount: number
-  chapters: Array<{ name: string }>
+  chapters: ChapterList
   conventionCode: string
 }
 
@@ -92,9 +98,40 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([])
   const [openDialog, setOpenDialog] = React.useState<{
     isOpen: boolean
-    type: MembershipStatus | 'details'
+    type: MembershipStatus | 'details' | 'edit'
     row: Registration
   } | null>(null)
+
+  const dsInfo = openDialog?.row.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
+  const addressInfo = openDialog?.row.address as ConventionRegistrationForm['address']
+
+  const form = useZodForm({
+    schema: ConventionRegistrationFormSchema,
+    values: openDialog?.row
+      ? {
+          convention: CURRENT_CONVENTION,
+          type: openDialog.row.type,
+          firstName: openDialog.row.firstName,
+          lastName: openDialog.row.lastName,
+          emailAdd: openDialog.row.emailAdd,
+          contactNo: openDialog.row.contactNo,
+          proofOfPaymentUrl: openDialog.row.proofOfPaymentUrl,
+          title: openDialog.row.title ?? '',
+          middleName: openDialog.row.middleName ?? '',
+          drugstoreInfo: dsInfo ?? {},
+          address: addressInfo ?? {}
+        }
+      : {
+          convention: CURRENT_CONVENTION,
+          type: '25th-prm',
+          firstName: '',
+          lastName: '',
+          emailAdd: '',
+          contactNo: '',
+          proofOfPaymentUrl: ''
+        },
+    shouldUnregister: false
+  })
 
   const chapterList = React.useMemo(() => {
     return chapters.map(({ name }) => {
@@ -149,8 +186,13 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
         header: ({ column }) => <DataTableColumnHeader column={column} hidden title='Ref. No' />,
         cell: ({ row }) => {
           return (
-            <div className='flex space-x-2'>
-              <span className='max-w-[500px] truncate font-medium'>{row.original.code}</span>
+            <div
+              className='flex cursor-pointer space-x-2 hover:underline'
+              onClick={() => {
+                setOpenDialog({ isOpen: true, type: 'details', row: row.original })
+              }}
+            >
+              <span className='max-w-[500px]  truncate font-medium'>{row.original.code}</span>
             </div>
           )
         }
@@ -300,6 +342,14 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
                 >
                   <Eye className='mr-2 h-4 w-4' />
                   <span>View Details</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setOpenDialog({ isOpen: true, type: 'edit', row: row.original })
+                  }}
+                >
+                  <PencilIcon className='mr-2 h-4 w-4' />
+                  <span>Edit Registration</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   {/* <Receipt className='mr-2 h-4 w-4' />
@@ -454,6 +504,34 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
     )
   }
 
+  const onSubmit: SubmitHandler<ConventionRegistrationForm> = async (data) => {
+    if (!openDialog) return
+    startTransition(async () => {
+      try {
+        // refUpload.current?.click()
+
+        const response = await updateRegistrationDetails(data, openDialog.row.id)
+        // console.log('🚀 -> startTransition -> response:', response)
+        // await new Promise((res) => setTimeout(() => res('sending...'), 1000))
+        // setResponse({ success: true, message: 'Successfully submitted your registration.' })
+        toast.success('Successfully updated the registration', { position: 'top-center' })
+        setOpenDialog(null)
+
+        // setShowForm(false)
+
+        // setTimeout(() => {
+        //   // router.refresh()
+        //   // setShowForm(false)
+        //   window.location.reload()
+        // }, 3000)
+      } catch (error) {
+        console.error('ERROR: ', error)
+        // setResponse({ success: false, message: 'Error submitting registration! Please try again.' })
+        toast.error('Error submitting registration! Please try again.', { position: 'top-center' })
+      }
+    })
+  }
+
   return (
     <>
       <DataTable
@@ -499,7 +577,6 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
         // Delete rows action
         deleteRowsAction={deleteSelectedRows}
       />
-
       {openDialog && (openDialog.type === 'approved' || openDialog.type === 'pending') && (
         <AlertDialog open={openDialog?.isOpen} onOpenChange={() => setOpenDialog(null)}>
           <AlertDialogContent className='max-w-[500px]'>
@@ -527,7 +604,6 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
           </AlertDialogContent>
         </AlertDialog>
       )}
-
       {openDialog && openDialog.type === 'rejected' && (
         <Dialog open={openDialog?.isOpen} onOpenChange={() => setOpenDialog(null)}>
           <DialogContent className='sm:max-w-md'>
@@ -559,7 +635,6 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
           </DialogContent>
         </Dialog>
       )}
-
       {openDialog && openDialog.type === 'details' && (
         <Dialog open={openDialog?.isOpen} onOpenChange={() => setOpenDialog(null)}>
           <DialogContent className='sm:max-w-md'>
@@ -573,8 +648,41 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
               </div>
             </div>
             <DialogFooter>
-              <Button type='button' onClick={() => setOpenDialog(null)} disabled={isPending}>
+              <Button type='button' variant='secondary' onClick={() => setOpenDialog(null)} disabled={isPending}>
                 Close
+              </Button>
+              <Button type='button' onClick={() => setOpenDialog({ isOpen: true, type: 'edit', row: openDialog.row })} disabled={isPending}>
+                Edit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {openDialog && openDialog.type === 'edit' && (
+        <Dialog open={openDialog?.isOpen} onOpenChange={() => setOpenDialog(null)}>
+          <DialogContent className='sm:max-w-xl'>
+            <DialogHeader>
+              <DialogTitle>Edit Registration Details</DialogTitle>
+              {/* <DialogDescription>Your message or the basis for the registration rejection..</DialogDescription> */}
+            </DialogHeader>
+            <div className='flex items-center space-x-2'>
+              <div className='grid flex-1 gap-2'>
+                <Form {...form}>
+                  <form className='max-h-[450px] space-y-4 overflow-y-scroll'>
+                    <div className='p-2'>
+                      <RegistrationFormInputs chapters={chapters} showAllFees />
+                    </div>
+                  </form>
+                </Form>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type='button' variant='secondary' onClick={() => setOpenDialog(null)} disabled={isPending}>
+                Cancel
+              </Button>
+              <Button type='button' onClick={form.handleSubmit(onSubmit)} disabled={isPending}>
+                Update
               </Button>
             </DialogFooter>
           </DialogContent>

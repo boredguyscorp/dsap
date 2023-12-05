@@ -164,8 +164,10 @@ export type MemberRegistrationForm = MemberGeneralInfo & MemberDrugStoreProfile 
 export const title = ['Select Title', 'Mr.', 'Mrs.', 'Ms.', 'Rph.', 'Dr.'] as const
 
 export const ConventionRegistrationFormSchema = z.object({
-  convention: z.enum(conventionEnum),
-  type: z.enum(typeEnum),
+  // convention: z.enum(conventionEnum),
+  // type: z.enum(typeEnum),
+  convention: z.string(),
+  type: z.string(),
   title: z.string().optional(),
   firstName: z.string({ required_error: 'First Name is required.' }).min(1, { message: 'Please enter First Name.' }),
   middleName: z.string().optional(),

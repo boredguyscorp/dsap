@@ -2,6 +2,8 @@ import { Suspense } from 'react'
 
 import { OrganizationName } from './_components/organization-name'
 import { DeleteOrganization } from './_components/delete-organization'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 
 export default function SettingsPage() {
   return (
@@ -26,7 +28,7 @@ async function OrganizationGeneralSettings() {
     <div className='flex flex-col gap-5'>
       {/* <OrganizationName organizationId='org_123' currentName='' />
       <DeleteOrganization isSuspense={false} /> */}
-      <>General Page Content</>
+      <h1 className='text-lg font-medium'>DSAP Content Management</h1>
     </div>
   )
 

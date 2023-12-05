@@ -259,14 +259,13 @@ model Registration {
 }
 
 model Chapter {
-  id            String    @id @default(cuid())
-  code          String
-  name          String
-  isActive      Boolean   @default(true) @db.Bit(1)
-  organizationd String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
+  id        String    @id @default(cuid())
+  code      String
+  name      String
+  isActive  Boolean   @default(true) @db.Bit(1)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@unique([code])
 }

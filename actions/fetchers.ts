@@ -6,6 +6,7 @@ import url from '@/constants/url'
 import { Post } from '@prisma/client'
 import { Pages } from '@/app/(root)/_constant/constant'
 import { AsyncReturnType } from '@/types'
+import { chaptersArray } from '@/app/(app.domain.com)/dashboard/convention/_components/constant'
 
 type PostOptions = {
   take?: number
@@ -13,16 +14,19 @@ type PostOptions = {
 
 export type ChapterList = AsyncReturnType<typeof getChapters>
 export async function getChapters() {
-  return await unstable_cache(
-    async () => {
-      return db.chapter.findMany({ orderBy: { name: 'asc' }, select: { name: true } })
-    },
-    [`chapters`],
-    {
-      revalidate: 86400, // 86400 = 1 day cache (900 = 15 minutes)
-      tags: [`chapters`]
-    }
-  )()
+  return chaptersArray.map((chapter) => {
+    return { name: chapter.name }
+  })
+  // return await unstable_cache(
+  //   async () => {
+  //     return db.chapter.findMany({ orderBy: { name: 'asc' }, select: { name: true } })
+  //   },
+  //   [`chapters`],
+  //   {
+  //     revalidate: 86400, // 86400 = 1 day cache (900 = 15 minutes)
+  //     tags: [`chapters`]
+  //   }
+  // )()
 }
 
 export async function getPostsForSite(page: string, options?: PostOptions) {
