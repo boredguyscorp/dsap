@@ -64,6 +64,8 @@ export function DataTable<TData, TValue>({
   const sort = searchParams?.get('sort')
   const [column, order] = sort?.split('.') ?? []
 
+  const status = searchParams?.get('status')
+
   // console.log(columns)
 
   // Create query string
@@ -109,29 +111,6 @@ export function DataTable<TData, TValue>({
       pageSize: fallbackPerPage
     })
   }, [fallbackPage, fallbackPerPage])
-
-  // React.useEffect(() => {
-  //   // console.log(isFirstLoad.current)
-  //   // if (isFirstLoad.current) {
-  //   //   isFirstLoad.current = false
-  //   //   let obj = {}
-  //   //   const cols = columns.filter((r: any) => r.hidden == true)
-  //   //   if (cols.length > 0) {
-  //   //     cols.forEach((el: any) => {
-  //   //       obj = { ...obj, [el.accessorKey]: false }
-  //   //     })
-  //   //     setColumnVisibility(obj)
-  //   //   }
-  //   // }
-  //   let obj = {}
-  //   const cols = columns.filter((r: any) => r.hidden == true)
-  //   if (cols.length > 0) {
-  //     cols.forEach((el: any) => {
-  //       obj = { ...obj, [el.accessorKey]: false }
-  //     })
-  //     setColumnVisibility(obj)
-  //   }
-  // }, [])
 
   React.useEffect(() => {
     router.push(
@@ -244,6 +223,10 @@ export function DataTable<TData, TValue>({
     return obj
   }, [])
 
+  React.useEffect(() => {
+    if (status && !status.includes('.')) setColumnFilters([{ id: 'status', value: [status] }])
+  }, [status])
+
   const table = useReactTable({
     data,
     columns,
@@ -254,6 +237,7 @@ export function DataTable<TData, TValue>({
       columnVisibility: Object.keys(columnVisibility).length === 0 ? initHideCols : columnVisibility,
       rowSelection,
       columnFilters
+      // columnFilters: [{ id: 'status', value: ['rejected'] }]
     },
     initialState: { columnVisibility: initHideCols },
     enableRowSelection: true,

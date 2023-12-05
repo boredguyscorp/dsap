@@ -11,6 +11,7 @@ import { notFound } from 'next/navigation'
 import { ChapterList, getChapters } from '@/actions/fetchers'
 import { Suspense } from 'react'
 import { DataTableLoading } from '@/components/data-table/data-table-loading'
+import { RegistrationStatCard } from '../_components/stats'
 
 interface IndexPageProps {
   searchParams: {
@@ -26,7 +27,8 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
   if (!convention) throw notFound()
 
   // Parse search params using zod schema
-  const { page, per_page, sort, firstName, status, drugstoreInfo, type, priority, operator } = searchParamsSchema.parse(searchParams)
+  const { page, per_page, sort, firstName, status, drugstoreInfo, type, showStat, priority, operator } =
+    searchParamsSchema.parse(searchParams)
 
   const searchVal = firstName
 
@@ -107,6 +109,15 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
 
   const registrationPromise = Promise.all([allRegistration, totalRegistration, chapters])
 
+  const statistics = showStat === 'true'
+
+  let statisticsPromise
+
+  if (statistics) {
+    const statCount = db.registration.groupBy({ by: ['status'], _count: true })
+    statisticsPromise = Promise.all([statCount])
+  }
+
   return (
     <DashboardShell
       title={convention.code + ' DSAP National Convention' + ' ' + convention.date}
@@ -115,6 +126,32 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
       headerAction={<ActionButton />}
     >
       <div className='pb-8 pt-6 md:py-8'>
+        {statistics && (
+          <Suspense fallback={<RegistrationStatCard skeleton />}>
+            <Await promise={statisticsPromise}>
+              {(data) => {
+                const approved = data[0].find((r) => r.status === 'approved')?._count ?? 0
+                const pending = data[0].find((r) => r.status === 'pending')?._count ?? 0
+                const rejected = data[0].find((r) => r.status === 'rejected')?._count ?? 0
+                const total = approved + pending + rejected
+
+                const stats = {
+                  total,
+                  approved,
+                  pending,
+                  rejected
+                }
+
+                return (
+                  <div className='mb-6'>
+                    <RegistrationStatCard {...stats} skeleton={false} />
+                  </div>
+                )
+              }}
+            </Await>
+          </Suspense>
+        )}
+
         <Suspense fallback={<DataTableLoading columnCount={4} />}>
           <Await promise={registrationPromise}>
             {(data) => {

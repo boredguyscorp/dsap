@@ -13,5 +13,6 @@ export const searchParamsSchema = z.object({
   store: z.string().optional(),
   status: z.string().optional(),
   priority: z.string().optional(),
-  operator: z.string().optional()
+  operator: z.string().optional(),
+  showStat: z.string().optional()
 })

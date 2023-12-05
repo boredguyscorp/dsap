@@ -652,7 +652,7 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
                 Close
               </Button>
               <Button type='button' onClick={() => setOpenDialog({ isOpen: true, type: 'edit', row: openDialog.row })} disabled={isPending}>
-                Edit
+                Edit Registration
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -677,13 +677,26 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
                 </Form>
               </div>
             </div>
-            <DialogFooter>
-              <Button type='button' variant='secondary' onClick={() => setOpenDialog(null)} disabled={isPending}>
-                Cancel
-              </Button>
-              <Button type='button' onClick={form.handleSubmit(onSubmit)} disabled={isPending}>
-                Update
-              </Button>
+            <DialogFooter className='flex items-center sm:justify-between'>
+              <span>
+                <a
+                  href={openDialog.row.proofOfPaymentUrl}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-sm text-blue-500 hover:underline dark:text-blue-400'
+                >
+                  Click here to see proof of payment.
+                </a>
+              </span>
+
+              <div className='flex items-center gap-2'>
+                <Button type='button' variant='secondary' onClick={() => setOpenDialog(null)} disabled={isPending}>
+                  Cancel
+                </Button>
+                <Button type='button' onClick={form.handleSubmit(onSubmit)} disabled={isPending}>
+                  Update
+                </Button>
+              </div>
             </DialogFooter>
           </DialogContent>
         </Dialog>

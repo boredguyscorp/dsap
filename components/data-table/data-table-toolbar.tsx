@@ -55,6 +55,7 @@ export function DataTableToolbar<TData>({
                   column={table.getColumn(column.id ? String(column.id) : '')}
                   title={column.title}
                   options={column.options}
+                  // status={status}
                 />
               )
           )}

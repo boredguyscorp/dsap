@@ -30,7 +30,7 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
     >
       <div className='mt-10 grid h-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
         {conventions.map((convention) => (
-          <ConventionCardSkeleton convention={convention} />
+          <ConventionCardSkeleton key={convention.code} convention={convention} />
         ))}
       </div>
     </DashboardShell>
