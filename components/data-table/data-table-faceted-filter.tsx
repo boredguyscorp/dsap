@@ -14,15 +14,13 @@ interface DataTableFacetedFilter<TData, TValue> {
   title?: string
   options: Option[]
   variant?: 'popover' | 'command'
-  status?: string
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
-  variant = 'popover',
-  status
+  variant = 'popover'
 }: DataTableFacetedFilter<TData, TValue>) {
   const selectedValues = new Set(column?.getFilterValue() as string[])
 

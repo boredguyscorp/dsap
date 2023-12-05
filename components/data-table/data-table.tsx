@@ -208,6 +208,20 @@ export function DataTable<TData, TValue>({
         )
       }
     }
+
+    if (columnFilters.length === 0) {
+      let params = ''
+
+      for (const key of searchParams ? searchParams.keys() : '') {
+        if (!filterableColumns.find((column) => column.id === key)) {
+          const val = `${key}=${searchParams?.get(key)}`
+          params += params.length > 1 ? `&${val}` : val
+        }
+      }
+
+      router.push(`${pathname}?${params}`)
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(filterableColumnFilters)])
 
@@ -224,7 +238,14 @@ export function DataTable<TData, TValue>({
   }, [])
 
   React.useEffect(() => {
-    if (status && !status.includes('.')) setColumnFilters([{ id: 'status', value: [status] }])
+    if (!status && columnFilters.length === 0) {
+      setColumnFilters([])
+      return
+    }
+
+    if (status && !status.includes('.')) {
+      setColumnFilters([{ id: 'status', value: [status] }])
+    }
   }, [status])
 
   const table = useReactTable({
@@ -237,7 +258,6 @@ export function DataTable<TData, TValue>({
       columnVisibility: Object.keys(columnVisibility).length === 0 ? initHideCols : columnVisibility,
       rowSelection,
       columnFilters
-      // columnFilters: [{ id: 'status', value: ['rejected'] }]
     },
     initialState: { columnVisibility: initHideCols },
     enableRowSelection: true,
