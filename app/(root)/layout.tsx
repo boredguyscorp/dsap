@@ -55,7 +55,7 @@ export default async function RootLayout({ children }: MarketingLayoutProps) {
       <header
         className={cn(
           'supports-backdrop-blur:bg-background/60 fixed top-0 z-40 w-full border-b bg-background/95 px-3 py-2 backdrop-blur 2xl:px-20',
-          showBanner && 'mt-[70px] xs:mt-14'
+          showBanner && 'mt-[80px] xs:mt-14'
         )}
       >
         <LandingNav userId={user?.id} />

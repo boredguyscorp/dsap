@@ -55,6 +55,21 @@ export function LandingNav({ children, userId }: MainNavProps) {
 
         <nav className='hidden items-center space-x-2 md:flex'>
           <Link
+            href='/national-convention'
+            className={cn(
+              buttonVariants({
+                variant: 'main',
+                size: 'lg'
+              }),
+              'text-lg',
+              'min-w-[200px]',
+              'xl:ml-3'
+            )}
+          >
+            Register
+          </Link>
+
+          {/* <Link
             href='/membership'
             className={cn(
               buttonVariants({
@@ -67,7 +82,7 @@ export function LandingNav({ children, userId }: MainNavProps) {
             )}
           >
             Become a Member
-          </Link>
+          </Link> */}
           {/* {userId ? (
             <div className=' flex items-center space-x-2 '>
               <Link

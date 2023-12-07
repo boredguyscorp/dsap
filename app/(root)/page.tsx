@@ -34,11 +34,11 @@ export default async function Page() {
           <h3 className='text-[20px] font-light md:text-2xl xl:text-3xl'>{siteConfig.name}</h3>
         </div>
 
-        <div className='z-10 mt-5 flex justify-center space-x-4 '>
+        {/* <div className='z-10 mt-5 flex justify-center space-x-4 '>
           <Link href='/membership' className={cn(buttonVariants({ variant: 'main', size: 'lg' }), 'min-h-[100px]')}>
             Become a Member
           </Link>
-        </div>
+        </div> */}
       </section>
 
       <section id='message'>

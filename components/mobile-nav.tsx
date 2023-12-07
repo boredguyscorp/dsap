@@ -39,7 +39,7 @@ export function MobileNav({ items, children, userId }: MobileNavProps) {
           ))}
 
           <Link
-            href='/membership'
+            href='/national-convention'
             className={cn(
               buttonVariants({
                 variant: 'main',
@@ -50,7 +50,7 @@ export function MobileNav({ items, children, userId }: MobileNavProps) {
               'xl:ml-3'
             )}
           >
-            Become a Member
+            Register
           </Link>
 
           {/* {!userId && (

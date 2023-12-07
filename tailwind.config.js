@@ -7,6 +7,7 @@ module.exports = {
   content: ['./pages/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
   theme: {
     screens: {
+      '1xs': '400px',
       xs: '490px',
       ...defaultTheme.screens
     },
