@@ -41,6 +41,10 @@ export function toDateNormal(val: Date) {
   return format(val, 'MM/dd/yyyy HH:mm:ss a')
 }
 
+export function toDate(val: Date) {
+  return format(val, 'MM/dd/yyyy')
+}
+
 export function toDateDistance(val: Date) {
   return formatDistance(val, new Date(), { addSuffix: true })
 }

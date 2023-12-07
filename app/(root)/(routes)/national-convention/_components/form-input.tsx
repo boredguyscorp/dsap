@@ -2,7 +2,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
 
-import { InputFieldForm } from '../../membership/_components/InputFieldForm'
+import { InputFieldForm } from '../../../../../components/forms/InputFieldForm'
 import { CalendarIcon, Check, ChevronDownIcon, ChevronsUpDown, MapPin } from 'lucide-react'
 
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'

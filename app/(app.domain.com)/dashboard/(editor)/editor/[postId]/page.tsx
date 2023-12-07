@@ -10,8 +10,8 @@ import { siteConfig } from '@/app/config'
 async function getPostForUser(postId: Post['id'], userId: User['id']) {
   return await db.post.findFirst({
     where: {
-      id: postId,
-      authorId: userId
+      id: postId
+      // authorId: userId
     }
   })
 }

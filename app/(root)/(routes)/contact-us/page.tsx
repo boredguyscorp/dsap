@@ -180,7 +180,7 @@ export default function ContactUs() {
                   <h3 className='font-semibold text-gray-800 dark:text-gray-200'>Contact us</h3>
                   <p className='mt-1 text-sm text-gray-500'>If you wish to speak with us please use</p>
                   <p className='mt-2 inline-flex items-center gap-x-2 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'>
-                    +917 880 3727
+                    +63 917 880 3727
                   </p>
                 </div>
               </div>

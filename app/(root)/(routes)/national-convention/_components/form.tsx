@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 
 // import { DatePickerForm } from './_components/DatePickerForm'
 
-const RHFDevTool = dynamic(() => import('../../membership/_components/DevTools'), { ssr: false })
+const RHFDevTool = dynamic(() => import('../../../../../components/forms/DevTools'), { ssr: false })
 
 import dsap25th from 'public/images/dsap25th.jpg'
 // import logo from 'public/images/logo.jpg'
@@ -279,12 +279,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
                         Proof of Payment {!watch('proofOfPaymentUrl') && errors.proofOfPaymentUrl && ' is required. '}
                         <span className={cn('text-lg font-bold text-teal-500', errors.proofOfPaymentUrl && 'text-red-500')}> * </span>
                       </Label>
-                      {/* <FileUpload
-                          endpoint='proofOfPaymentUploader'
-                          value={watch('proofOfPaymentUrl')}
-                          onChange={(urlValue) => setValue('proofOfPaymentUrl', urlValue ?? '')}
-                          uploader='button'
-                        /> */}
+
                       {(files.length === 0 || errors.proofOfPaymentUrl?.message?.includes('big')) && (
                         <div
                           {...getRootProps()}

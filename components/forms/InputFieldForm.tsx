@@ -31,6 +31,7 @@ export function InputFieldForm<T extends FieldValues>(props: TextFieldFormProps<
       control={control}
       name={name}
       render={({ field }) => {
+        if (name === 'fdaLtoNo') console.log('🚀 -> field:', field)
         return (
           <FormItem>
             <FormLabel className='w-52'>{labelText}</FormLabel>

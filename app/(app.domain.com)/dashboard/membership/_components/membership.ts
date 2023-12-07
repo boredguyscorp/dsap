@@ -4,7 +4,7 @@ export const membershipStatusEnum = ['pending', 'approved', 'rejected'] as const
 
 // GENERAL INFORMATION
 export const ownershipType = [
-  { value: 'single', label: 'Single Proprietor' },
+  { value: 'single proprietor', label: 'Single Proprietor' },
   { value: 'partnership', label: 'Partnership' },
   { value: 'corporation', label: 'Corporation' }
 ] as const
@@ -24,7 +24,7 @@ export const drugstoreClassType = [
 
 // DRUGSTORE PROFILE
 export const dpSetup = [
-  { value: 'counterType', label: 'Counter Type' },
+  { value: 'counter type', label: 'Counter Type' },
   { value: 'service', label: 'Service' }
 ] as const
 
@@ -36,14 +36,14 @@ export const dpLocation = [
 ] as const
 
 export const dpStoreHours = [
-  { value: '24hrs', label: '24 Hours' },
+  { value: '24 Hrs', label: '24 Hours' },
   { value: 'others', label: 'Others' }
 ] as const
 
 export const dpInvSystem = [
   { value: 'pos', label: 'POS' },
-  { value: 'stockCard', label: 'Stock Card' },
-  { value: 'scb', label: 'Stock Control Book' },
+  { value: 'stock card', label: 'Stock Card' },
+  { value: 'stock control book', label: 'Stock Control Book' },
   { value: 'others', label: 'Others' }
 ] as const
 
@@ -53,8 +53,8 @@ export const opStatus = [
   { value: 'single', label: 'Single' },
   { value: 'married', label: 'Married' },
   { value: 'ww', label: 'Widowed/Widower' },
-  { value: 'Divorced', label: 'Divorced' },
-  { value: 'Others', label: 'Others' }
+  { value: 'divorced', label: 'Divorced' },
+  { value: 'others', label: 'Others' }
 ] as const
 
 export type MembershipStatus = (typeof membershipStatusEnum)[number]

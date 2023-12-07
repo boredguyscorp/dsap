@@ -108,7 +108,7 @@ const generalInfo = z.object({
   emailAdd: z.string({ required_error: 'Email Address is required.' }).min(1, { message: 'Please enter Email Address.' }),
   mobileNo: z.string({ required_error: 'Mobile No. is required.' }).min(1, { message: 'Please enter Mobile No.' }),
   telNo: z.string().nullish(),
-  ownershipType: z.enum(owType),
+  ownershipType: z.string({ required_error: 'Please select a ownership type' }),
   membershipType: z.string({ required_error: 'Please select a membership type' }),
   drugstoreClass: z.string({ required_error: 'Please select a drugstore classification' }).default('regular')
 })
@@ -152,7 +152,7 @@ const registrationDetails = z.object({
 })
 
 export const MemberRegistrationFormSchema = [generalInfo, dsProfile, ownerProfile, registrationDetails]
-export const MmemberRegistrationMergeSchema = generalInfo.merge(dsProfile).merge(ownerProfile).merge(registrationDetails)
+export const MemberRegistrationMergeSchema = generalInfo.merge(dsProfile).merge(ownerProfile).merge(registrationDetails)
 
 export type MemberGeneralInfo = z.infer<typeof generalInfo>
 export type MemberDrugStoreProfile = z.infer<typeof dsProfile>
