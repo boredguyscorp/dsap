@@ -176,7 +176,7 @@ export function MembershipTableShell({ data, pageCount }: MembershipTableShellPr
 
           return (
             <div className='flex items-center'>
-              {ownership === 'single' ? (
+              {ownership === 'single proprietor' ? (
                 <User className='mr-2 h-4 w-4 text-muted-foreground' aria-hidden='true' />
               ) : ownership === 'corporation' ? (
                 <Users className='mr-2 h-4 w-4 text-muted-foreground' aria-hidden='true' />
