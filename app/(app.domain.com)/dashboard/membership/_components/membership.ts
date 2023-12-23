@@ -15,11 +15,14 @@ export const membershipType = [
 ] as const
 
 export const drugstoreClassType = [
-  { value: 'regular', label: 'Regular' },
-  { value: 'distributor', label: 'Distributor' },
-  { value: 'chain', label: 'Chain' },
-  { value: 'franchisor', label: 'Franchisor' },
-  { value: 'wholesaler', label: 'Wholesaler' }
+  { category: 'regular', value: 'single', label: 'Single up to 3 outlets' },
+  { category: 'regular', value: 'chain', label: 'Chain' },
+  { category: 'regular', value: 'others', label: 'Others' },
+  { category: 'associate', value: 'distributor', label: 'Distributor' },
+  { category: 'associate', value: 'wholesaler', label: 'Wholesaler' },
+  { category: 'associate', value: 'franchisor', label: 'Franchisor' },
+  { category: 'associate', value: 'franchisee', label: 'Franchisee' },
+  { category: 'associate', value: 'others', label: 'Others' }
 ] as const
 
 // DRUGSTORE PROFILE

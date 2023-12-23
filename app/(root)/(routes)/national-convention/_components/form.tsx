@@ -33,7 +33,7 @@ import { FileWithPath, useDropzone } from 'react-dropzone'
 import { generateClientDropzoneAccept } from 'uploadthing/client'
 import { useUploadThing } from '@/lib/uploadthing'
 import { Form } from '@/components/ui/form'
-import { RegistrationFormInputs } from './form-input'
+import { RegistrationFormInputs } from './form-content'
 import { ChapterList } from '@/actions/fetchers'
 
 type NationalConventionFormProps = {

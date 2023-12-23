@@ -41,8 +41,8 @@ export function toDateNormal(val: Date) {
   return format(val, 'MM/dd/yyyy HH:mm:ss a')
 }
 
-export function toDate(val: Date) {
-  return format(val, 'MM/dd/yyyy')
+export function toDate(val: Date, f?: 'MM/dd/yyyy' | 'yyyy-MM-dd') {
+  return format(val, f ?? 'MM/dd/yyyy')
 }
 
 export function toDateDistance(val: Date) {

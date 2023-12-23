@@ -81,7 +81,7 @@ export function SettingsDialog({ post }: { post: PostSettingsProps }) {
     }
   }, [newImages, imagesToDelete])
 
-  const url = siteConfig.url.home + '/' + post.page + '/' + post.slug
+  const url = `${siteConfig.url.home}/${post.page}/${post.slug}`
 
   return (
     <Dialog>

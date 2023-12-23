@@ -11,55 +11,71 @@ import {
 import { FileUpload } from '@/components/editor/settings/file-upload'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription, Form } from '@/components/ui/form'
 import { cn, toDate, toDateNormal, toProperCase } from '@/lib/utils'
 
 import { watch } from 'fs'
-import { ChevronDownIcon } from 'lucide-react'
-import React from 'react'
+import { ChevronDownIcon, ChevronsUpDown } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import { DatePickerForm } from '../../../../../components/forms/DatePickerForm'
 import { InputFieldForm } from '../../../../../components/forms/InputFieldForm'
 import { TextAreaForm } from '../../../../../components/forms/TextAreaForm'
 import { Separator } from '@/components/ui/separator'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { useFormContext } from 'react-hook-form'
+import { SubmitHandler, useFieldArray, useFormContext } from 'react-hook-form'
 import { STEPS } from './constant'
-import { MemberRegistrationForm } from '@/lib/schema'
+import { DrugstoreChainClassDetails, MemberRegistrationForm, dpChainClassDetailsSchema } from '@/lib/schema'
 import { Label } from '@/components/ui/label'
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
+import { Check } from 'lucide-react'
+import { ChapterList } from '@/actions/fetchers'
+import { MembershipFormProps } from './form'
+import { useZodForm } from '@/lib/zod-form'
+import { Icons } from '@/components/shared/icons'
 
 type StepProps = {
   activeStep: number
   setActiveStep: (step: number) => void
+  chapters?: Pick<MembershipFormProps, 'chapters'>['chapters']
 }
 
 export function getFormStepContent(props: StepProps) {
   switch (props.activeStep) {
     case STEPS.GENERAL_INFO:
-      return <GeneralInfo />
+      return <GeneralInfo chapters={props.chapters} />
     case STEPS.DRUGSTORE_PROFILE:
       return <DrugstoreProfile />
     case STEPS.OWNER_PROFILE:
       return <OwnerProfile />
     case STEPS.REGISTRATION_DETAIL:
       return <RegistrationDetails />
-    case STEPS.REVIEW_INFORMATION:
-      return <ReviewInformation {...props} />
+    // case STEPS.REVIEW_INFORMATION:
+    //   return <ReviewInformation {...props} />
+    case STEPS.UPLOAD_PAYMENT:
+      return <ProofOfPayment />
     default:
       return 'Unknown step'
   }
 }
 
-function GeneralInfo() {
-  const { control } = useFormContext<MemberRegistrationForm>()
+function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
+  const { control, setValue, watch } = useFormContext<MemberRegistrationForm>()
+  const [openChapter, setOpenChapter] = useState<boolean>(false)
+  const [drugstoreClass, setDrugstoreClass] = useState<boolean>(false)
 
   return (
     <Card className='w-full'>
       <CardHeader>
         <CardTitle>General Information</CardTitle>
         <CardDescription className='mb-5'>
-          {' '}
           Please fill up the form below. <span className='text-lg font-bold text-teal-500'> * </span> is required.
         </CardDescription>
       </CardHeader>
@@ -73,6 +89,58 @@ function GeneralInfo() {
             fieldProps={{ placeholder: 'Drugstore Name', required: true }}
             extendedProps={{ label: 'Drugstore Name' }}
           />
+
+          {chapters && (
+            <FormField
+              control={control}
+              name='chapter'
+              render={({ field }) => {
+                return (
+                  <FormItem className='flex w-full flex-col'>
+                    <FormLabel>Chapter *</FormLabel>
+                    <Popover open={openChapter} onOpenChange={setOpenChapter} modal={true}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant='outline'
+                            role='combobox'
+                            className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+                          >
+                            {field.value ? chapters.find((chapter) => chapter.name === field.value)?.name : 'Select chapter'}
+                            <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent align='start' className='z-50  w-full min-w-[var(--radix-popover-trigger-width)]  p-0'>
+                        <ScrollArea className='flex max-h-[350px] flex-col' type='always'>
+                          <Command>
+                            <CommandInput placeholder='Search chapter...' />
+                            <CommandEmpty>No chapter found.</CommandEmpty>
+                            <CommandGroup>
+                              {chapters.map((chapter) => (
+                                <CommandItem
+                                  value={chapter.name}
+                                  key={chapter.name}
+                                  onSelect={() => {
+                                    setValue('chapter', chapter.name)
+                                    setOpenChapter(false)
+                                  }}
+                                >
+                                  <Check className={cn('mr-2 h-4 w-4', chapter.name === field.value ? 'opacity-100' : 'opacity-0')} />
+                                  {chapter.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </Command>
+                        </ScrollArea>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
+            />
+          )}
 
           <TextAreaForm
             control={control}
@@ -144,7 +212,14 @@ function GeneralInfo() {
                 <FormItem className='space-y-3'>
                   <FormLabel>Membership Type</FormLabel>
                   <FormControl>
-                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                    <RadioGroup
+                      onValueChange={(e) => {
+                        field.onChange(e)
+                        setValue('drugstoreClass', '')
+                      }}
+                      defaultValue={field.value}
+                      className='flex flex-col space-y-1'
+                    >
                       {membershipType.map((row) => {
                         return (
                           <FormItem className='flex items-center space-x-3 space-y-0'>
@@ -167,25 +242,61 @@ function GeneralInfo() {
             <FormField
               control={control}
               name='drugstoreClass'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Drugstore Classification</FormLabel>
-                  <div className='relative w-full'>
-                    <FormControl>
-                      <select className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')} {...field}>
-                        {drugstoreClassType.map((row) => (
-                          <option key={row.value} value={row.value}>
-                            {row.label}
-                          </option>
-                        ))}
-                      </select>
-                    </FormControl>
-                    <ChevronDownIcon className='absolute right-3 top-2.5 h-4 w-4 opacity-50' />
-                  </div>
-                  <FormDescription>Select to classify your Drugstore.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                return (
+                  <FormItem className='flex w-full flex-col'>
+                    <FormLabel>Drugstore Classification</FormLabel>
+                    <Popover open={drugstoreClass} onOpenChange={setDrugstoreClass} modal={true}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant='outline'
+                            role='combobox'
+                            className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+                            disabled={!watch('membershipType')}
+                          >
+                            {field.value
+                              ? drugstoreClassType.find((row) => row.value === field.value)?.label
+                              : 'Select drugstore classification'}
+                            <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent align='start' className='z-50  w-full min-w-[var(--radix-popover-trigger-width)]  p-0'>
+                        <ScrollArea className='flex max-h-[350px] flex-col' type='always'>
+                          <Command>
+                            <CommandInput placeholder='Search drugstore classification...' />
+                            <CommandEmpty>No drugstore classification found.</CommandEmpty>
+                            <CommandGroup>
+                              {drugstoreClassType
+                                .filter((ds) => ds.category === watch('membershipType'))
+                                .map((row) => (
+                                  <CommandItem
+                                    key={row.value}
+                                    value={row.value}
+                                    onSelect={() => {
+                                      setValue('drugstoreClass', row.value)
+                                      if (row.value === 'single' || row.value === 'chain') {
+                                        setValue('dpDSClassDetails.dsClass', row.value)
+                                      } else {
+                                        setValue('dpDSClassDetails.dsClass', 'others')
+                                      }
+                                      setDrugstoreClass(false)
+                                    }}
+                                  >
+                                    <Check className={cn('mr-2 h-4 w-4', row.value === field.value ? 'opacity-100' : 'opacity-0')} />
+                                    {row.label}
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                          </Command>
+                        </ScrollArea>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
           </div>
         </div>
@@ -195,14 +306,13 @@ function GeneralInfo() {
 }
 
 function DrugstoreProfile() {
-  const { control } = useFormContext<MemberRegistrationForm>()
+  const { control, watch } = useFormContext<MemberRegistrationForm>()
 
   return (
     <Card className='w-full'>
       <CardHeader>
         <CardTitle>Drugstore Profile</CardTitle>
         <CardDescription className='mb-5'>
-          {' '}
           Please fill up the form below. <span className='text-lg font-bold text-teal-500'> * </span> is required.
         </CardDescription>
       </CardHeader>
@@ -210,6 +320,15 @@ function DrugstoreProfile() {
 
       <CardContent className='mt-5'>
         <div className='space-y-4'>
+          <div className='w-60'>
+            <InputFieldForm
+              control={control}
+              name='dpDateEstablished'
+              fieldProps={{ required: true, type: 'date', max: toDate(new Date(), 'yyyy-MM-dd') }}
+              extendedProps={{ label: 'Date Established' }}
+            />
+          </div>
+
           <div className='grid grid-cols-4 gap-4'>
             <FormField
               control={control}
@@ -320,26 +439,1213 @@ function DrugstoreProfile() {
             />
           </div>
         </div>
+
+        {watch('dpDSClassDetails.dsClass') === 'single' && (
+          <div className='mt-8 w-full'>
+            <SingleDrugstoreProfilePharmacist />
+          </div>
+        )}
+
+        {watch('dpDSClassDetails.dsClass') === 'chain' && (
+          <div className='mt-8 w-full'>
+            <DrugstoreChainDetails />
+          </div>
+        )}
       </CardContent>
     </Card>
   )
 }
 
+function SingleDrugstoreProfilePharmacist() {
+  const {
+    control,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useFormContext<MemberRegistrationForm>()
+
+  const [photoErr, setPhotoErr] = useState<{ ph?: boolean; phAs?: boolean }>({ ph: false, phAs: false })
+
+  const [tab, setTab] = useState('registered-pharmacist')
+  const onTabChange = (value: string) => setTab(value)
+
+  useEffect(() => {
+    if (!errors.dpDSClassDetails) return
+    const errorKey = Object.keys(errors.dpDSClassDetails)
+
+    if (errorKey.length < 1) return
+
+    setPhotoErr({ ph: errorKey.includes('dpPhImageUrl'), phAs: errorKey.includes('dpPhAsImageUrl') })
+
+    if ((errorKey.includes('dpPhAsFirstName') || errorKey.includes('dpPhAsLastName')) && errorKey.length < 1) {
+      setTab('pharmacy-assistant')
+    }
+  }, [errors])
+
+  const phEducAttArr = [
+    {
+      label: 'College',
+      collegeUniv: 'dpDSClassDetails.dpPhEducCollege.collegeUniv',
+      course: 'dpDSClassDetails.dpPhEducCollege.course',
+      yearGrad: 'dpDSClassDetails.dpPhEducCollege.yearGrad'
+    },
+    {
+      label: 'Masters',
+      collegeUniv: 'dpDSClassDetails.dpPhEducMasters.collegeUniv',
+      course: 'dpDSClassDetails.dpPhEducMasters.course',
+      yearGrad: 'dpDSClassDetails.dpPhEducMasters.yearGrad'
+    },
+    {
+      label: 'Doctorate',
+      collegeUniv: 'dpDSClassDetails.dpPhEducDoctorate.collegeUniv',
+      course: 'dpDSClassDetails.dpPhEducDoctorate.course',
+      yearGrad: 'dpDSClassDetails.dpPhEducDoctorate.yearGrad'
+    },
+    {
+      label: 'Special Program',
+      collegeUniv: 'dpDSClassDetails.dpPhEducSpecialProg.collegeUniv',
+      course: 'dpDSClassDetails.dpPhEducSpecialProg.course',
+      yearGrad: 'dpDSClassDetails.dpPhEducSpecialProg.yearGrad'
+    },
+    {
+      label: 'Others',
+      collegeUniv: 'dpDSClassDetails.dpPhEducOthers.collegeUniv',
+      course: 'dpDSClassDetails.dpPhEducOthers.course',
+      yearGrad: 'dpDSClassDetails.dpPhEducOthers.yearGrad'
+    }
+  ] as const
+
+  const phAsEducAttArr = [
+    {
+      label: 'Primary',
+      collegeUniv: 'dpDSClassDetails.dpPhAsEducPrimary.collegeUniv',
+      course: 'dpDSClassDetails.dpPhAsEducPrimary.course',
+      yearGrad: 'dpDSClassDetails.dpPhAsEducPrimary.yearGrad'
+    },
+    {
+      label: 'Secondary',
+      collegeUniv: 'dpDSClassDetails.dpPhAsEducSecondary.collegeUniv',
+      course: 'dpDSClassDetails.dpPhAsEducSecondary.course',
+      yearGrad: 'dpDSClassDetails.dpPhAsEducSecondary.yearGrad'
+    },
+    {
+      label: 'College',
+      collegeUniv: 'dpDSClassDetails.dpPhAsEducCollege.collegeUniv',
+      course: 'dpDSClassDetails.dpPhAsEducCollege.course',
+      yearGrad: 'dpDSClassDetails.dpPhAsEducCollege.yearGrad'
+    },
+    {
+      label: 'Masters',
+      collegeUniv: 'dpDSClassDetails.dpPhAsEducMasters.collegeUniv',
+      course: 'dpDSClassDetails.dpPhAsEducMasters.course',
+      yearGrad: 'dpDSClassDetails.dpPhAsEducMasters.yearGrad'
+    },
+    {
+      label: 'Doctorate',
+      collegeUniv: 'dpDSClassDetails.dpPhAsEducDoctorate.collegeUniv',
+      course: 'dpDSClassDetails.dpPhAsEducDoctorate.course',
+      yearGrad: 'dpDSClassDetails.dpPhAsEducDoctorate.yearGrad'
+    },
+    {
+      label: 'Special Program',
+      collegeUniv: 'dpDSClassDetails.dpPhAsEducSpecialProg.collegeUniv',
+      course: 'dpDSClassDetails.dpPhAsEducSpecialProg.course',
+      yearGrad: 'dpDSClassDetails.dpPhAsEducSpecialProg.yearGrad'
+    },
+    {
+      label: 'Others',
+      collegeUniv: 'dpDSClassDetails.dpPhAsEducOthers.collegeUniv',
+      course: 'dpDSClassDetails.dpPhAsEducOthers.course',
+      yearGrad: 'dpDSClassDetails.dpPhAsEducOthers.yearGrad'
+    }
+  ] as const
+
+  return (
+    <Tabs value={tab} onValueChange={onTabChange} className='w-full'>
+      <TabsList className='grid w-[500px] grid-cols-2'>
+        <TabsTrigger value='registered-pharmacist'>Registered Pharmacist</TabsTrigger>
+        <TabsTrigger value='pharmacy-assistant'>Pharmacy Assistant</TabsTrigger>
+      </TabsList>
+      <TabsContent value='registered-pharmacist'>
+        <Card>
+          <CardHeader>
+            <div className='relative flex justify-between'>
+              <div className='flex flex-col '>
+                <CardTitle>Registered Pharmacist Details</CardTitle>
+                <CardDescription>Drugstore Pharmacist Form.</CardDescription>
+              </div>
+              <div
+                className={cn(
+                  'absolute -top-3 right-0 flex h-[150px] w-[156px] flex-col items-center justify-center space-y-1 rounded-md border-2 border-dashed',
+                  photoErr.ph && 'border-red-400 text-destructive'
+                )}
+              >
+                {(watch('dpDSClassDetails.dpPhImageUrl')?.length < 1 || !watch('dpDSClassDetails.dpPhImageUrl')) && (
+                  <p className={cn('text-sm font-medium')}>Photo *</p>
+                )}
+
+                <FileUpload
+                  uploader='button'
+                  endpoint='photoUploader'
+                  value={watch('dpDSClassDetails.dpPhImageUrl')}
+                  onChange={(urlValue) => {
+                    setValue('dpDSClassDetails.dpPhImageUrl', urlValue ?? '')
+                    setPhotoErr((prev) => {
+                      return { ph: urlValue ? false : true, phAs: prev.phAs }
+                    })
+                  }}
+                />
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className='space-y-2'>
+            <div className='space-y-4'>
+              <div className='grid grid-cols-3 gap-4'>
+                <InputFieldForm
+                  control={control}
+                  name='dpDSClassDetails.dpPhLastName'
+                  fieldProps={{ placeholder: 'Last Name', required: true }}
+                  extendedProps={{ label: 'Last Name' }}
+                />
+                <InputFieldForm
+                  control={control}
+                  name='dpDSClassDetails.dpPhFirstName'
+                  fieldProps={{ placeholder: 'First Name', required: true }}
+                  extendedProps={{ label: 'First Name' }}
+                />
+                <div className='max-w-[140px]'>
+                  <InputFieldForm
+                    control={control}
+                    name='dpDSClassDetails.dpPhMiddleName'
+                    fieldProps={{ placeholder: 'Middle Initial', width: '12px' }}
+                    extendedProps={{ label: 'Middle Initial' }}
+                  />
+                </div>
+              </div>
+
+              <TextAreaForm
+                control={control}
+                name='dpDSClassDetails.dpPhAddress'
+                fieldProps={{ placeholder: 'Address' }}
+                extendedProps={{ label: 'Address' }}
+              />
+
+              <div className='grid grid-cols-2 gap-8'>
+                <div className='flex flex-col space-y-2'>
+                  <DatePickerForm
+                    control={control}
+                    name='dpDSClassDetails.dpPhBirthday'
+                    fieldProps={{ mode: 'single' }}
+                    extendedProps={{ label: 'Birthday', disabledFuture: true }}
+                  />
+
+                  <InputFieldForm
+                    control={control}
+                    name='dpDSClassDetails.dpPhEmail'
+                    fieldProps={{ placeholder: 'Email Add' }}
+                    extendedProps={{ label: 'Email Add' }}
+                  />
+                </div>
+
+                <div className='flex flex-col space-y-2'>
+                  <InputFieldForm
+                    control={control}
+                    name='dpDSClassDetails.dpPhCellNo'
+                    fieldProps={{ placeholder: 'Cellphone No.' }}
+                    extendedProps={{ label: 'Cellphone No.' }}
+                  />
+                  <InputFieldForm
+                    control={control}
+                    name='dpDSClassDetails.dpPhTelNo'
+                    fieldProps={{ placeholder: 'Telephone No.' }}
+                    extendedProps={{ label: 'Telephone No.' }}
+                  />
+                </div>
+              </div>
+
+              <div className='grid grid-cols-2 gap-8'>
+                <FormField
+                  control={control}
+                  name='dpDSClassDetails.dpPhStatus'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <div className='relative w-full'>
+                        <FormControl>
+                          <select
+                            className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')}
+                            {...field}
+                          >
+                            {opStatus.map((row) => (
+                              <option key={row.value} value={row.value}>
+                                {row.label}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                        <ChevronDownIcon className='absolute right-3 top-2.5 h-4 w-4 opacity-50' />
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
+                  name='dpDSClassDetails.dpPhGender'
+                  render={({ field }) => (
+                    <FormItem className='space-y-3'>
+                      <FormLabel>Gender</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                          {[
+                            { value: 'male', label: 'Male' },
+                            { value: 'female', label: 'Female' }
+                          ].map((row) => {
+                            return (
+                              <FormItem className='flex items-center space-x-3 space-y-0'>
+                                <React.Fragment key={row.value}>
+                                  <FormControl>
+                                    <RadioGroupItem value={row.value} />
+                                  </FormControl>
+                                  <FormLabel className='font-normal'>{row.label}</FormLabel>
+                                </React.Fragment>
+                              </FormItem>
+                            )
+                          })}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <InputFieldForm
+                control={control}
+                name='dpDSClassDetails.dpPhNameInCert'
+                fieldProps={{ placeholder: 'Name in PRC Certificate', required: true }}
+                extendedProps={{ label: 'Name in PRC Certificate' }}
+              />
+
+              <InputFieldForm
+                control={control}
+                name='dpDSClassDetails.dpPhOtherName'
+                fieldProps={{ placeholder: 'Other Name (Maiden or Married)' }}
+                extendedProps={{ label: 'Other Name (Maiden or Married)' }}
+              />
+
+              <div className='grid grid-cols-3 gap-4'>
+                <InputFieldForm
+                  control={control}
+                  name='dpDSClassDetails.dpPhLicenseNo'
+                  fieldProps={{ placeholder: 'PRC License No.', required: true }}
+                  extendedProps={{ label: 'PRC License No.' }}
+                />
+                <InputFieldForm
+                  control={control}
+                  name='dpDSClassDetails.dpPhDateIssued'
+                  fieldProps={{ placeholder: 'Date Issued', required: true }}
+                  extendedProps={{ label: 'Date Issued' }}
+                />
+                <InputFieldForm
+                  control={control}
+                  name='dpDSClassDetails.dpPhExpDate'
+                  fieldProps={{ placeholder: 'Expiry Date', required: true }}
+                  extendedProps={{ label: 'Expiry Date' }}
+                />
+              </div>
+
+              <div className='!mt-10 flex h-11 w-full items-center justify-center rounded-md border-2 border-teal-500'>
+                <h1>Educational Attainment</h1>
+              </div>
+              <div className='grid grid-cols-4 gap-2'>
+                {phEducAttArr.map((r) => {
+                  return (
+                    <>
+                      <Label className='flex items-center'>{r.label}</Label>
+
+                      <InputFieldForm
+                        control={control}
+                        name={r.collegeUniv}
+                        fieldProps={{ placeholder: 'College/University' }}
+                        extendedProps={{ style: 'classic' }}
+                      />
+
+                      <InputFieldForm
+                        control={control}
+                        name={r.course}
+                        fieldProps={{ placeholder: 'Course' }}
+                        extendedProps={{ style: 'classic' }}
+                      />
+
+                      <InputFieldForm
+                        control={control}
+                        name={r.yearGrad}
+                        fieldProps={{ placeholder: 'Year Graduated', type: 'number', maxLength: 4 }}
+                        extendedProps={{ style: 'classic' }}
+                      />
+                    </>
+                  )
+                })}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value='pharmacy-assistant'>
+        <Card>
+          <CardHeader>
+            <div className='relative flex justify-between'>
+              <div className='flex flex-col '>
+                <CardTitle>Pharmacy Assistant Details</CardTitle>
+                <CardDescription>Drugstore Pharmacy Assistant Form.</CardDescription>
+              </div>
+              <div
+                className={cn(
+                  'absolute -top-3 right-0 flex h-[150px] w-[156px] flex-col items-center justify-center space-y-1 rounded-md border-2 border-dashed',
+                  photoErr.phAs && 'border-red-400 text-destructive'
+                )}
+              >
+                {(watch('dpDSClassDetails.dpPhAsImageUrl')?.length < 1 || !watch('dpDSClassDetails.dpPhAsImageUrl')) && (
+                  <p className={cn('text-sm font-medium')}>Photo *</p>
+                )}
+
+                <FileUpload
+                  uploader='button'
+                  endpoint='photoUploader'
+                  value={watch('dpDSClassDetails.dpPhAsImageUrl')}
+                  onChange={(urlValue) => {
+                    setValue('dpDSClassDetails.dpPhAsImageUrl', urlValue ?? '')
+                    setPhotoErr((prev) => {
+                      return { ph: prev.ph, phAs: urlValue ? false : true }
+                    })
+                  }}
+                />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className='space-y-2'>
+            <div className='space-y-4'>
+              <div className='grid grid-cols-3 gap-4'>
+                <InputFieldForm
+                  control={control}
+                  name='dpDSClassDetails.dpPhAsLastName'
+                  fieldProps={{ placeholder: 'Last Name', required: true }}
+                  extendedProps={{ label: 'Last Name' }}
+                />
+                <InputFieldForm
+                  control={control}
+                  name='dpDSClassDetails.dpPhAsFirstName'
+                  fieldProps={{ placeholder: 'First Name', required: true }}
+                  extendedProps={{ label: 'First Name' }}
+                />
+                <div className='max-w-[140px]'>
+                  <InputFieldForm
+                    control={control}
+                    name='dpDSClassDetails.dpPhAsMiddleName'
+                    fieldProps={{ placeholder: 'Middle Initial', width: '12px' }}
+                    extendedProps={{ label: 'Middle Initial' }}
+                  />
+                </div>
+              </div>
+
+              <TextAreaForm
+                control={control}
+                name='dpDSClassDetails.dpPhAsAddress'
+                fieldProps={{ placeholder: 'Address' }}
+                extendedProps={{ label: 'Address' }}
+              />
+
+              <div className='grid grid-cols-2 gap-8'>
+                <div className='flex flex-col space-y-2'>
+                  <DatePickerForm
+                    control={control}
+                    name='dpDSClassDetails.dpPhAsBirthday'
+                    fieldProps={{ mode: 'single' }}
+                    extendedProps={{ label: 'Birthday', disabledFuture: true }}
+                  />
+
+                  <InputFieldForm
+                    control={control}
+                    name='dpDSClassDetails.dpPhAsEmail'
+                    fieldProps={{ placeholder: 'Email Add' }}
+                    extendedProps={{ label: 'Email Add' }}
+                  />
+                </div>
+
+                <div className='flex flex-col space-y-2'>
+                  <InputFieldForm
+                    control={control}
+                    name='dpDSClassDetails.dpPhAsCellNo'
+                    fieldProps={{ placeholder: 'Cellphone No.' }}
+                    extendedProps={{ label: 'Cellphone No.' }}
+                  />
+                  <InputFieldForm
+                    control={control}
+                    name='dpDSClassDetails.dpPhAsTelNo'
+                    fieldProps={{ placeholder: 'Telephone No.' }}
+                    extendedProps={{ label: 'Telephone No.' }}
+                  />
+                </div>
+              </div>
+
+              <div className='grid grid-cols-2 gap-8'>
+                <FormField
+                  control={control}
+                  name='dpDSClassDetails.dpPhAsStatus'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <div className='relative w-full'>
+                        <FormControl>
+                          <select
+                            className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')}
+                            {...field}
+                          >
+                            {opStatus.map((row) => (
+                              <option key={row.value} value={row.value}>
+                                {row.label}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                        <ChevronDownIcon className='absolute right-3 top-2.5 h-4 w-4 opacity-50' />
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
+                  name='dpDSClassDetails.dpPhAsGender'
+                  render={({ field }) => (
+                    <FormItem className='space-y-3'>
+                      <FormLabel>Gender</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                          {[
+                            { value: 'male', label: 'Male' },
+                            { value: 'female', label: 'Female' }
+                          ].map((row) => {
+                            return (
+                              <FormItem className='flex items-center space-x-3 space-y-0'>
+                                <React.Fragment key={row.value}>
+                                  <FormControl>
+                                    <RadioGroupItem value={row.value} />
+                                  </FormControl>
+                                  <FormLabel className='font-normal'>{row.label}</FormLabel>
+                                </React.Fragment>
+                              </FormItem>
+                            )
+                          })}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <InputFieldForm
+                control={control}
+                name='dpDSClassDetails.dpPhAsEmployer'
+                fieldProps={{ placeholder: 'Employer' }}
+                extendedProps={{ label: 'Employer' }}
+              />
+              <InputFieldForm
+                control={control}
+                name='dpDSClassDetails.dpPhAsEmployerAddress'
+                fieldProps={{ placeholder: 'Employer Address' }}
+                extendedProps={{ label: 'Employer Address' }}
+              />
+
+              <div className='!mt-10 flex h-11 w-full items-center justify-center rounded-md border-2 border-teal-500'>
+                <h1>Educational Attainment</h1>
+              </div>
+              <div className='grid grid-cols-4 gap-2'>
+                {phAsEducAttArr.map((r) => {
+                  return (
+                    <>
+                      <Label className='flex items-center'>{r.label}</Label>
+
+                      <InputFieldForm
+                        control={control}
+                        name={r.collegeUniv}
+                        fieldProps={{ placeholder: 'College/University' }}
+                        extendedProps={{ style: 'classic' }}
+                      />
+
+                      <InputFieldForm
+                        control={control}
+                        name={r.course}
+                        fieldProps={{ placeholder: 'Course' }}
+                        extendedProps={{ style: 'classic' }}
+                      />
+
+                      <InputFieldForm
+                        control={control}
+                        name={r.yearGrad}
+                        fieldProps={{ placeholder: 'Year Graduated', type: 'number', maxLength: 4 }}
+                        extendedProps={{ style: 'classic' }}
+                      />
+                    </>
+                  )
+                })}
+              </div>
+
+              <div className='!mt-10 flex h-11 w-full items-center justify-center rounded-md border-2 border-teal-500'>
+                <h1>Attached Required Forms *</h1>
+              </div>
+              <div className='grid grid-cols-3 gap-2'>
+                <div className='flex flex-col space-y-4'>
+                  <Label className={cn('', !watch('dpDSClassDetails.dpPhAsAttachmentCOEUrl') && 'text-red-500')}>
+                    Certificate of Employment *
+                  </Label>
+                  <FileUpload
+                    uploader='button'
+                    endpoint='pdfUploader'
+                    value={watch('dpDSClassDetails.dpPhAsAttachmentCOEUrl')}
+                    onChange={(urlValue) => setValue('dpDSClassDetails.dpPhAsAttachmentCOEUrl', urlValue ?? '')}
+                  />
+                </div>
+
+                <div className='flex flex-col space-y-4'>
+                  <Label className={cn('', !watch('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl') && 'text-red-500')}>Diploma *</Label>
+                  <FileUpload
+                    uploader='button'
+                    endpoint='pdfUploader'
+                    value={watch('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl')}
+                    onChange={(urlValue) => setValue('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl', urlValue ?? '')}
+                  />
+                </div>
+
+                <div className='flex flex-col space-y-4'>
+                  <Label className={cn('', !watch('dpDSClassDetails.dpPhAsAttachmentCOAUrl') && 'text-red-500')}>
+                    Certificate of Attendance *
+                  </Label>
+                  <FileUpload
+                    uploader='button'
+                    endpoint='pdfUploader'
+                    value={watch('dpDSClassDetails.dpPhAsAttachmentCOAUrl')}
+                    onChange={(urlValue) => setValue('dpDSClassDetails.dpPhAsAttachmentCOAUrl', urlValue ?? '')}
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  )
+}
+
+function DrugstoreChainDetails() {
+  const { control: mainFormControl } = useFormContext<MemberRegistrationForm>()
+  const { fields, append, remove } = useFieldArray({ name: 'dpDSClassDetails.dpBranches', control: mainFormControl })
+
+  const form = useZodForm({
+    schema: dpChainClassDetailsSchema,
+    shouldUnregister: false
+  })
+
+  const {
+    control,
+    setValue,
+    watch,
+    formState: { errors }
+  } = form
+
+  // console.log(errors)
+
+  const [openDialog, setOpenDialog] = React.useState<{
+    isOpen: boolean
+    type: 'add' | 'edit'
+    row?: any
+  } | null>(null)
+
+  const [tab, setTab] = useState('general')
+
+  const onTabChange = (value: string) => setTab(value)
+
+  const onSubmit: SubmitHandler<DrugstoreChainClassDetails> = async (data) => {
+    // console.log('🚀 -> constonSubmit:SubmitHandler<ConventionRegistrationForm>= -> data:', data)
+    append(data)
+    // setOpenDialog({ isOpen: false, type: 'add' })
+  }
+
+  return (
+    <>
+      <div className='mb-4 flex items-center justify-between'>
+        <div className='flex gap-2 text-lg font-medium'>
+          Chain Drugstore List <span className={cn('hidden', fields.length > 0 && 'flex')}>({fields.length} Branch)</span>
+        </div>
+        <Button
+          type='button'
+          className='cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out hover:border-teal-500  hover:bg-teal-500 focus:outline-none'
+          onClick={() => setOpenDialog({ isOpen: true, type: 'add' })}
+        >
+          Add Branch
+        </Button>
+      </div>
+
+      <div className={cn('max-h-[400px] overflow-y-auto', fields.length > 9 && 'pr-1')}>
+        {fields.map((row, index) => {
+          return (
+            <div key={index} className='flex items-center justify-between border-b border-teal-500 py-2'>
+              <div className='flex items-center justify-center gap-2'>
+                <div className='flex h-5 w-5 items-center justify-center rounded-sm bg-teal-500 text-center text-xs text-white'>
+                  {index + 1}
+                </div>
+                <h1>{row.branchName}</h1>
+              </div>
+              <div className='flex items-center justify-center gap-2'>
+                <Button type='button' size='icon' variant='outline' title='Edit' className='h-5 w-5'>
+                  <Icons.edit className='h-4 w-4' />
+                </Button>
+
+                <Button type='button' size='icon' variant='destructive' className='h-5 w-5' onClick={() => remove(index)}>
+                  <Icons.close className='h-4 w-4' />
+                </Button>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <Dialog open={openDialog?.isOpen} onOpenChange={() => setOpenDialog(null)}>
+        <DialogContent className='min-w-[900px]'>
+          <DialogHeader>
+            <DialogTitle>Chain Drugstore Branch Details</DialogTitle>
+          </DialogHeader>
+          <div className='flex items-center space-x-2'>
+            <div className='grid flex-1 gap-2'>
+              <Form {...form}>
+                <form className='max-h-[600px] space-y-4 overflow-y-scroll pl-1 pr-2'>
+                  <InputFieldForm
+                    control={control}
+                    name='branchName'
+                    fieldProps={{ placeholder: 'Branch Name', required: true }}
+                    extendedProps={{ label: 'Branch Name' }}
+                  />
+
+                  <Tabs value={tab} onValueChange={onTabChange} className='w-full'>
+                    <TabsList className='grid w-full grid-cols-3'>
+                      <TabsTrigger value='general'>General</TabsTrigger>
+                      <TabsTrigger value='pharmacy-info'>Pharmacist Info</TabsTrigger>
+                      <TabsTrigger value='drugstore-profile'>Drugstore Profile</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value='general'>
+                      <Card>
+                        <CardContent className='space-y-2'>
+                          <div className='space-y-4 py-4'>
+                            <ChainDSGeneralInfo />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value='pharmacy-info'>
+                      <Card>
+                        <CardContent className='space-y-2'>
+                          <div className='space-y-4 py-4'>
+                            <ChainDSPharmacyInfo />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value='drugstore-profile'>
+                      <Card>
+                        <CardContent className='space-y-2 py-4'>
+                          <div className='space-y-4'>
+                            <ChainDSProfile />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
+                </form>
+              </Form>
+            </div>
+          </div>
+
+          <DialogFooter className='flex items-center justify-end'>
+            <div className='flex items-center gap-2'>
+              <Button type='button' variant='secondary' onClick={() => setOpenDialog(null)}>
+                Cancel
+              </Button>
+              <Button type='button' onClick={form.handleSubmit(onSubmit)}>
+                Save
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
+function ChainDSGeneralInfo() {
+  const {
+    control,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useFormContext<DrugstoreChainClassDetails>()
+
+  return (
+    <div className='gap-2 space-y-2'>
+      <TextAreaForm control={control} name='address' fieldProps={{ placeholder: 'Address' }} extendedProps={{ label: 'Address' }} />
+
+      <div className='grid grid-cols-3 gap-4'>
+        <InputFieldForm
+          control={control}
+          name='emailAdd'
+          fieldProps={{ placeholder: 'Email Address' }}
+          extendedProps={{ label: 'Email Address' }}
+        />
+        <InputFieldForm
+          control={control}
+          name='mobileNo'
+          fieldProps={{ placeholder: 'Mobile No.' }}
+          extendedProps={{ label: 'Mobile No.' }}
+        />
+        <InputFieldForm
+          control={control}
+          name='telNo'
+          fieldProps={{ placeholder: 'Telephone No.' }}
+          extendedProps={{ label: 'Telephone No.' }}
+        />
+      </div>
+
+      <InputFieldForm
+        control={control}
+        name='managerOic'
+        fieldProps={{ placeholder: 'Manager/OIC' }}
+        extendedProps={{ label: 'Manager/OIC' }}
+      />
+
+      <div className='!mb-4 !mt-7 flex h-11 w-full items-center justify-center rounded-md border-2 border-teal-500'>
+        <h1>Document Attachment</h1>
+      </div>
+      <div className='grid grid-cols-2 gap-2 divide-x-2 p-0 '>
+        <div className='relative space-y-4 px-5 first:pl-0 first:pr-5 last:pl-5 last:pr-0 '>
+          <div className='flex flex-col gap-4'>
+            <InputFieldForm
+              control={control}
+              name='fdaLtoNo'
+              fieldProps={{ placeholder: 'FDA LTO No.' }}
+              extendedProps={{ label: 'FDA LTO No.' }}
+            />
+
+            <InputFieldForm
+              control={control}
+              name='fdaDateIssued'
+              fieldProps={{ type: 'date', max: toDate(new Date(), 'yyyy-MM-dd') }}
+              extendedProps={{ label: 'Date Issued' }}
+            />
+
+            <InputFieldForm control={control} name='fdaDateExpiry' fieldProps={{ type: 'date' }} extendedProps={{ label: 'Date Expiry' }} />
+
+            <Label className={cn('', errors.fdaUrlAttachment && 'text-red-500')}>FDA LTO Document Attachment *</Label>
+            <FileUpload
+              uploader='button'
+              endpoint='pdfUploader'
+              value={watch('fdaUrlAttachment')}
+              onChange={(urlValue) => setValue('fdaUrlAttachment', urlValue ?? '')}
+            />
+          </div>
+        </div>
+
+        <div className='relative space-y-4 px-5 first:pl-0 first:pr-5 last:pl-5 last:pr-0 '>
+          <div className='flex flex-col gap-4'>
+            <InputFieldForm
+              control={control}
+              name='docNo'
+              fieldProps={{ placeholder: 'Document No. (DTI/SEC Certificate)', required: true }}
+              extendedProps={{ label: 'Document No. (DTI/SEC Certificate)' }}
+            />
+
+            <InputFieldForm
+              control={control}
+              name='docDateIssued'
+              fieldProps={{ type: 'date', max: toDate(new Date(), 'yyyy-MM-dd') }}
+              extendedProps={{ label: 'Date Issued' }}
+            />
+
+            <InputFieldForm control={control} name='docDateExpiry' fieldProps={{ type: 'date' }} extendedProps={{ label: 'Date Expiry' }} />
+
+            <Label className={cn('', errors.docUrlAttachment && 'text-red-500')}>DTI/SEC Document Attachment *</Label>
+            <FileUpload
+              uploader='button'
+              endpoint='pdfUploader'
+              value={watch('docUrlAttachment')}
+              onChange={(urlValue) => setValue('docUrlAttachment', urlValue ?? '')}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ChainDSPharmacyInfo() {
+  const {
+    control,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useFormContext<DrugstoreChainClassDetails>()
+
+  const [tab, setTab] = useState('registered-pharmacist')
+  const onTabChange = (value: string) => setTab(value)
+
+  return (
+    <Tabs value={tab} onValueChange={onTabChange} className='w-full'>
+      <TabsList className='grid w-[500px] grid-cols-2'>
+        <TabsTrigger value='registered-pharmacist'>Registered Pharmacist</TabsTrigger>
+        <TabsTrigger value='pharmacy-assistant'>Pharmacy Assistant</TabsTrigger>
+      </TabsList>
+      <TabsContent value='registered-pharmacist'>
+        <Card className='border-none'>
+          {/* <CardHeader>
+            <CardTitle>Registered Pharmacist Details</CardTitle>
+            <CardDescription>Drugstore Pharmacist Form.</CardDescription>
+          </CardHeader> */}
+
+          <CardContent className='space-y-2 p-1'>
+            <div className='space-y-4'>
+              <div className='grid grid-cols-3 gap-4'>
+                <InputFieldForm
+                  control={control}
+                  name='dpPhLastName'
+                  fieldProps={{ placeholder: 'Last Name' }}
+                  extendedProps={{ label: 'Last Name' }}
+                />
+                <InputFieldForm
+                  control={control}
+                  name='dpPhFirstName'
+                  fieldProps={{ placeholder: 'First Name' }}
+                  extendedProps={{ label: 'First Name' }}
+                />
+                <InputFieldForm
+                  control={control}
+                  name='dpPhMiddleName'
+                  fieldProps={{ placeholder: 'Middle Initial' }}
+                  extendedProps={{ label: 'Middle Initial' }}
+                />
+              </div>
+
+              <TextAreaForm
+                control={control}
+                name='dpPhAddress'
+                fieldProps={{ placeholder: 'Address' }}
+                extendedProps={{ label: 'Address' }}
+              />
+
+              <InputFieldForm
+                control={control}
+                name='dpPhNameInCert'
+                fieldProps={{ placeholder: 'Name in PRC Certificate' }}
+                extendedProps={{ label: 'Name in PRC Certificate' }}
+              />
+
+              <InputFieldForm
+                control={control}
+                name='dpPhOtherName'
+                fieldProps={{ placeholder: 'Other Name (Maiden or Married)' }}
+                extendedProps={{ label: 'Other Name (Maiden or Married)' }}
+              />
+
+              <div className='grid grid-cols-3 gap-4'>
+                <InputFieldForm
+                  control={control}
+                  name='dpPhLicenseNo'
+                  fieldProps={{ placeholder: 'PRC License No.' }}
+                  extendedProps={{ label: 'PRC License No.' }}
+                />
+                <InputFieldForm
+                  control={control}
+                  name='dpPhDateIssued'
+                  fieldProps={{ placeholder: 'Date Issued' }}
+                  extendedProps={{ label: 'Date Issued' }}
+                />
+                <InputFieldForm
+                  control={control}
+                  name='dpPhExpDate'
+                  fieldProps={{ placeholder: 'Expiry Date' }}
+                  extendedProps={{ label: 'Expiry Date' }}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value='pharmacy-assistant'>
+        <Card className='border-none'>
+          {/* <CardHeader>
+            <CardTitle>Pharmacy Assistant Details</CardTitle>
+            <CardDescription>Drugstore Pharmacy Assistant Form.</CardDescription>
+          </CardHeader> */}
+          <CardContent className='space-y-2 p-1'>
+            <div className='space-y-4'>
+              <div className='grid grid-cols-3 gap-4'>
+                <InputFieldForm
+                  control={control}
+                  name='dpPhAsLastName'
+                  fieldProps={{ placeholder: 'Last Name' }}
+                  extendedProps={{ label: 'Last Name' }}
+                />
+                <InputFieldForm
+                  control={control}
+                  name='dpPhAsFirstName'
+                  fieldProps={{ placeholder: 'First Name' }}
+                  extendedProps={{ label: 'First Name' }}
+                />
+                <InputFieldForm
+                  control={control}
+                  name='dpPhAsMiddleName'
+                  fieldProps={{ placeholder: 'Middle Initial' }}
+                  extendedProps={{ label: 'Middle Initial' }}
+                />
+              </div>
+
+              <TextAreaForm
+                control={control}
+                name='dpPhAsAddress'
+                fieldProps={{ placeholder: 'Address' }}
+                extendedProps={{ label: 'Address' }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  )
+}
+
+function ChainDSProfile() {
+  const {
+    control,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useFormContext<DrugstoreChainClassDetails>()
+
+  return (
+    <div className='space-y-4'>
+      <div className='w-60'>
+        <InputFieldForm
+          control={control}
+          name='dpDateEstablished'
+          fieldProps={{ required: true, type: 'date', max: toDate(new Date(), 'yyyy-MM-dd') }}
+          extendedProps={{ label: 'Date Established' }}
+        />
+      </div>
+
+      <div className='grid grid-cols-4 gap-4'>
+        <FormField
+          control={control}
+          name='dpSetup'
+          render={({ field }) => (
+            <FormItem className='space-y-3'>
+              <FormLabel>Setup</FormLabel>
+              <FormControl>
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                  {dpSetup.map((row) => {
+                    return (
+                      <FormItem className='flex items-center space-x-3 space-y-0'>
+                        <React.Fragment key={row.value}>
+                          <FormControl>
+                            <RadioGroupItem value={row.value} />
+                          </FormControl>
+                          <FormLabel className='font-normal'>{row.label}</FormLabel>
+                        </React.Fragment>
+                      </FormItem>
+                    )
+                  })}
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name='dpLocation'
+          render={({ field }) => (
+            <FormItem className='space-y-3'>
+              <FormLabel>Location</FormLabel>
+              <FormControl>
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                  {dpLocation.map((row) => {
+                    return (
+                      <FormItem className='flex items-center space-x-3 space-y-0'>
+                        <React.Fragment key={row.value}>
+                          <FormControl>
+                            <RadioGroupItem value={row.value} />
+                          </FormControl>
+                          <FormLabel className='font-normal'>{row.label}</FormLabel>
+                        </React.Fragment>
+                      </FormItem>
+                    )
+                  })}
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name='dpStoreHours'
+          render={({ field }) => (
+            <FormItem className='space-y-3'>
+              <FormLabel>Store Hours</FormLabel>
+              <FormControl>
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                  {dpStoreHours.map((row) => {
+                    return (
+                      <FormItem className='flex items-center space-x-3 space-y-0'>
+                        <React.Fragment key={row.value}>
+                          <FormControl>
+                            <RadioGroupItem value={row.value} />
+                          </FormControl>
+                          <FormLabel className='font-normal'>{row.label}</FormLabel>
+                        </React.Fragment>
+                      </FormItem>
+                    )
+                  })}
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name='dpInvSystem'
+          render={({ field }) => (
+            <FormItem className='space-y-3'>
+              <FormLabel>Inventory System</FormLabel>
+              <FormControl>
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                  {dpInvSystem.map((row) => {
+                    return (
+                      <FormItem className='flex items-center space-x-3 space-y-0'>
+                        <React.Fragment key={row.value}>
+                          <FormControl>
+                            <RadioGroupItem value={row.value} />
+                          </FormControl>
+                          <FormLabel className='font-normal'>{row.label}</FormLabel>
+                        </React.Fragment>
+                      </FormItem>
+                    )
+                  })}
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+    </div>
+  )
+}
+
 function OwnerProfile() {
-  const { control } = useFormContext<MemberRegistrationForm>()
+  const {
+    control,
+    setValue,
+    formState: { errors },
+    clearErrors,
+    watch
+  } = useFormContext<MemberRegistrationForm>()
+
+  // console.log(errors.opDsapMember)
+
+  const phEducAttArr = [
+    {
+      label: 'College',
+      collegeUniv: 'opEducCollege.collegeUniv',
+      course: 'opEducCollege.course',
+      yearGrad: 'opEducCollege.yearGrad'
+    },
+    {
+      label: 'Masters',
+      collegeUniv: 'opEducMasters.collegeUniv',
+      course: 'opEducMasters.course',
+      yearGrad: 'opEducMasters.yearGrad'
+    },
+    {
+      label: 'Doctorate',
+      collegeUniv: 'opEducDoctorate.collegeUniv',
+      course: 'opEducDoctorate.course',
+      yearGrad: 'opEducDoctorate.yearGrad'
+    },
+    {
+      label: 'Special Program',
+      collegeUniv: 'opEducSpecialProg.collegeUniv',
+      course: 'opEducSpecialProg.course',
+      yearGrad: 'opEducSpecialProg.yearGrad'
+    },
+    {
+      label: 'Others',
+      collegeUniv: 'opEducOthers.collegeUniv',
+      course: 'opEducOthers.course',
+      yearGrad: 'opEducOthers.yearGrad'
+    }
+  ] as const
 
   return (
     <Card className='w-full'>
-      <CardHeader>
+      {/* <CardHeader>
         <CardTitle>Owners Profile</CardTitle>
         <CardDescription className='mb-5'>
-          {' '}
           Please fill up the form below. <span className='text-lg font-bold text-teal-500'> * </span> is required.
         </CardDescription>
       </CardHeader>
-      <Separator />
+      <Separator /> */}
 
-      <CardContent className='mt-5'>
+      <CardHeader>
+        <div className='relative flex justify-between'>
+          <div className='flex flex-col '>
+            <CardTitle>Registered Pharmacist Details</CardTitle>
+            <CardDescription>Drugstore Pharmacist Form.</CardDescription>
+          </div>
+          <div
+            className={cn(
+              'absolute -top-3 right-0 flex h-[150px] w-[156px] flex-col items-center justify-center space-y-1 rounded-md border-2 border-dashed',
+              errors.opPhImageUrl && 'border-red-400 text-destructive'
+            )}
+          >
+            {(watch('opPhImageUrl')?.length < 1 || !watch('opPhImageUrl')) && <p className={cn('text-sm font-medium')}>Photo *</p>}
+
+            <FileUpload
+              uploader='button'
+              endpoint='photoUploader'
+              value={watch('opPhImageUrl')}
+              onChange={(urlValue) => {
+                setValue('opPhImageUrl', urlValue ?? '')
+                clearErrors('opPhImageUrl')
+                // setPhotoErr((prev) => {
+                //   return { ph: urlValue ? false : true, phAs: prev.phAs }
+                // })
+              }}
+            />
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className='mt-1'>
         <div className='space-y-4'>
           <div className='grid grid-cols-3 gap-4'>
             <InputFieldForm
@@ -354,12 +1660,21 @@ function OwnerProfile() {
               fieldProps={{ placeholder: 'First Name', required: true }}
               extendedProps={{ label: 'First Name' }}
             />
-            <InputFieldForm
+            {/* <InputFieldForm
               control={control}
               name='opMiddleName'
               fieldProps={{ placeholder: 'Middle Initial' }}
               extendedProps={{ label: 'Middle Initial' }}
-            />
+            /> */}
+
+            <div className='max-w-[150px]'>
+              <InputFieldForm
+                control={control}
+                name='opMiddleName'
+                fieldProps={{ placeholder: 'Middle Initial' }}
+                extendedProps={{ label: 'Middle Initial' }}
+              />
+            </div>
           </div>
 
           <TextAreaForm control={control} name='opAddress' fieldProps={{ placeholder: 'Address' }} extendedProps={{ label: 'Address' }} />
@@ -416,7 +1731,6 @@ function OwnerProfile() {
                     </FormControl>
                     <ChevronDownIcon className='absolute right-3 top-2.5 h-4 w-4 opacity-50' />
                   </div>
-                  {/* <FormDescription>Select Owner Status.</FormDescription> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -452,6 +1766,109 @@ function OwnerProfile() {
               )}
             />
           </div>
+
+          <div className='!mt-10 flex h-11 w-full items-center justify-center rounded-md border-2 border-teal-500'>
+            <h1>Educational Attainment</h1>
+          </div>
+          <div className='grid grid-cols-4 gap-2'>
+            {phEducAttArr.map((r) => {
+              return (
+                <>
+                  <Label className='flex items-center'>{r.label}</Label>
+
+                  <InputFieldForm
+                    control={control}
+                    name={r.collegeUniv}
+                    fieldProps={{ placeholder: 'College/University' }}
+                    extendedProps={{ style: 'classic' }}
+                  />
+
+                  <InputFieldForm
+                    control={control}
+                    name={r.course}
+                    fieldProps={{ placeholder: 'Course' }}
+                    extendedProps={{ style: 'classic' }}
+                  />
+
+                  <InputFieldForm
+                    control={control}
+                    name={r.yearGrad}
+                    fieldProps={{ placeholder: 'Year Graduated', type: 'number', maxLength: 4 }}
+                    extendedProps={{ style: 'classic' }}
+                  />
+                </>
+              )
+            })}
+          </div>
+
+          <div className='!mt-10 flex h-11 w-full items-center justify-center rounded-md border-2 border-teal-500'>
+            <h1>Who will be the DSAP Member?</h1>
+          </div>
+
+          <FormField
+            control={control}
+            name='opDsapMember.opDsapMemberType'
+            render={({ field }) => (
+              <FormItem className='space-y-3'>
+                <FormLabel>Who will be the DSAP Member?</FormLabel>
+                <FormControl>
+                  <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                    {[
+                      { value: 'owner', label: 'Owner' },
+                      { value: 'representative', label: 'Representative' }
+                    ].map((row) => {
+                      return (
+                        <FormItem className='flex items-center space-x-3 space-y-0'>
+                          <React.Fragment key={row.value}>
+                            <FormControl>
+                              <RadioGroupItem value={row.value} />
+                            </FormControl>
+                            <FormLabel className='font-normal'>{row.label}</FormLabel>
+                          </React.Fragment>
+                        </FormItem>
+                      )
+                    })}
+                  </RadioGroup>
+                </FormControl>
+                {/* <FormMessage>xxx</FormMessage> */}
+                {errors.opDsapMember?.opDsapMemberType && (
+                  <p className='text-sm font-medium text-destructive'>Please select who will be the DSAP Member</p>
+                )}
+              </FormItem>
+            )}
+          />
+
+          {watch('opDsapMember.opDsapMemberType') === 'representative' && (
+            <div className='!mt-8 grid grid-cols-2'>
+              <div className='flex flex-col gap-2'>
+                <Label className={cn('', errors.opDsapMember && 'text-red-500')}>Authorized Representative form *</Label>
+                <FileUpload
+                  uploader='button'
+                  endpoint='pdfUploader'
+                  value={watch('opDsapMember.opRepFormUrl')}
+                  onChange={(urlValue) => setValue('opDsapMember.opRepFormUrl', urlValue ?? '')}
+                />
+
+                {errors.opDsapMember && 'opRepFormUrl' in errors.opDsapMember && (
+                  <p className='text-sm font-medium text-destructive'>Please attached Authorized Representative form</p>
+                )}
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <Label className={cn('', errors.opDsapMember && 'text-red-500')}>Authorized Representative photo *</Label>
+                <FileUpload
+                  uploader='button'
+                  endpoint='photoUploader'
+                  value={watch('opDsapMember.opRepPhotoUrl')}
+                  onChange={(urlValue) => setValue('opDsapMember.opRepPhotoUrl', urlValue ?? '')}
+                />
+
+                {errors.opDsapMember && 'opRepPhotoUrl' in errors.opDsapMember && (
+                  <p className='text-sm font-medium text-destructive'>Please select Authorized Representative photo.</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -476,8 +1893,8 @@ function RegistrationDetails() {
       </CardHeader>
       <Separator />
 
-      <CardContent className='mt-5 grid grid-cols-3 gap-10'>
-        <div className='space-y-4'>
+      <CardContent className='mt-5 grid grid-cols-3 gap-2 divide-x-2 '>
+        <div className='relative space-y-4 px-5 first:pl-0 first:pr-5 last:pl-5 last:pr-0 '>
           <div className='flex flex-col gap-4'>
             <InputFieldForm
               control={control}
@@ -512,7 +1929,7 @@ function RegistrationDetails() {
           </div>
         </div>
 
-        <div className='space-y-4'>
+        <div className='relative space-y-4 px-5 first:pl-0 first:pr-5 last:pl-5 last:pr-0 '>
           <div className='flex flex-col gap-4'>
             <InputFieldForm
               control={control}
@@ -545,7 +1962,7 @@ function RegistrationDetails() {
           </div>
         </div>
 
-        <div className='space-y-4'>
+        <div className='relative space-y-4 px-5 first:pl-0 first:pr-5 last:pl-5 last:pr-0 '>
           <div className='flex flex-col gap-4'>
             <InputFieldForm
               control={control}
@@ -577,6 +1994,34 @@ function RegistrationDetails() {
             />
           </div>
         </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function ProofOfPayment() {
+  const {
+    control,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useFormContext<MemberRegistrationForm>()
+
+  return (
+    <Card className='w-full'>
+      <CardHeader>
+        <CardTitle>Upload Proof of Payment</CardTitle>
+      </CardHeader>
+      <Separator />
+
+      <CardContent className='mt-5 flex flex-col space-y-4'>
+        <Label className={cn('')}>Proof of Payment</Label>
+        <FileUpload
+          uploader='button'
+          endpoint='pdfUploader'
+          value={watch('proofOfPaymentUrl')}
+          onChange={(urlValue) => setValue('proofOfPaymentUrl', urlValue ?? '')}
+        />
       </CardContent>
     </Card>
   )
@@ -638,7 +2083,6 @@ function ReviewInformation(props: StepProps) {
       className='w-full'
     >
       <AccordionItem value='general-information'>
-        {/* <AccordionTrigger className='rounded-md border-2 border-teal-600 px-4 text-lg text-teal-600'>General Information</AccordionTrigger> */}
         {stepTitleTrigger('General Information', 0)}
 
         <AccordionContent className='relative px-4 py-8'>
@@ -661,7 +2105,6 @@ function ReviewInformation(props: StepProps) {
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value='drugstore-profile'>
-        {/* <AccordionTrigger className='rounded-md border-2 border-teal-600 px-4 text-lg text-teal-600'>Drugstore Profile</AccordionTrigger> */}
         {stepTitleTrigger('Drugstore Profile', 1)}
         <AccordionContent className='px-4 py-8'>
           <div className='grid gap-3 md:grid-cols-2'>
@@ -678,7 +2121,6 @@ function ReviewInformation(props: StepProps) {
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value='owner-profile'>
-        {/* <AccordionTrigger className='rounded-md border-2 border-teal-600 px-4 text-lg text-teal-600'>Owner Profile</AccordionTrigger> */}
         {stepTitleTrigger('Owner Profile', 2)}
         <AccordionContent className='px-4 py-8'>
           <div className='grid gap-3 md:grid-cols-2'>
@@ -702,7 +2144,6 @@ function ReviewInformation(props: StepProps) {
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value='registration-details'>
-        {/* <AccordionTrigger className='rounded-md border-2 border-teal-600 px-4 text-lg text-teal-600'>Registration Details</AccordionTrigger> */}
         {stepTitleTrigger('Registration Details', 3)}
         <AccordionContent className='px-4 py-8'>
           <div className='grid gap-3 md:grid-cols-3'>
@@ -715,16 +2156,16 @@ function ReviewInformation(props: StepProps) {
 
             <div className='grid space-y-3'>
               {fieldValue('Business Permit No.', 'bpNo')}
-              {fieldValue('Date Issued', 'bpDateIssued')}
-              {fieldValue('Date Expiry', 'bpDateExpiry')}
-              {fieldValue('Attachment', 'bpUrlAttachment')}
+              {fieldValue('Date Issued', 'bpDateIssued', { isDate: true })}
+              {fieldValue('Date Expiry', 'bpDateExpiry', { isDate: true })}
+              {fieldValue('Attachment', 'bpUrlAttachment', { isLink: true })}
             </div>
 
             <div className='grid space-y-3'>
               {fieldValue('DTI/SEC Certificate No.', 'docNo')}
-              {fieldValue('Date Issued', 'docDateIssued')}
-              {fieldValue('Date Expiry', 'docDateExpiry')}
-              {fieldValue('Attachment', 'docUrlAttachment')}
+              {fieldValue('Date Issued', 'docDateIssued', { isDate: true })}
+              {fieldValue('Date Expiry', 'docDateExpiry', { isDate: true })}
+              {fieldValue('Attachment', 'docUrlAttachment', { isLink: true })}
             </div>
           </div>
         </AccordionContent>

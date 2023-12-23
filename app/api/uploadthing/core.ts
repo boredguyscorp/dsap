@@ -11,6 +11,13 @@ export const ourFileRouter = {
       return { userId: user?.id }
     })
     .onUploadComplete(async ({ metadata, file }) => {}),
+  photoUploader: f({ image: { maxFileSize: '2MB', maxFileCount: 1 } })
+    .middleware(async (req) => {
+      const user = await getToken(req)
+
+      return { userId: user?.id }
+    })
+    .onUploadComplete(async ({ metadata, file }) => {}),
   proofOfPaymentUploader: f({ image: { maxFileSize: '2MB', maxFileCount: 1 } })
     .middleware(async (req) => {
       const user = await getToken(req)
