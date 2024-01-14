@@ -105,13 +105,15 @@ export type Ownership = (typeof owType)[number]
 const generalInfo = z.object({
   drugStoreName: z.string({ required_error: 'Drugstore Name is required.' }).min(1, { message: 'Please enter Drugstore name.' }),
   chapter: z.string({ required_error: 'Chapter is required.' }).min(1, { message: 'Please select Chapter.' }),
-  address: z.string({ required_error: 'Please enter Address.' }),
-  emailAdd: z.string({ required_error: 'Email Address is required.' }).min(1, { message: 'Please enter Email Address.' }),
+  address: z.string({ required_error: 'Address is required.' }).min(1, { message: 'Please enter Address.' }),
+  emailAdd: z.string({ required_error: 'Email Address is required.' }).min(1, { message: 'Please enter Email Address.' }).email(),
   mobileNo: z.string({ required_error: 'Mobile No. is required.' }).min(1, { message: 'Please enter Mobile No.' }),
   telNo: z.string().nullish(),
-  ownershipType: z.string({ required_error: 'Please select a ownership type' }),
-  membershipType: z.string({ required_error: 'Please select a membership type' }),
-  drugstoreClass: z.string({ required_error: 'Please select a drugstore classification' })
+  ownershipType: z.string({ required_error: 'Ownership type is required.' }).min(1, { message: 'Please select a ownership type.' }),
+  membershipType: z.string({ required_error: 'Membership type is required.' }).min(1, { message: 'Please select a membership type.' }),
+  drugstoreClass: z
+    .string({ required_error: 'Drugstore classification is required.' })
+    .min(1, { message: 'Please select a drugstore classification.' })
 })
 
 export const dsEducAttSchema = z.object({
@@ -225,7 +227,7 @@ const dpDSClassOthers = z.object({
 const dpDSClassDetails = z.discriminatedUnion('dsClass', [dpPharmacistSchema, dpChainSchema, dpDSClassOthers]).optional()
 
 const dsProfile = z.object({
-  dpDateEstablished: z.string({ required_error: 'Date Established is required.' }),
+  dpDateEstablished: z.string({ required_error: 'Date Established is required.' }).min(1, { message: 'Please enter date established.' }),
   dpSetup: z.string().optional(),
   dpLocation: z.string().optional(),
   dpStoreHours: z.string().optional(),
