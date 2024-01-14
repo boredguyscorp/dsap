@@ -57,8 +57,8 @@ export function getFormStepContent(props: StepProps) {
       return <OwnerProfile />
     case STEPS.REGISTRATION_DETAIL:
       return <RegistrationDetails />
-    // case STEPS.REVIEW_INFORMATION:
-    //   return <ReviewInformation {...props} />
+    case STEPS.REVIEW_INFORMATION:
+      return <ReviewInformation {...props} />
     case STEPS.UPLOAD_PAYMENT:
       return <ProofOfPayment />
     default:
@@ -106,7 +106,7 @@ function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
                             role='combobox'
                             className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
                           >
-                            {field.value ? chapters.find((chapter) => chapter.name === field.value)?.name : 'Select chapter'}
+                            {field.value ? chapters.find((chapter) => chapter.id === field.value)?.name : 'Select chapter'}
                             <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
                           </Button>
                         </FormControl>
@@ -122,11 +122,11 @@ function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
                                   value={chapter.name}
                                   key={chapter.name}
                                   onSelect={() => {
-                                    setValue('chapter', chapter.name)
+                                    setValue('chapter', chapter.id)
                                     setOpenChapter(false)
                                   }}
                                 >
-                                  <Check className={cn('mr-2 h-4 w-4', chapter.name === field.value ? 'opacity-100' : 'opacity-0')} />
+                                  <Check className={cn('mr-2 h-4 w-4', chapter.id === field.value ? 'opacity-100' : 'opacity-0')} />
                                   {chapter.name}
                                 </CommandItem>
                               ))}
@@ -321,11 +321,11 @@ function DrugstoreProfile() {
       <CardContent className='mt-5'>
         <div className='space-y-4'>
           <div className='w-60'>
-            <InputFieldForm
+            <DatePickerForm
               control={control}
               name='dpDateEstablished'
-              fieldProps={{ required: true, type: 'date', max: toDate(new Date(), 'yyyy-MM-dd') }}
-              extendedProps={{ label: 'Date Established' }}
+              fieldProps={{ mode: 'single' }}
+              extendedProps={{ label: 'Date Expiry', required: true }}
             />
           </div>
 
@@ -2129,7 +2129,7 @@ function ReviewInformation(props: StepProps) {
               {fieldValue('Middle Name', 'opMiddleName')}
               {fieldValue('Last Name', 'opLastName')}
               {fieldValue('Address', 'opAddress')}
-              {fieldValue('Birthday', 'opBirthday')}
+              {fieldValue('Birthday', 'opBirthday', { isDate: true })}
             </div>
 
             <div className='grid space-y-3'>

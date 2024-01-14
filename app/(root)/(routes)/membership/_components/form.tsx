@@ -7,7 +7,13 @@ import React, { useMemo, useState, useTransition } from 'react'
 import { Form } from '@/components/ui/form'
 
 import { useZodForm } from '@/lib/zod-form'
-import { MemberGeneralInfo, MemberRegistrationForm, MemberRegistrationFormSchema, MemberRegistrationMergeSchema } from '@/lib/schema'
+import {
+  MemberGeneralInfo,
+  MemberRegistrationForm,
+  MemberRegistrationFormSchema,
+  MemberRegistrationMergeSchema,
+  uploadPayment
+} from '@/lib/schema'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
 
 const RHFDevTool = dynamic(() => import('../../../../../components/forms/DevTools'), { ssr: false })
@@ -20,6 +26,8 @@ import { STEPS } from './constant'
 import { getFormStepContent } from './form-content'
 import { MembershipLanding } from './landing'
 import { ChapterList } from '@/actions/fetchers'
+import { useToast } from '@/components/ui/use-toast'
+import { useRouter } from 'next/navigation'
 
 export type MembershipFormProps = {
   chapters: ChapterList
@@ -37,15 +45,15 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
       { label: 'Drugstore Profile', icon: <Icons.store /> },
       { label: 'Owner Profile', icon: <Icons.user /> },
       { label: 'Registration Details', icon: <Icons.docs /> },
-      // { label: 'Review Information', icon: <Icons.checkCheck /> },
+      { label: 'Review Information', icon: <Icons.checkCheck /> },
       { label: 'Upload Payment', icon: <Icons.billing /> }
     ],
     []
   )
-  const [showForm, setShowForm] = useState(true)
+  const [showForm, setShowForm] = useState(false)
   const [activeStep, setActiveStep] = useState(STEPS.GENERAL_INFO)
 
-  const currentValidationSchema = MemberRegistrationFormSchema[activeStep < 4 ? activeStep : 0]
+  const currentValidationSchema = activeStep > 4 ? uploadPayment : MemberRegistrationFormSchema[activeStep < 4 ? activeStep : 0]
 
   const defaultValues: MemberRegistrationForm = {
     drugStoreName: '',
@@ -56,7 +64,7 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
     ownershipType: 'single proprietor',
     membershipType: 'regular',
     drugstoreClass: 'single',
-    dpDateEstablished: '',
+    dpDateEstablished: new Date(),
     dpSetup: '',
     dpLocation: '',
     dpStoreHours: '',
@@ -81,6 +89,8 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
   } as const
 
   const [isPending, startTransition] = useTransition()
+  const toater = useToast()
+  const router = useRouter()
 
   const form = useZodForm({
     schema: currentValidationSchema,
@@ -95,7 +105,7 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
     watch
   } = form
 
-  console.log(watch())
+  // console.log(watch())
 
   if (!showForm) {
     return <MembershipLanding setShowForm={setShowForm} />
@@ -133,6 +143,13 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
         try {
           const response = await registerMember(validationResult.data)
           console.log('🚀 -> startTransition -> response:', response)
+
+          toater.toast({
+            title: 'Membership Application',
+            description: 'Your membership application has submitted successfully.'
+          })
+
+          router.push('/')
 
           // await new Promise((res) => setTimeout(() => res('sending...'), 1000))
         } catch (error) {

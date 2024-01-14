@@ -15,7 +15,7 @@ type PostOptions = {
 export type ChapterList = AsyncReturnType<typeof getChapters>
 export async function getChapters() {
   return chaptersArray.map((chapter) => {
-    return { name: chapter.name }
+    return { id: chapter.id, name: chapter.name }
   })
   // return await unstable_cache(
   //   async () => {

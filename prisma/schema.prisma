@@ -174,31 +174,40 @@ model Post {
 }
 
 model Members {
-  id             String    @id @default(cuid())
-  status         String    @default("pending")
-  code           String
-  drugStoreName  String
-  address        String
-  emailAdd       String
-  mobileNo       String
-  telNo          String?
-  ownershipType  String
-  membershipType String
-  drugstoreClass String
-  dpSetup        String?
-  dpLocation     String?
-  dpStoreHours   String?
-  dpInvSystem    String?
-  opLastName     String
-  opFirstName    String
-  opMiddleName   String?
-  opAddress      String?
-  opBirthday     DateTime? @db.Date()
-  opEmail        String?
-  opTelNo        String?
-  opCellNo       String?
-  opStatus       String?
-  opGender       String?
+  id                String    @id @default(cuid())
+  status            String    @default("pending")
+  chapter           String
+  code              String
+  drugStoreName     String
+  address           String
+  emailAdd          String
+  mobileNo          String
+  telNo             String?
+  ownershipType     String
+  membershipType    String
+  dpDateEstablished DateTime
+  opPhImageUrl      String
+  drugstoreClass    String
+  dpSetup           String?
+  dpLocation        String?
+  dpStoreHours      String?
+  dpInvSystem       String?
+  opLastName        String
+  opFirstName       String
+  opMiddleName      String?
+  opAddress         String?
+  opBirthday        DateTime? @db.Date()
+  opEmail           String?
+  opTelNo           String?
+  opCellNo          String?
+  opStatus          String?
+  opGender          String?
+  opEducCollege     Json?
+  opEducMasters     Json?
+  opEducDoctorate   Json?
+  opEducSpecialProg Json?
+  opEducOthers      Json?
+  opDsapMember      Json?
 
   fdaLtoNo         String
   fdaDateIssued    DateTime @db.Date()
@@ -215,10 +224,15 @@ model Members {
   docDateExpiry    DateTime @db.Date()
   docUrlAttachment String   @db.Text
 
+  proofOfPaymentUrl String?
+
   createdAt DateTime @default(now()) @map(name: "created_at")
   updatedAt DateTime @default(now()) @map(name: "updated_at")
 
+  memberChapter Chapter @relation(fields: [chapter], references: [id])
+
   @@unique([code])
+  @@index([chapter])
   @@map(name: "Members")
 }
 
@@ -266,6 +280,8 @@ model Chapter {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+
+  member Members[]
 
   @@unique([code])
 }

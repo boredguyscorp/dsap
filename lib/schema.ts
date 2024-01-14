@@ -227,7 +227,7 @@ const dpDSClassOthers = z.object({
 const dpDSClassDetails = z.discriminatedUnion('dsClass', [dpPharmacistSchema, dpChainSchema, dpDSClassOthers]).optional()
 
 const dsProfile = z.object({
-  dpDateEstablished: z.string({ required_error: 'Date Established is required.' }).min(1, { message: 'Please enter date established.' }),
+  dpDateEstablished: z.date({ required_error: 'Date Established is required.' }),
   dpSetup: z.string().optional(),
   dpLocation: z.string().optional(),
   dpStoreHours: z.string().optional(),
@@ -288,13 +288,17 @@ const registrationDetails = z.object({
   // ownershipTypeDetails: z.discriminatedUnion('type', [singleProp, corporate, partnership])
 })
 
-const uploadPayment = z.object({
+export const uploadPayment = z.object({
   proofOfPaymentUrl: z.string().optional()
   // ownershipTypeDetails: z.discriminatedUnion('type', [singleProp, corporate, partnership])
 })
 
 export const MemberRegistrationFormSchema = [generalInfo, dsProfile, ownerProfile, registrationDetails]
-export const MemberRegistrationMergeSchema = generalInfo.merge(dsProfile).merge(ownerProfile).merge(registrationDetails)
+export const MemberRegistrationMergeSchema = generalInfo
+  .merge(dsProfile)
+  .merge(ownerProfile)
+  .merge(registrationDetails)
+  .merge(uploadPayment)
 
 export type MemberGeneralInfo = z.infer<typeof generalInfo>
 export type MemberDrugStoreProfile = z.infer<typeof dsProfile>
