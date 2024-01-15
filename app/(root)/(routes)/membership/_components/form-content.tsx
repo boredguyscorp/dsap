@@ -324,7 +324,7 @@ function DrugstoreProfile() {
             <DatePickerForm
               control={control}
               name='dpDateEstablished'
-              fieldProps={{ mode: 'single' }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
               extendedProps={{ label: 'Date Expiry', required: true }}
             />
           </div>
@@ -636,7 +636,7 @@ function SingleDrugstoreProfilePharmacist() {
                   <DatePickerForm
                     control={control}
                     name='dpDSClassDetails.dpPhBirthday'
-                    fieldProps={{ mode: 'single' }}
+                    fieldProps={{ mode: 'single', fromYear: 1800, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
                     extendedProps={{ label: 'Birthday', disabledFuture: true }}
                   />
 
@@ -864,7 +864,7 @@ function SingleDrugstoreProfilePharmacist() {
                   <DatePickerForm
                     control={control}
                     name='dpDSClassDetails.dpPhAsBirthday'
-                    fieldProps={{ mode: 'single' }}
+                    fieldProps={{ mode: 'single', fromYear: 1900, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
                     extendedProps={{ label: 'Birthday', disabledFuture: true }}
                   />
 
@@ -1684,7 +1684,7 @@ function OwnerProfile() {
               <DatePickerForm
                 control={control}
                 name='opBirthday'
-                fieldProps={{ mode: 'single' }}
+                fieldProps={{ mode: 'single', fromYear: 1900, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
                 extendedProps={{ label: 'Birthday', disabledFuture: true }}
               />
 
@@ -1906,14 +1906,14 @@ function RegistrationDetails() {
             <DatePickerForm
               control={control}
               name='fdaDateIssued'
-              fieldProps={{ mode: 'single' }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
               extendedProps={{ label: 'Date Issued', required: true, disabledFuture: true }}
             />
 
             <DatePickerForm
               control={control}
               name='fdaDateExpiry'
-              fieldProps={{ mode: 'single' }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
               extendedProps={{ label: 'Date Expiry', required: true }}
             />
 
@@ -1941,14 +1941,14 @@ function RegistrationDetails() {
             <DatePickerForm
               control={control}
               name='bpDateIssued'
-              fieldProps={{ mode: 'single' }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
               extendedProps={{ label: 'Date Issued', required: true, disabledFuture: true }}
             />
 
             <DatePickerForm
               control={control}
               name='bpDateExpiry'
-              fieldProps={{ mode: 'single' }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
               extendedProps={{ label: 'Date Expiry', required: true }}
             />
 
@@ -1974,14 +1974,14 @@ function RegistrationDetails() {
             <DatePickerForm
               control={control}
               name='docDateIssued'
-              fieldProps={{ mode: 'single' }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
               extendedProps={{ label: 'Date Issued', required: true, disabledFuture: true }}
             />
 
             <DatePickerForm
               control={control}
               name='docDateExpiry'
-              fieldProps={{ mode: 'single' }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
               extendedProps={{ label: 'Date Expiry', required: true }}
             />
 
