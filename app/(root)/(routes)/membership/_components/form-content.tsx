@@ -324,8 +324,8 @@ function DrugstoreProfile() {
             <DatePickerForm
               control={control}
               name='dpDateEstablished'
-              fieldProps={{ mode: 'single', fromYear: 1900, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
-              extendedProps={{ label: 'Date Expiry', required: true }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
+              extendedProps={{ label: 'Date Established', required: true }}
             />
           </div>
 
