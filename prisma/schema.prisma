@@ -192,11 +192,12 @@ model Members {
   dpLocation        String?
   dpStoreHours      String?
   dpInvSystem       String?
+  dpDSClassDetails  Json?
   opLastName        String
   opFirstName       String
   opMiddleName      String?
   opAddress         String?
-  opBirthday        DateTime? @db.Date()
+  opBirthday        DateTime?
   opEmail           String?
   opTelNo           String?
   opCellNo          String?
@@ -210,18 +211,18 @@ model Members {
   opDsapMember      Json?
 
   fdaLtoNo         String
-  fdaDateIssued    DateTime @db.Date()
-  fdaDateExpiry    DateTime @db.Date()
+  fdaDateIssued    DateTime
+  fdaDateExpiry    DateTime
   fdaUrlAttachment String   @db.Text
 
   bpNo            String
-  bpDateIssued    DateTime @db.Date()
-  bpDateExpiry    DateTime @db.Date()
+  bpDateIssued    DateTime
+  bpDateExpiry    DateTime
   bpUrlAttachment String   @db.Text
 
   docNo            String
-  docDateIssued    DateTime @db.Date()
-  docDateExpiry    DateTime @db.Date()
+  docDateIssued    DateTime
+  docDateExpiry    DateTime
   docUrlAttachment String   @db.Text
 
   proofOfPaymentUrl String?

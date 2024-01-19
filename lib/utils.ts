@@ -1,10 +1,15 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { format } from 'date-fns'
+import { format, isValid, parseISO } from 'date-fns'
 
 import formatDistance from 'date-fns/formatDistance'
 import { z } from 'zod'
 import { toast } from 'sonner'
+
+import { totp } from 'otplib'
+
+totp.options = { step: 3600 } // 1hr expiration for prod env
+// totp.options = { step: 300 } // 2 minutes  expiration for dev env
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -42,6 +47,8 @@ export function toDateNormal(val: Date) {
 }
 
 export function toDate(val: Date, f?: 'MM/dd/yyyy' | 'yyyy-MM-dd') {
+  if (!isValid(val)) return 'Invalid Date'
+
   return format(val, f ?? 'MM/dd/yyyy')
 }
 
@@ -135,4 +142,39 @@ export function catchError(err: unknown) {
 
 export function strProperCase(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+export const generateOTP = (otpSecret: string) => {
+  return totp.generate(otpSecret)
+}
+
+export const isOTPValid = (token: string, otpSecret: string) => {
+  return totp.check(token, otpSecret)
+}
+
+// convert string dates property of an object to Date, leaving other property as it is including array, number, boolean string, etc.
+type AnyObject = { [key: string]: any }
+
+function isString(value: any): value is string {
+  return typeof value === 'string'
+}
+
+export function convertStringDatesPropToDates<T extends AnyObject>(obj: T): T {
+  const newObj: AnyObject = Array.isArray(obj) ? [] : {}
+
+  Object.keys(obj).forEach((key) => {
+    const value = obj[key]
+    if (isString(value)) {
+      const date = parseISO(value)
+      newObj[key] = isValid(date) ? date : value
+    } else if (value instanceof Date) {
+      newObj[key] = value // Leave Date objects as they are
+    } else if (value && typeof value === 'object') {
+      newObj[key] = convertStringDatesPropToDates(value) // Recursively process nested objects
+    } else {
+      newObj[key] = value // Copy over all other values as is
+    }
+  })
+
+  return newObj as T
 }

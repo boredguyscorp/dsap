@@ -16,7 +16,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: true,
-    serverComponentsExternalPackages: ['@prisma/client']
+    serverComponentsExternalPackages: ['@prisma/client', '@react-email/render']
   }
   // reactStrictMode: true,
   // pageExtensions: ['ts', 'tsx', 'mdx']

@@ -15,7 +15,9 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
-        main: 'mb-2 mr-2 rounded-lg bg-gradient-to-br from-teal-400 via-teal-500 to-teal-600 px-5 py-2.5 text-center text-xl font-medium text-white shadow-lg shadow-teal-500/50 hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 dark:shadow-lg dark:shadow-teal-800/80 dark:focus:ring-teal-800'
+        main: 'mb-2 mr-2 rounded-lg bg-gradient-to-br from-teal-400 via-teal-500 to-teal-600 px-5 py-2.5 text-center text-xl font-medium text-white shadow-lg shadow-teal-500/50 hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 dark:shadow-lg dark:shadow-teal-800/80 dark:focus:ring-teal-800',
+        main_outline:
+          'mb-2 mr-2 rounded-lg border border-teal-600 px-5 py-2.5 text-center text-xl font-medium text-teal-600 hover:bg-gradient-to-br hover:from-teal-400 hover:via-teal-500 hover:to-teal-600 hover:text-white shadow-lg shadow-teal-500/50 hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-teal-300 dark:shadow-lg dark:shadow-teal-800/80 dark:focus:ring-teal-800'
       },
       size: {
         default: 'h-10 px-4 py-2',

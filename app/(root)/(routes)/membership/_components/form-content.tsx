@@ -187,9 +187,9 @@ function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
                       defaultValue={field.value}
                       className='flex flex-col space-y-1'
                     >
-                      {ownershipType.map((row) => {
+                      {ownershipType.map((row, i) => {
                         return (
-                          <FormItem className='flex items-center space-x-3 space-y-0'>
+                          <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                             <React.Fragment key={row.value}>
                               <FormControl>
                                 <RadioGroupItem value={row.value} />
@@ -220,9 +220,9 @@ function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
                       defaultValue={field.value}
                       className='flex flex-col space-y-1'
                     >
-                      {membershipType.map((row) => {
+                      {membershipType.map((row, i) => {
                         return (
-                          <FormItem className='flex items-center space-x-3 space-y-0'>
+                          <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                             <React.Fragment key={row.value}>
                               <FormControl>
                                 <RadioGroupItem value={row.value} />
@@ -324,8 +324,8 @@ function DrugstoreProfile() {
             <DatePickerForm
               control={control}
               name='dpDateEstablished'
-              fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
-              extendedProps={{ label: 'Date Established', required: true }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
+              extendedProps={{ label: 'Date Established', required: true, disabledFuture: true }}
             />
           </div>
 
@@ -337,7 +337,7 @@ function DrugstoreProfile() {
                 <FormItem className='space-y-3'>
                   <FormLabel>Setup</FormLabel>
                   <FormControl>
-                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value as string} className='flex flex-col space-y-1'>
                       {dpSetup.map((row) => {
                         return (
                           <FormItem className='flex items-center space-x-3 space-y-0'>
@@ -364,10 +364,10 @@ function DrugstoreProfile() {
                 <FormItem className='space-y-3'>
                   <FormLabel>Location</FormLabel>
                   <FormControl>
-                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
-                      {dpLocation.map((row) => {
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value as string} className='flex flex-col space-y-1'>
+                      {dpLocation.map((row, i) => {
                         return (
-                          <FormItem className='flex items-center space-x-3 space-y-0'>
+                          <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                             <React.Fragment key={row.value}>
                               <FormControl>
                                 <RadioGroupItem value={row.value} />
@@ -391,10 +391,10 @@ function DrugstoreProfile() {
                 <FormItem className='space-y-3'>
                   <FormLabel>Store Hours</FormLabel>
                   <FormControl>
-                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
-                      {dpStoreHours.map((row) => {
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value as string} className='flex flex-col space-y-1'>
+                      {dpStoreHours.map((row, i) => {
                         return (
-                          <FormItem className='flex items-center space-x-3 space-y-0'>
+                          <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                             <React.Fragment key={row.value}>
                               <FormControl>
                                 <RadioGroupItem value={row.value} />
@@ -418,10 +418,10 @@ function DrugstoreProfile() {
                 <FormItem className='space-y-3'>
                   <FormLabel>Inventory System</FormLabel>
                   <FormControl>
-                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
-                      {dpInvSystem.map((row) => {
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value as string} className='flex flex-col space-y-1'>
+                      {dpInvSystem.map((row, i) => {
                         return (
-                          <FormItem className='flex items-center space-x-3 space-y-0'>
+                          <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                             <React.Fragment key={row.value}>
                               <FormControl>
                                 <RadioGroupItem value={row.value} />
@@ -655,10 +655,11 @@ function SingleDrugstoreProfilePharmacist() {
                     fieldProps={{ placeholder: 'Cellphone No.' }}
                     extendedProps={{ label: 'Cellphone No.' }}
                   />
+
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhTelNo'
-                    fieldProps={{ placeholder: 'Telephone No.' }}
+                    fieldProps={{ placeholder: 'Telephone No', type: 'text' }}
                     extendedProps={{ label: 'Telephone No.' }}
                   />
                 </div>
@@ -702,9 +703,9 @@ function SingleDrugstoreProfilePharmacist() {
                           {[
                             { value: 'male', label: 'Male' },
                             { value: 'female', label: 'Female' }
-                          ].map((row) => {
+                          ].map((row, i) => {
                             return (
-                              <FormItem className='flex items-center space-x-3 space-y-0'>
+                              <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                                 <React.Fragment key={row.value}>
                                   <FormControl>
                                     <RadioGroupItem value={row.value} />
@@ -743,17 +744,19 @@ function SingleDrugstoreProfilePharmacist() {
                   fieldProps={{ placeholder: 'PRC License No.', required: true }}
                   extendedProps={{ label: 'PRC License No.' }}
                 />
-                <InputFieldForm
+
+                <DatePickerForm
                   control={control}
                   name='dpDSClassDetails.dpPhDateIssued'
-                  fieldProps={{ placeholder: 'Date Issued', required: true }}
-                  extendedProps={{ label: 'Date Issued' }}
+                  fieldProps={{ mode: 'single', fromYear: 1900, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
+                  extendedProps={{ label: 'Date Issued', required: true, disabledFuture: true }}
                 />
-                <InputFieldForm
+
+                <DatePickerForm
                   control={control}
                   name='dpDSClassDetails.dpPhExpDate'
-                  fieldProps={{ placeholder: 'Expiry Date', required: true }}
-                  extendedProps={{ label: 'Expiry Date' }}
+                  fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
+                  extendedProps={{ label: 'Expiry Date', required: true }}
                 />
               </div>
 
@@ -761,9 +764,9 @@ function SingleDrugstoreProfilePharmacist() {
                 <h1>Educational Attainment</h1>
               </div>
               <div className='grid grid-cols-4 gap-2'>
-                {phEducAttArr.map((r) => {
+                {phEducAttArr.map((r, i) => {
                   return (
-                    <>
+                    <React.Fragment key={i}>
                       <Label className='flex items-center'>{r.label}</Label>
 
                       <InputFieldForm
@@ -786,7 +789,7 @@ function SingleDrugstoreProfilePharmacist() {
                         fieldProps={{ placeholder: 'Year Graduated', type: 'number', maxLength: 4 }}
                         extendedProps={{ style: 'classic' }}
                       />
-                    </>
+                    </React.Fragment>
                   )
                 })}
               </div>
@@ -930,9 +933,9 @@ function SingleDrugstoreProfilePharmacist() {
                           {[
                             { value: 'male', label: 'Male' },
                             { value: 'female', label: 'Female' }
-                          ].map((row) => {
+                          ].map((row, i) => {
                             return (
-                              <FormItem className='flex items-center space-x-3 space-y-0'>
+                              <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                                 <React.Fragment key={row.value}>
                                   <FormControl>
                                     <RadioGroupItem value={row.value} />
@@ -967,9 +970,9 @@ function SingleDrugstoreProfilePharmacist() {
                 <h1>Educational Attainment</h1>
               </div>
               <div className='grid grid-cols-4 gap-2'>
-                {phAsEducAttArr.map((r) => {
+                {phAsEducAttArr.map((r, i) => {
                   return (
-                    <>
+                    <React.Fragment key={i}>
                       <Label className='flex items-center'>{r.label}</Label>
 
                       <InputFieldForm
@@ -992,7 +995,7 @@ function SingleDrugstoreProfilePharmacist() {
                         fieldProps={{ placeholder: 'Year Graduated', type: 'number', maxLength: 4 }}
                         extendedProps={{ style: 'classic' }}
                       />
-                    </>
+                    </React.Fragment>
                   )
                 })}
               </div>
@@ -1045,10 +1048,11 @@ function SingleDrugstoreProfilePharmacist() {
 
 function DrugstoreChainDetails() {
   const { control: mainFormControl } = useFormContext<MemberRegistrationForm>()
-  const { fields, append, remove } = useFieldArray({ name: 'dpDSClassDetails.dpBranches', control: mainFormControl })
+  const { fields, append, remove, update } = useFieldArray({ name: 'dpDSClassDetails.dpBranches', control: mainFormControl })
 
   const form = useZodForm({
     schema: dpChainClassDetailsSchema,
+    defaultValues: { branchName: '' },
     shouldUnregister: false
   })
 
@@ -1056,6 +1060,7 @@ function DrugstoreChainDetails() {
     control,
     setValue,
     watch,
+    reset,
     formState: { errors }
   } = form
 
@@ -1064,17 +1069,42 @@ function DrugstoreChainDetails() {
   const [openDialog, setOpenDialog] = React.useState<{
     isOpen: boolean
     type: 'add' | 'edit'
-    row?: any
+    row?: number
   } | null>(null)
 
   const [tab, setTab] = useState('general')
 
   const onTabChange = (value: string) => setTab(value)
 
-  const onSubmit: SubmitHandler<DrugstoreChainClassDetails> = async (data) => {
-    // console.log('🚀 -> constonSubmit:SubmitHandler<ConventionRegistrationForm>= -> data:', data)
-    append(data)
-    // setOpenDialog({ isOpen: false, type: 'add' })
+  const onSubmit: SubmitHandler<DrugstoreChainClassDetails> = (data, event) => {
+    if (openDialog?.type === 'add') {
+      append(data)
+      reset()
+
+      setOpenDialog(null)
+      setTab('general')
+      return
+    }
+
+    if ((openDialog && openDialog.row) || openDialog?.row === 0) {
+      update(openDialog.row, data)
+
+      reset()
+      setOpenDialog(null)
+      setTab('general')
+    }
+  }
+
+  const onEdit = (index: number, row: DrugstoreChainClassDetails) => {
+    setOpenDialog({ isOpen: true, type: 'edit', row: index })
+
+    reset(row, { keepDefaultValues: true })
+  }
+
+  const onClose = () => {
+    setOpenDialog(null)
+    reset()
+    setTab('general')
   }
 
   return (
@@ -1086,7 +1116,10 @@ function DrugstoreChainDetails() {
         <Button
           type='button'
           className='cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out hover:border-teal-500  hover:bg-teal-500 focus:outline-none'
-          onClick={() => setOpenDialog({ isOpen: true, type: 'add' })}
+          onClick={() => {
+            setOpenDialog({ isOpen: true, type: 'add' })
+            reset()
+          }}
         >
           Add Branch
         </Button>
@@ -1103,7 +1136,7 @@ function DrugstoreChainDetails() {
                 <h1>{row.branchName}</h1>
               </div>
               <div className='flex items-center justify-center gap-2'>
-                <Button type='button' size='icon' variant='outline' title='Edit' className='h-5 w-5'>
+                <Button type='button' size='icon' variant='outline' title='Edit' className='h-5 w-5' onClick={() => onEdit(index, row)}>
                   <Icons.edit className='h-4 w-4' />
                 </Button>
 
@@ -1116,7 +1149,7 @@ function DrugstoreChainDetails() {
         })}
       </div>
 
-      <Dialog open={openDialog?.isOpen} onOpenChange={() => setOpenDialog(null)}>
+      <Dialog open={openDialog?.isOpen} onOpenChange={onClose}>
         <DialogContent className='min-w-[900px]'>
           <DialogHeader>
             <DialogTitle>Chain Drugstore Branch Details</DialogTitle>
@@ -1175,9 +1208,10 @@ function DrugstoreChainDetails() {
 
           <DialogFooter className='flex items-center justify-end'>
             <div className='flex items-center gap-2'>
-              <Button type='button' variant='secondary' onClick={() => setOpenDialog(null)}>
+              <Button type='button' variant='secondary' onClick={onClose}>
                 Cancel
               </Button>
+              {/* <Button type='button' onClick={form.handleSubmit((data, e) => onSubmit(data, e))}> */}
               <Button type='button' onClick={form.handleSubmit(onSubmit)}>
                 Save
               </Button>
@@ -1242,14 +1276,19 @@ function ChainDSGeneralInfo() {
               extendedProps={{ label: 'FDA LTO No.' }}
             />
 
-            <InputFieldForm
+            <DatePickerForm
               control={control}
               name='fdaDateIssued'
-              fieldProps={{ type: 'date', max: toDate(new Date(), 'yyyy-MM-dd') }}
-              extendedProps={{ label: 'Date Issued' }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
+              extendedProps={{ label: 'Date issue', disabledFuture: true }}
             />
 
-            <InputFieldForm control={control} name='fdaDateExpiry' fieldProps={{ type: 'date' }} extendedProps={{ label: 'Date Expiry' }} />
+            <DatePickerForm
+              control={control}
+              name='fdaDateExpiry'
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
+              extendedProps={{ label: 'Date Expiry' }}
+            />
 
             <Label className={cn('', errors.fdaUrlAttachment && 'text-red-500')}>FDA LTO Document Attachment *</Label>
             <FileUpload
@@ -1270,14 +1309,19 @@ function ChainDSGeneralInfo() {
               extendedProps={{ label: 'Document No. (DTI/SEC Certificate)' }}
             />
 
-            <InputFieldForm
+            <DatePickerForm
               control={control}
               name='docDateIssued'
-              fieldProps={{ type: 'date', max: toDate(new Date(), 'yyyy-MM-dd') }}
-              extendedProps={{ label: 'Date Issued' }}
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
+              extendedProps={{ label: 'Date issue', disabledFuture: true }}
             />
 
-            <InputFieldForm control={control} name='docDateExpiry' fieldProps={{ type: 'date' }} extendedProps={{ label: 'Date Expiry' }} />
+            <DatePickerForm
+              control={control}
+              name='docDateExpiry'
+              fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
+              extendedProps={{ label: 'Date Expiry' }}
+            />
 
             <Label className={cn('', errors.docUrlAttachment && 'text-red-500')}>DTI/SEC Document Attachment *</Label>
             <FileUpload
@@ -1368,17 +1412,19 @@ function ChainDSPharmacyInfo() {
                   fieldProps={{ placeholder: 'PRC License No.' }}
                   extendedProps={{ label: 'PRC License No.' }}
                 />
-                <InputFieldForm
+
+                <DatePickerForm
                   control={control}
                   name='dpPhDateIssued'
-                  fieldProps={{ placeholder: 'Date Issued' }}
-                  extendedProps={{ label: 'Date Issued' }}
+                  fieldProps={{ mode: 'single', fromYear: 1900, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
+                  extendedProps={{ label: 'Date issue', disabledFuture: true }}
                 />
-                <InputFieldForm
+
+                <DatePickerForm
                   control={control}
                   name='dpPhExpDate'
-                  fieldProps={{ placeholder: 'Expiry Date' }}
-                  extendedProps={{ label: 'Expiry Date' }}
+                  fieldProps={{ mode: 'single', fromYear: 1900, toYear: 3000, captionLayout: 'dropdown-buttons' }}
+                  extendedProps={{ label: 'Date Expiry' }}
                 />
               </div>
             </div>
@@ -1440,11 +1486,11 @@ function ChainDSProfile() {
   return (
     <div className='space-y-4'>
       <div className='w-60'>
-        <InputFieldForm
+        <DatePickerForm
           control={control}
           name='dpDateEstablished'
-          fieldProps={{ required: true, type: 'date', max: toDate(new Date(), 'yyyy-MM-dd') }}
-          extendedProps={{ label: 'Date Established' }}
+          fieldProps={{ mode: 'single', fromYear: 1900, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
+          extendedProps={{ label: 'Date Established', disabledFuture: true }}
         />
       </div>
 
@@ -1457,9 +1503,9 @@ function ChainDSProfile() {
               <FormLabel>Setup</FormLabel>
               <FormControl>
                 <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
-                  {dpSetup.map((row) => {
+                  {dpSetup.map((row, i) => {
                     return (
-                      <FormItem className='flex items-center space-x-3 space-y-0'>
+                      <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                         <React.Fragment key={row.value}>
                           <FormControl>
                             <RadioGroupItem value={row.value} />
@@ -1484,9 +1530,9 @@ function ChainDSProfile() {
               <FormLabel>Location</FormLabel>
               <FormControl>
                 <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
-                  {dpLocation.map((row) => {
+                  {dpLocation.map((row, i) => {
                     return (
-                      <FormItem className='flex items-center space-x-3 space-y-0'>
+                      <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                         <React.Fragment key={row.value}>
                           <FormControl>
                             <RadioGroupItem value={row.value} />
@@ -1511,9 +1557,9 @@ function ChainDSProfile() {
               <FormLabel>Store Hours</FormLabel>
               <FormControl>
                 <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
-                  {dpStoreHours.map((row) => {
+                  {dpStoreHours.map((row, i) => {
                     return (
-                      <FormItem className='flex items-center space-x-3 space-y-0'>
+                      <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                         <React.Fragment key={row.value}>
                           <FormControl>
                             <RadioGroupItem value={row.value} />
@@ -1538,9 +1584,9 @@ function ChainDSProfile() {
               <FormLabel>Inventory System</FormLabel>
               <FormControl>
                 <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
-                  {dpInvSystem.map((row) => {
+                  {dpInvSystem.map((row, i) => {
                     return (
-                      <FormItem className='flex items-center space-x-3 space-y-0'>
+                      <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                         <React.Fragment key={row.value}>
                           <FormControl>
                             <RadioGroupItem value={row.value} />
@@ -1721,7 +1767,11 @@ function OwnerProfile() {
                   <FormLabel>Status</FormLabel>
                   <div className='relative w-full'>
                     <FormControl>
-                      <select className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')} {...field}>
+                      <select
+                        className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')}
+                        {...field}
+                        value={field.value as string}
+                      >
                         {opStatus.map((row) => (
                           <option key={row.value} value={row.value}>
                             {row.label}
@@ -1743,13 +1793,13 @@ function OwnerProfile() {
                 <FormItem className='space-y-3'>
                   <FormLabel>Gender</FormLabel>
                   <FormControl>
-                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-col space-y-1'>
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value as string} className='flex flex-col space-y-1'>
                       {[
                         { value: 'male', label: 'Male' },
                         { value: 'female', label: 'Female' }
-                      ].map((row) => {
+                      ].map((row, i) => {
                         return (
-                          <FormItem className='flex items-center space-x-3 space-y-0'>
+                          <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                             <React.Fragment key={row.value}>
                               <FormControl>
                                 <RadioGroupItem value={row.value} />
@@ -1771,9 +1821,9 @@ function OwnerProfile() {
             <h1>Educational Attainment</h1>
           </div>
           <div className='grid grid-cols-4 gap-2'>
-            {phEducAttArr.map((r) => {
+            {phEducAttArr.map((r, i) => {
               return (
-                <>
+                <React.Fragment key={i}>
                   <Label className='flex items-center'>{r.label}</Label>
 
                   <InputFieldForm
@@ -1796,7 +1846,7 @@ function OwnerProfile() {
                     fieldProps={{ placeholder: 'Year Graduated', type: 'number', maxLength: 4 }}
                     extendedProps={{ style: 'classic' }}
                   />
-                </>
+                </React.Fragment>
               )
             })}
           </div>
@@ -1816,9 +1866,9 @@ function OwnerProfile() {
                     {[
                       { value: 'owner', label: 'Owner' },
                       { value: 'representative', label: 'Representative' }
-                    ].map((row) => {
+                    ].map((row, i) => {
                       return (
-                        <FormItem className='flex items-center space-x-3 space-y-0'>
+                        <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                           <React.Fragment key={row.value}>
                             <FormControl>
                               <RadioGroupItem value={row.value} />

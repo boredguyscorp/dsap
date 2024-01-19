@@ -1,7 +1,7 @@
 'use client'
 
 import { Icons } from '@/components/shared/icons'
-import { cn } from '@/lib/utils'
+import { cn, convertStringDatesPropToDates } from '@/lib/utils'
 import React, { useMemo, useState, useTransition } from 'react'
 
 import { Form } from '@/components/ui/form'
@@ -20,21 +20,25 @@ const RHFDevTool = dynamic(() => import('../../../../../components/forms/DevTool
 
 import dynamic from 'next/dynamic'
 
-import { registerMember } from '@/actions/members'
+import { MemberEntity, registerMember, updateMember } from '@/actions/members'
 
 import { STEPS } from './constant'
 import { getFormStepContent } from './form-content'
 import { MembershipLanding } from './landing'
 import { ChapterList } from '@/actions/fetchers'
 import { useToast } from '@/components/ui/use-toast'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+
+import MemberAuth from './member-auth'
 
 export type MembershipFormProps = {
   chapters: ChapterList
+  memberDetails?: MemberEntity
 }
 
-export default function MembershipForm({ chapters }: MembershipFormProps) {
+export default function MembershipForm({ chapters, memberDetails }: MembershipFormProps) {
   const showBanner = process.env.NEXT_PUBLIC_SHOW_BANNER === 'true'
+  const { id } = useParams() as { id: string }
 
   const steps = useMemo(
     () => [
@@ -50,7 +54,8 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
     ],
     []
   )
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(id ? true : false)
+  const [showMemberAuthForm, setShowMemberAuthForm] = useState(false)
   const [activeStep, setActiveStep] = useState(STEPS.GENERAL_INFO)
 
   const currentValidationSchema = activeStep > 4 ? uploadPayment : MemberRegistrationFormSchema[activeStep < 4 ? activeStep : 0]
@@ -61,14 +66,13 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
     address: '',
     emailAdd: '',
     mobileNo: '',
+    dpDateEstablished: new Date(),
     ownershipType: 'single proprietor',
     membershipType: 'regular',
-    drugstoreClass: 'single',
-    dpDateEstablished: new Date(),
-    dpSetup: '',
-    dpLocation: '',
-    dpStoreHours: '',
-    dpInvSystem: '',
+    drugstoreClass: '',
+    // ownershipType: 'single proprietor',
+    // membershipType: 'regular',
+    // drugstoreClass: 'single',
     // ownershipTypeDetails: { type: 'single' },
     opLastName: '',
     opFirstName: '',
@@ -89,12 +93,12 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
   } as const
 
   const [isPending, startTransition] = useTransition()
-  const toater = useToast()
+  const toaster = useToast()
   const router = useRouter()
 
   const form = useZodForm({
     schema: currentValidationSchema,
-    defaultValues,
+    defaultValues: memberDetails ? convertStringDatesPropToDates(memberDetails ?? {}) : defaultValues,
     shouldUnregister: false
   })
 
@@ -105,10 +109,12 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
     watch
   } = form
 
-  // console.log(watch())
+  if (showMemberAuthForm) {
+    return <MemberAuth setShowMemberAuthForm={setShowMemberAuthForm} setShowForm={setShowForm} />
+  }
 
-  if (!showForm) {
-    return <MembershipLanding setShowForm={setShowForm} />
+  if (!showForm && !showMemberAuthForm) {
+    return <MembershipLanding setShowForm={setShowForm} setShowMemberAuthForm={setShowMemberAuthForm} />
   }
 
   const onBack = () => {
@@ -140,13 +146,16 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
       if (!validationResult.success) throw new Error('Error Parsing Form Data.')
 
       startTransition(async () => {
+        const data = validationResult.data
+
         try {
-          const response = await registerMember(validationResult.data)
+          const response = id ? await updateMember({ id, ...data }) : await registerMember(data)
+
           console.log('🚀 -> startTransition -> response:', response)
 
-          toater.toast({
-            title: 'Membership Application',
-            description: 'Your membership application has submitted successfully.'
+          toaster.toast({
+            title: `${id ? 'Update' : 'Create'} Membership Application`,
+            description: `Your membership application has been ${id ? 'updated' : 'created'} successfully.`
           })
 
           router.push('/')
@@ -160,6 +169,8 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
     }
   }
 
+  // console.log('errors', { errors })
+
   return (
     <div className={cn('mx-auto mb-20 ml-0 mt-24 min-h-screen max-w-full px-4 sm:px-6 lg:px-8 2xl:ml-16', showBanner && 'mt-36')}>
       <div className='mx-auto flex max-w-6xl items-center justify-between gap-x-1.5 p-10 text-sm text-gray-600 decoration-2 hover:text-teal-500'>
@@ -168,7 +179,7 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
             DSAP Membership Online Service
           </h5>
           <p className='text-sm font-normal text-gray-800 dark:text-gray-200 dark:group-hover:text-gray-400'>
-            Complete form below to sign up for membership.
+            Complete the form below to {id ? 'edit your membership application' : 'sign up for membership.'}
           </p>
         </div>
       </div>
@@ -256,7 +267,8 @@ export default function MembershipForm({ chapters }: MembershipFormProps) {
               >
                 {activeStep !== STEPS.UPLOAD_PAYMENT && 'Next'}
                 {/* {activeStep === STEPS.REGISTRATION_DETAIL && 'Review Information'} */}
-                {activeStep === STEPS.UPLOAD_PAYMENT && (isPending ? 'Submitting Application' : 'Submit Application')}
+                {activeStep === STEPS.UPLOAD_PAYMENT &&
+                  (isPending ? (id ? 'Editing Application' : 'Submitting Application') : id ? 'Edit Application' : 'Submit Application')}
               </button>
             </div>
           </div>

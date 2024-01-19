@@ -139,9 +139,9 @@ const dpPharmacistSchema = z.object({
     .string({ required_error: 'Name in PRC Certificate is required.' })
     .min(1, { message: 'Please enter Name in PRC Certificate.' }),
   dpPhOtherName: z.string().optional(),
-  dpPhLicenseNo: z.string(),
-  dpPhDateIssued: z.string(),
-  dpPhExpDate: z.string(),
+  dpPhLicenseNo: z.string({ required_error: 'PRC License No. is required.' }).min(1, { message: 'Please enter PRC License Number.' }),
+  dpPhDateIssued: z.date({ required_error: 'Date Issue is required.' }),
+  dpPhExpDate: z.date({ required_error: 'Date Expiry Date is required.' }),
   dpPhEducCollege: dsEducAttSchema.optional(),
   dpPhEducMasters: dsEducAttSchema.optional(),
   dpPhEducDoctorate: dsEducAttSchema.optional(),
@@ -183,16 +183,16 @@ const dpPharmacistSchema = z.object({
 export const dpChainClassDetailsSchema = z.object({
   branchName: z.string({ required_error: 'Branch Name is required.' }).min(1, { message: 'Please enter Branch name.' }),
   address: z.string().nullish(),
-  emailAdd: z.string().nullish(),
+  emailAdd: z.string().email().nullish(),
   mobileNo: z.string().nullish(),
   telNo: z.string().nullish(),
   fdaLtoNo: z.string().nullish(),
-  fdaDateIssued: z.string().nullish(),
-  fdaDateExpiry: z.string().nullish(),
+  fdaDateIssued: z.date().nullish(),
+  fdaDateExpiry: z.date().nullish(),
   fdaUrlAttachment: z.string().nullish(),
   docNo: z.string().nullish(),
-  docDateIssued: z.string().nullish(),
-  docDateExpiry: z.string().nullish(),
+  docDateIssued: z.date().nullish(),
+  docDateExpiry: z.date().nullish(),
   docUrlAttachment: z.string().nullish(),
   managerOic: z.string().nullish(),
   dpPhLastName: z.string().nullish(),
@@ -202,13 +202,13 @@ export const dpChainClassDetailsSchema = z.object({
   dpPhNameInCert: z.string().nullish(),
   dpPhOtherName: z.string().nullish(),
   dpPhLicenseNo: z.string().nullish(),
-  dpPhDateIssued: z.string().nullish(),
-  dpPhExpDate: z.string().nullish(),
+  dpPhDateIssued: z.date().nullish(),
+  dpPhExpDate: z.date().nullish(),
   dpPhAsLastName: z.string().nullish(),
   dpPhAsFirstName: z.string().nullish(),
   dpPhAsMiddleName: z.string().nullish(),
   dpPhAsAddress: z.string().nullish(),
-  dpDateEstablished: z.string().nullish(),
+  dpDateEstablished: z.date().nullish(),
   dpSetup: z.string().optional(),
   dpLocation: z.string().optional(),
   dpStoreHours: z.string().optional(),
@@ -228,10 +228,10 @@ const dpDSClassDetails = z.discriminatedUnion('dsClass', [dpPharmacistSchema, dp
 
 const dsProfile = z.object({
   dpDateEstablished: z.date({ required_error: 'Date Established is required.' }),
-  dpSetup: z.string().optional(),
-  dpLocation: z.string().optional(),
-  dpStoreHours: z.string().optional(),
-  dpInvSystem: z.string().optional(),
+  dpSetup: z.string().nullish(),
+  dpLocation: z.string().nullish(),
+  dpStoreHours: z.string().nullish(),
+  dpInvSystem: z.string().nullish(),
   dpDSClassDetails
 })
 
@@ -252,15 +252,15 @@ const opDsapMember = z.discriminatedUnion('opDsapMemberType', [opDsapMemberOwner
 const ownerProfile = z.object({
   opFirstName: z.string({ required_error: 'Owner First Name is required.' }).min(1, { message: 'Please enter Owner first name.' }),
   opLastName: z.string({ required_error: 'Owner Last Name is required.' }).min(1, { message: 'Please enter Owner last name.' }),
-  opMiddleName: z.string().optional(),
+  opMiddleName: z.string().nullish(),
   opPhImageUrl: z.string({ required_error: 'Owner Photo is required.' }).min(1, { message: 'Please attached Owner Photo.' }),
-  opAddress: z.string().optional(),
-  opBirthday: z.date().optional(),
-  opEmail: z.string().optional(),
-  opTelNo: z.string().optional(),
-  opCellNo: z.string().optional(),
-  opStatus: z.string().optional(),
-  opGender: z.string().optional(),
+  opAddress: z.string().nullish(),
+  opBirthday: z.date().nullish(),
+  opEmail: z.string().nullish(),
+  opTelNo: z.string().nullish(),
+  opCellNo: z.string().nullish(),
+  opStatus: z.string().nullish(),
+  opGender: z.string().nullish(),
   opEducCollege: dsEducAttSchema.optional(),
   opEducMasters: dsEducAttSchema.optional(),
   opEducDoctorate: dsEducAttSchema.optional(),
@@ -289,7 +289,7 @@ const registrationDetails = z.object({
 })
 
 export const uploadPayment = z.object({
-  proofOfPaymentUrl: z.string().optional()
+  proofOfPaymentUrl: z.string().nullish()
   // ownershipTypeDetails: z.discriminatedUnion('type', [singleProp, corporate, partnership])
 })
 
@@ -343,3 +343,8 @@ export const ConventionRegistrationFormSchema = z.object({
 })
 
 export type ConventionRegistrationForm = z.infer<typeof ConventionRegistrationFormSchema>
+
+// MEMBER AUTH
+export const MemberAuthFormSchema = z.object({
+  code: z.string().min(1, { message: 'Please enter a code.' })
+})

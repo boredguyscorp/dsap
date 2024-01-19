@@ -45,7 +45,8 @@ import {
   Store,
   CheckCheck,
   Files,
-  Users
+  Users,
+  Lock
 } from 'lucide-react'
 
 export type Icon = LucideIcon
@@ -96,6 +97,8 @@ export const Icons = {
   checkCheck: CheckCheck,
   docs: Files,
   users: Users,
+  lock: Lock,
+
   logo: ({ circleColor, ...props }: LucideProps & { circleColor: string }) => (
     <svg
       width='800px'

@@ -8,8 +8,9 @@ import Image from 'next/image'
 
 type MembershipLandingProps = {
   setShowForm: (show: boolean) => void
+  setShowMemberAuthForm: (show: boolean) => void
 }
-export function MembershipLanding({ setShowForm }: MembershipLandingProps) {
+export function MembershipLanding({ setShowForm, setShowMemberAuthForm }: MembershipLandingProps) {
   const showBanner = process.env.NEXT_PUBLIC_SHOW_BANNER === 'true'
 
   return (
@@ -35,14 +36,18 @@ export function MembershipLanding({ setShowForm }: MembershipLandingProps) {
               Complete form below to sign up for membership.
             </p> */}
 
+          <Button variant='main' className='h-16' onClick={() => setShowForm(true)}>
+            Proceed to Membership
+          </Button>
+
           <Button
-            variant='main'
-            className='h-16'
+            variant='main_outline'
+            className='h-16 text-center text-xl font-medium'
             onClick={() => {
-              setShowForm(true)
+              setShowMemberAuthForm(true)
             }}
           >
-            Proceed to Membership
+            Update Membership
           </Button>
         </div>
         <div className='hidden xl:block'>
