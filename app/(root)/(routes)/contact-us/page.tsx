@@ -113,7 +113,8 @@ export default function ContactUs() {
                       Phone Number
                     </label>
                     <input
-                      type='text'
+                      type='number'
+                      pattern='[0-9]*'
                       name='phoneNo'
                       id='phoneNo'
                       className='block w-full rounded-md border border-gray-200 px-4 py-3 text-sm focus:border-teal-500 focus:ring-teal-500 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400'

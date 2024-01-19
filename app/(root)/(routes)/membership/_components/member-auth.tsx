@@ -41,13 +41,11 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
   })
 
   const onSubmit = async (data: { code: string }, action: 'verify' | 'submit') => {
-    try {
-      startTransition(async () => {
+    startTransition(async () => {
+      try {
         if (action === 'submit') {
           const _secret = authenticator.generateSecret()
           const __secret = _secret + '-' + process.env.NEXT_PUBLIC_OTP_SECRET_KEY
-
-          console.log('submit __secret', __secret)
 
           if (_secret) setOtpSecret(_secret)
 
@@ -83,50 +81,42 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
         } else {
           form.setError('code', { message: 'Verification code is invalid.' })
         }
-      })
-    } catch (error) {
-      toaster.toast({
-        title: 'Error Membership Authentication',
-        variant: 'destructive',
-        description: 'An issue occurred while processing membership authentication. Please try again.'
-      })
-    }
+      } catch (error) {
+        console.error(error)
+        form.setError('code', { message: 'Error occured! Please try again.' })
+      }
+    })
   }
 
   const resend = async () => {
-    try {
-      setShowResendButton(false)
+    setShowResendButton(false)
 
-      const _secret = authenticator.generateSecret()
-      const __secret = _secret + '-' + process.env.NEXT_PUBLIC_OTP_SECRET_KEY
+    const _secret = authenticator.generateSecret()
+    const __secret = _secret + '-' + process.env.NEXT_PUBLIC_OTP_SECRET_KEY
 
-      // console.log('resend __secret', __secret)
+    if (_secret) setOtpSecret(_secret)
 
-      if (_secret) setOtpSecret(_secret)
-
-      startTransition(async () => {
+    startTransition(async () => {
+      try {
         await resendOTP(__secret, memberEmail)
-      })
-    } catch (error) {
-      toaster.toast({
-        title: 'Resend OTP Failed',
-        variant: 'destructive',
-        description: 'An issue occurred while resending your OTP. Please try again.'
-      })
-    }
+      } catch (error) {
+        console.error(error)
+        form.setError('code', { message: 'Error occured while sending OTP! Please try again.' })
+      }
+    })
   }
 
   return (
     <div className={cn('mx-auto mb-20 ml-0 mt-24 min-h-screen max-w-full px-4 sm:px-6 lg:px-8 2xl:ml-16', showBanner && 'mt-36')}>
       <div className='mx-auto flex max-w-6xl flex-col items-center justify-between gap-x-1.5 p-10 text-sm text-gray-600 decoration-2'>
-        <div className='mx-auto w-full p-5'>
+        <div className='mx-auto p-5 sm:w-full md:w-[640px]'>
           <Form {...form}>
-            <Card className='mt-8 w-full'>
+            <Card className='mt-8'>
               <CardHeader className='flex-col items-center justify-center gap-4'>
                 <Icons.lock className='h-8 w-8' />
                 <div className='flex flex-col items-center justify-center gap-1.5'>
                   <CardTitle>Membership Authentication</CardTitle>
-                  <CardDescription className='mb-5'>
+                  <CardDescription className='mb-5 text-center'>
                     Before we proceed, we need to ensure that you are a DSAP member. Please complete the form below to verify your DSAP
                     membership.
                   </CardDescription>
@@ -138,7 +128,7 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
                           A verification code has been sent to your email <span className='font-bold text-primary'>({memberEmail})</span>.
                         </span>
                       </CardDescription>
-                      <CardDescription>
+                      <CardDescription className='text-center'>
                         This code will be valid for <span className='font-bold text-primary'>1 hour</span>
                       </CardDescription>
                     </>

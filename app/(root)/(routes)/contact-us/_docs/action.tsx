@@ -8,10 +8,10 @@ import { ContactForm } from './types'
 
 export async function contactInquiryAction(formData: ContactForm) {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: 'Yahoo',
     auth: {
-      user: process.env.NODEMAILER_EMAIL,
-      pass: process.env.NODEMAILER_PW
+      user: process.env.NODEMAILER_EMAIL_CONTACT,
+      pass: process.env.NODEMAILER_PW_CONTACT
     }
     // host: 'sg3plcpnl0118.prod.sin3.secureserver.net',
     // port: 465,
@@ -23,8 +23,8 @@ export async function contactInquiryAction(formData: ContactForm) {
   })
 
   const options: Mail.Options = {
-    from: process.env.NODEMAILER_EMAIL,
-    to: process.env.NODEMAILER_EMAIL_RECEIVER,
+    from: process.env.NODEMAILER_EMAIL_CONTACT,
+    to: process.env.NODEMAILER_EMAIL_RECEIVER_CONTACT,
     subject: 'Website Contact Inquiry',
     html: render(<Email formData={formData} />)
   }

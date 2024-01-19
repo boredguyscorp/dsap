@@ -16,7 +16,7 @@ import { cn, toDate, toDateNormal, toProperCase } from '@/lib/utils'
 
 import { watch } from 'fs'
 import { ChevronDownIcon, ChevronsUpDown } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DatePickerForm } from '../../../../../components/forms/DatePickerForm'
 import { InputFieldForm } from '../../../../../components/forms/InputFieldForm'
 import { TextAreaForm } from '../../../../../components/forms/TextAreaForm'
@@ -159,13 +159,13 @@ function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
             <InputFieldForm
               control={control}
               name='mobileNo'
-              fieldProps={{ placeholder: 'Mobile No.', required: true }}
+              fieldProps={{ placeholder: 'Mobile No.', required: true, type: 'number', pattern: '[0-9]*' }}
               extendedProps={{ label: 'Mobile No.' }}
             />
             <InputFieldForm
               control={control}
               name='telNo'
-              fieldProps={{ placeholder: 'Telephone No.' }}
+              fieldProps={{ placeholder: 'Telephone No.', type: 'number', pattern: '[0-9]*' }}
               extendedProps={{ label: 'Telephone No.' }}
             />
           </div>
@@ -469,6 +469,12 @@ function SingleDrugstoreProfilePharmacist() {
   const [tab, setTab] = useState('registered-pharmacist')
   const onTabChange = (value: string) => setTab(value)
 
+  const phImgContainerRef = useRef<HTMLDivElement>(null)
+  const phAsImgContainerRef = useRef<HTMLDivElement>(null)
+  const phAsCOEContainerRef = useRef<HTMLDivElement>(null)
+  const phAsDiplomaContainerRef = useRef<HTMLDivElement>(null)
+  const phAsCOAContainerRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     if (!errors.dpDSClassDetails) return
     const errorKey = Object.keys(errors.dpDSClassDetails)
@@ -476,6 +482,12 @@ function SingleDrugstoreProfilePharmacist() {
     if (errorKey.length < 1) return
 
     setPhotoErr({ ph: errorKey.includes('dpPhImageUrl'), phAs: errorKey.includes('dpPhAsImageUrl') })
+
+    if (errorKey.includes('dpPhImageUrl')) phImgContainerRef.current?.focus()
+    if (errorKey.includes('dpPhAsImageUrl')) phAsImgContainerRef.current?.focus()
+    if (errorKey.includes('dpPhAsAttachmentCOEUrl')) phAsCOEContainerRef.current?.focus()
+    if (errorKey.includes('dpPhAsAttachmentDiplomaUrl')) phAsDiplomaContainerRef.current?.focus()
+    if (errorKey.includes('dpPhAsAttachmentCOAUrl')) phAsCOAContainerRef.current?.focus()
 
     if ((errorKey.includes('dpPhAsFirstName') || errorKey.includes('dpPhAsLastName')) && errorKey.length < 1) {
       setTab('pharmacy-assistant')
@@ -575,6 +587,8 @@ function SingleDrugstoreProfilePharmacist() {
                 <CardDescription>Drugstore Pharmacist Form.</CardDescription>
               </div>
               <div
+                ref={phImgContainerRef}
+                tabIndex={0}
                 className={cn(
                   'absolute -top-3 right-0 flex h-[150px] w-[156px] flex-col items-center justify-center space-y-1 rounded-md border-2 border-dashed',
                   photoErr.ph && 'border-red-400 text-destructive'
@@ -652,14 +666,14 @@ function SingleDrugstoreProfilePharmacist() {
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhCellNo'
-                    fieldProps={{ placeholder: 'Cellphone No.' }}
+                    fieldProps={{ placeholder: 'Cellphone No.', type: 'number', pattern: '[0-9]*' }}
                     extendedProps={{ label: 'Cellphone No.' }}
                   />
 
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhTelNo'
-                    fieldProps={{ placeholder: 'Telephone No', type: 'text' }}
+                    fieldProps={{ placeholder: 'Telephone No', type: 'number', pattern: '[0-9]*' }}
                     extendedProps={{ label: 'Telephone No.' }}
                   />
                 </div>
@@ -807,6 +821,8 @@ function SingleDrugstoreProfilePharmacist() {
                 <CardDescription>Drugstore Pharmacy Assistant Form.</CardDescription>
               </div>
               <div
+                ref={phAsImgContainerRef}
+                tabIndex={0}
                 className={cn(
                   'absolute -top-3 right-0 flex h-[150px] w-[156px] flex-col items-center justify-center space-y-1 rounded-md border-2 border-dashed',
                   photoErr.phAs && 'border-red-400 text-destructive'
@@ -883,13 +899,13 @@ function SingleDrugstoreProfilePharmacist() {
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhAsCellNo'
-                    fieldProps={{ placeholder: 'Cellphone No.' }}
+                    fieldProps={{ placeholder: 'Cellphone No.', type: 'number', pattern: '[0-9]*' }}
                     extendedProps={{ label: 'Cellphone No.' }}
                   />
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhAsTelNo'
-                    fieldProps={{ placeholder: 'Telephone No.' }}
+                    fieldProps={{ placeholder: 'Telephone No.', type: 'number', pattern: '[0-9]*' }}
                     extendedProps={{ label: 'Telephone No.' }}
                   />
                 </div>
@@ -1004,7 +1020,7 @@ function SingleDrugstoreProfilePharmacist() {
                 <h1>Attached Required Forms *</h1>
               </div>
               <div className='grid grid-cols-3 gap-2'>
-                <div className='flex flex-col space-y-4'>
+                <div className='flex flex-col space-y-4' ref={phAsCOEContainerRef} tabIndex={0}>
                   <Label className={cn('', !watch('dpDSClassDetails.dpPhAsAttachmentCOEUrl') && 'text-red-500')}>
                     Certificate of Employment *
                   </Label>
@@ -1016,7 +1032,7 @@ function SingleDrugstoreProfilePharmacist() {
                   />
                 </div>
 
-                <div className='flex flex-col space-y-4'>
+                <div className='flex flex-col space-y-4' ref={phAsDiplomaContainerRef} tabIndex={0}>
                   <Label className={cn('', !watch('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl') && 'text-red-500')}>Diploma *</Label>
                   <FileUpload
                     uploader='button'
@@ -1026,7 +1042,7 @@ function SingleDrugstoreProfilePharmacist() {
                   />
                 </div>
 
-                <div className='flex flex-col space-y-4'>
+                <div className='flex flex-col space-y-4' ref={phAsCOAContainerRef} tabIndex={0}>
                   <Label className={cn('', !watch('dpDSClassDetails.dpPhAsAttachmentCOAUrl') && 'text-red-500')}>
                     Certificate of Attendance *
                   </Label>
@@ -1245,13 +1261,13 @@ function ChainDSGeneralInfo() {
         <InputFieldForm
           control={control}
           name='mobileNo'
-          fieldProps={{ placeholder: 'Mobile No.' }}
+          fieldProps={{ placeholder: 'Mobile No.', type: 'number', pattern: '[0-9]*' }}
           extendedProps={{ label: 'Mobile No.' }}
         />
         <InputFieldForm
           control={control}
           name='telNo'
-          fieldProps={{ placeholder: 'Telephone No.' }}
+          fieldProps={{ placeholder: 'Telephone No.', type: 'number', pattern: '[0-9]*' }}
           extendedProps={{ label: 'Telephone No.' }}
         />
       </div>
@@ -1290,7 +1306,7 @@ function ChainDSGeneralInfo() {
               extendedProps={{ label: 'Date Expiry' }}
             />
 
-            <Label className={cn('', errors.fdaUrlAttachment && 'text-red-500')}>FDA LTO Document Attachment *</Label>
+            <Label className={cn('', errors.fdaUrlAttachment && 'text-red-500')}>FDA LTO Document Attachment</Label>
             <FileUpload
               uploader='button'
               endpoint='pdfUploader'
@@ -1305,7 +1321,7 @@ function ChainDSGeneralInfo() {
             <InputFieldForm
               control={control}
               name='docNo'
-              fieldProps={{ placeholder: 'Document No. (DTI/SEC Certificate)', required: true }}
+              fieldProps={{ placeholder: 'Document No. (DTI/SEC Certificate)' }}
               extendedProps={{ label: 'Document No. (DTI/SEC Certificate)' }}
             />
 
@@ -1323,7 +1339,7 @@ function ChainDSGeneralInfo() {
               extendedProps={{ label: 'Date Expiry' }}
             />
 
-            <Label className={cn('', errors.docUrlAttachment && 'text-red-500')}>DTI/SEC Document Attachment *</Label>
+            <Label className={cn('', errors.docUrlAttachment && 'text-red-500')}>DTI/SEC Document Attachment</Label>
             <FileUpload
               uploader='button'
               endpoint='pdfUploader'
@@ -1651,6 +1667,23 @@ function OwnerProfile() {
     }
   ] as const
 
+  const opPhImageContainerRef = useRef<HTMLDivElement>(null)
+  const opRepFormContainerRef = useRef<HTMLDivElement>(null)
+  const opRepPhotoContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const errorKeys = Object.keys(errors)
+
+    if (errorKeys.includes('opPhImageUrl')) opPhImageContainerRef.current?.focus()
+
+    if (errors.opDsapMember) {
+      const dsapMemberErrorKeys = Object.keys(errors.opDsapMember)
+
+      if (dsapMemberErrorKeys.includes('opRepFormUrl')) opRepFormContainerRef.current?.focus()
+      if (dsapMemberErrorKeys.includes('opRepPhotoUrl')) opRepPhotoContainerRef.current?.focus()
+    }
+  }, [errors])
+
   return (
     <Card className='w-full'>
       {/* <CardHeader>
@@ -1668,6 +1701,8 @@ function OwnerProfile() {
             <CardDescription>Drugstore Pharmacist Form.</CardDescription>
           </div>
           <div
+            ref={opPhImageContainerRef}
+            tabIndex={0}
             className={cn(
               'absolute -top-3 right-0 flex h-[150px] w-[156px] flex-col items-center justify-center space-y-1 rounded-md border-2 border-dashed',
               errors.opPhImageUrl && 'border-red-400 text-destructive'
@@ -1746,13 +1781,13 @@ function OwnerProfile() {
               <InputFieldForm
                 control={control}
                 name='opCellNo'
-                fieldProps={{ placeholder: 'Cellphone No.' }}
+                fieldProps={{ placeholder: 'Cellphone No.', type: 'number', pattern: '[0-9]*' }}
                 extendedProps={{ label: 'Cellphone No.' }}
               />
               <InputFieldForm
                 control={control}
                 name='opTelNo'
-                fieldProps={{ placeholder: 'Telephone No.' }}
+                fieldProps={{ placeholder: 'Telephone No.', type: 'number', pattern: '[0-9]*' }}
                 extendedProps={{ label: 'Telephone No.' }}
               />
             </div>
@@ -1890,7 +1925,7 @@ function OwnerProfile() {
 
           {watch('opDsapMember.opDsapMemberType') === 'representative' && (
             <div className='!mt-8 grid grid-cols-2'>
-              <div className='flex flex-col gap-2'>
+              <div className='flex flex-col gap-2' ref={opRepFormContainerRef} tabIndex={0}>
                 <Label className={cn('', errors.opDsapMember && 'text-red-500')}>Authorized Representative form *</Label>
                 <FileUpload
                   uploader='button'
@@ -1904,7 +1939,7 @@ function OwnerProfile() {
                 )}
               </div>
 
-              <div className='flex flex-col gap-2'>
+              <div className='flex flex-col gap-2' ref={opRepPhotoContainerRef} tabIndex={0}>
                 <Label className={cn('', errors.opDsapMember && 'text-red-500')}>Authorized Representative photo *</Label>
                 <FileUpload
                   uploader='button'
@@ -1932,6 +1967,18 @@ function RegistrationDetails() {
     watch,
     formState: { errors }
   } = useFormContext<MemberRegistrationForm>()
+
+  const fdaAttachmentContainerRef = useRef<HTMLDivElement>(null)
+  const bpaAttachmentContainerRef = useRef<HTMLDivElement>(null)
+  const docAttachmentContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const errorKeys = Object.keys(errors)
+
+    if (errorKeys.includes('fdaUrlAttachment')) fdaAttachmentContainerRef.current?.focus()
+    if (errorKeys.includes('bpUrlAttachment')) bpaAttachmentContainerRef.current?.focus()
+    if (errorKeys.includes('docUrlAttachment')) docAttachmentContainerRef.current?.focus()
+  }, [errors])
 
   return (
     <Card className='w-full'>
@@ -1970,12 +2017,15 @@ function RegistrationDetails() {
             {/* <Label>FDA LTO Document Attachment *</Label> */}
 
             <Label className={cn('', errors.fdaUrlAttachment && 'text-red-500')}>FDA LTO Document Attachment *</Label>
-            <FileUpload
-              uploader='button'
-              endpoint='pdfUploader'
-              value={watch('fdaUrlAttachment')}
-              onChange={(urlValue) => setValue('fdaUrlAttachment', urlValue ?? '')}
-            />
+
+            <div ref={fdaAttachmentContainerRef} tabIndex={0}>
+              <FileUpload
+                uploader='button'
+                endpoint='pdfUploader'
+                value={watch('fdaUrlAttachment')}
+                onChange={(urlValue) => setValue('fdaUrlAttachment', urlValue ?? '')}
+              />
+            </div>
           </div>
         </div>
 
@@ -2003,12 +2053,15 @@ function RegistrationDetails() {
             />
 
             <Label className={cn('', errors.bpUrlAttachment && 'text-red-500')}>Business Permit Document Attachment *</Label>
-            <FileUpload
-              uploader='button'
-              endpoint='pdfUploader'
-              value={watch('bpUrlAttachment')}
-              onChange={(urlValue) => setValue('bpUrlAttachment', urlValue ?? '')}
-            />
+
+            <div ref={bpaAttachmentContainerRef} tabIndex={0}>
+              <FileUpload
+                uploader='button'
+                endpoint='pdfUploader'
+                value={watch('bpUrlAttachment')}
+                onChange={(urlValue) => setValue('bpUrlAttachment', urlValue ?? '')}
+              />
+            </div>
           </div>
         </div>
 
@@ -2036,12 +2089,15 @@ function RegistrationDetails() {
             />
 
             <Label className={cn('', errors.docUrlAttachment && 'text-red-500')}>DTI/SEC Document Attachment *</Label>
-            <FileUpload
-              uploader='button'
-              endpoint='pdfUploader'
-              value={watch('docUrlAttachment')}
-              onChange={(urlValue) => setValue('docUrlAttachment', urlValue ?? '')}
-            />
+
+            <div ref={docAttachmentContainerRef} tabIndex={0}>
+              <FileUpload
+                uploader='button'
+                endpoint='pdfUploader'
+                value={watch('docUrlAttachment')}
+                onChange={(urlValue) => setValue('docUrlAttachment', urlValue ?? '')}
+              />
+            </div>
           </div>
         </div>
       </CardContent>

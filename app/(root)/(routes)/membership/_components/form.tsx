@@ -268,7 +268,7 @@ export default function MembershipForm({ chapters, memberDetails }: MembershipFo
                 {activeStep !== STEPS.UPLOAD_PAYMENT && 'Next'}
                 {/* {activeStep === STEPS.REGISTRATION_DETAIL && 'Review Information'} */}
                 {activeStep === STEPS.UPLOAD_PAYMENT &&
-                  (isPending ? (id ? 'Editing Application' : 'Submitting Application') : id ? 'Edit Application' : 'Submit Application')}
+                  (isPending ? (id ? 'Updating Application' : 'Submitting Application') : id ? 'Update Application' : 'Submit Application')}
               </button>
             </div>
           </div>
