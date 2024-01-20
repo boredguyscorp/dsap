@@ -35,8 +35,10 @@ export function TextAreaForm<T extends FieldValues>(props: TextFieldFormProps<T>
           <FormItem>
             <FormLabel className='w-52'>{labelText}</FormLabel>
             <FormControl>
-              {/* <Input {...field} {...fieldProps} value={getValues(name)} /> */}
-              <Textarea placeholder='Type your message here.' {...field} {...fieldProps} value={getValues(name)} />
+              <div className='relative w-full'>
+                <Textarea placeholder='Type your message here.' {...field} {...fieldProps} value={getValues(name)} />
+                {fieldProps?.required && <p className='absolute right-1 top-0 text-lg font-bold text-teal-500'> * </p>}
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>

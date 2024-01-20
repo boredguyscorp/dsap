@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils'
 type FieldValues = Record<string, any>
 type ExtendedProps = {
   label?: string
+  labelClassName?: string
+  errorMessageClassName?: string
   style?: 'default' | 'classic'
 }
 
@@ -35,14 +37,19 @@ export function InputFieldForm<T extends FieldValues>(props: TextFieldFormProps<
       render={({ field }) => {
         return (
           <FormItem>
-            <FormLabel className='w-52'>{labelText}</FormLabel>
+            <FormLabel className={cn('w-52', extendedProps?.labelClassName)}>{labelText}</FormLabel>
             <FormControl className={cn('', style === 'classic' && 'border-b')}>
               <div className='relative w-full'>
-                <Input {...field} {...fieldProps} value={getValues(name)} className={cn('', style === 'classic' && 'border-none')} />
+                <Input
+                  {...field}
+                  {...fieldProps}
+                  value={getValues(name)}
+                  className={cn('', style === 'classic' && 'border-none', fieldProps?.className)}
+                />
                 {fieldProps?.required && <p className='absolute right-1 top-0 text-lg font-bold text-teal-500'> * </p>}
               </div>
             </FormControl>
-            <FormMessage />
+            <FormMessage className={cn(extendedProps?.errorMessageClassName)} />
           </FormItem>
         )
       }}

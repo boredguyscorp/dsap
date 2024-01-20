@@ -123,13 +123,10 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
 
                   {isMember && (
                     <>
-                      <CardDescription className='flex justify-center'>
-                        <span className='text-center'>
-                          A verification code has been sent to your email <span className='font-bold text-primary'>({memberEmail})</span>.
-                        </span>
-                      </CardDescription>
+                      <CardDescription className='text-center'>A verification code has been sent to your email:</CardDescription>
+                      <CardDescription className='text-center text-[17px] font-bold text-primary'>{memberEmail}</CardDescription>
                       <CardDescription className='text-center'>
-                        This code will be valid for <span className='font-bold text-primary'>1 hour</span>
+                        This code will be valid for <span className='font-bold text-primary'>1 hour.</span>
                       </CardDescription>
                     </>
                   )}
@@ -137,19 +134,39 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
               </CardHeader>
               <Separator />
 
-              <CardContent className='mt-5'>
-                <div className='space-y-4'>
+              <CardContent className='mt-5 pb-2.5'>
+                <div className='mx-auto w-[240px] space-y-4'>
                   <InputFieldForm
                     control={form.control}
                     name='code'
-                    fieldProps={{ placeholder: isMember ? 'Verification Code' : 'Membership Code', required: true }}
-                    extendedProps={{ label: 'Code' }}
+                    fieldProps={{
+                      placeholder: isMember ? '6 Digit Code' : '9 Character Code',
+                      className: '!text-center'
+                    }}
+                    extendedProps={{
+                      label: isMember ? 'Verification Code' : 'Membership Code',
+                      labelClassName: 'block w-full text-center',
+                      errorMessageClassName: 'text-center'
+                    }}
                   />
                 </div>
               </CardContent>
+
+              <CardContent>
+                <button
+                  className={cn(
+                    'mx-auto flex w-[240px] cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:border-teal-500 enabled:hover:bg-teal-500',
+                    isPending && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
+                  )}
+                  onClick={form.handleSubmit((data) => onSubmit(data, isMember ? 'verify' : 'submit'))}
+                  disabled={isPending}
+                >
+                  {isMember ? (isPending ? 'Verifying' : 'Verify') : isPending ? 'Submitting' : 'Submit'}
+                </button>
+              </CardContent>
             </Card>
 
-            <div className={cn('mt-10 flex items-center', isMember ? 'justify-between' : 'justify-end')}>
+            <div className='mt-10 flex items-center'>
               {isMember && (
                 <div className='flex flex-col gap-1.5'>
                   <div>It may take a minute to receive your code.</div>
@@ -170,17 +187,6 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
                   </div>
                 </div>
               )}
-
-              <button
-                className={cn(
-                  'ml-2 flex min-w-[150px] cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:border-teal-500 enabled:hover:bg-teal-500',
-                  isPending && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
-                )}
-                onClick={form.handleSubmit((data) => onSubmit(data, isMember ? 'verify' : 'submit'))}
-                disabled={isPending}
-              >
-                {isMember ? (isPending ? 'Verifying' : 'Verify') : isPending ? 'Submitting' : 'Submit'}
-              </button>
             </div>
           </Form>
         </div>
