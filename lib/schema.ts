@@ -348,3 +348,7 @@ export type ConventionRegistrationForm = z.infer<typeof ConventionRegistrationFo
 export const MemberAuthFormSchema = z.object({
   code: z.string().min(1, { message: 'Please enter a code.' })
 })
+
+export const MemberAuthEmailFormSchema = z.object({
+  email: z.string().min(1, { message: 'Please enter an email.' }).email()
+})

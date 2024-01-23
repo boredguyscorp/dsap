@@ -5,11 +5,13 @@ import db from '@/lib/db'
 import { MemberRegistrationForm } from '@/lib/schema'
 import { generateRandomString, generateNumberString, generateOTP } from '@/lib/utils'
 import { revalidatePath } from 'next/cache'
-import EmailOtp from '@/app/(root)/(routes)/membership/_docs/email'
+import { EmailMembershipStatus, EmailOtp } from '@/app/(root)/(routes)/membership/_docs/email'
 
 import nodemailer from 'nodemailer'
 import Mail from 'nodemailer/lib/mailer'
 import { render } from '@react-email/render'
+import { Members } from '@prisma/client'
+import { notFound } from 'next/navigation'
 
 export type MemberEntity = Awaited<ReturnType<typeof findMemberById>>
 
@@ -18,7 +20,14 @@ export async function registerMember(formData: MemberRegistrationForm) {
   const data = { ...formData, code }
 
   try {
+    const isEmailExist = await db.members.findMany({ where: { emailAdd: data.emailAdd } })
+
+    if (isEmailExist.length > 0) return { status: 409, message: 'Email already exists.' }
+
     await db.members.create({ data })
+
+    revalidatePath('/membership')
+
     return { code }
   } catch (error) {
     console.log('registerMember server action:', error)
@@ -28,12 +37,20 @@ export async function registerMember(formData: MemberRegistrationForm) {
 
 export async function updateMember(formData: MemberRegistrationForm & { id: string }) {
   try {
-    const result = await db.members.update({
+    const member = await db.members.findUnique({ where: { id: formData.id } })
+
+    if (!member) notFound()
+
+    const isEmailExist = await db.members.findMany({ where: { emailAdd: formData.emailAdd, code: { not: member.code } } })
+
+    if (isEmailExist.length > 0) return { status: 409, message: 'Email already exists.' }
+
+    await db.members.update({
       data: formData,
       where: { id: formData.id }
     })
 
-    return result
+    revalidatePath('/membership')
   } catch (error) {
     console.log('updateMember server action:', error)
     throw error
@@ -50,9 +67,25 @@ export async function findMemberById(id: string) {
 }
 
 export async function updateStatusAction({ id, status }: UpdateMembershipStatus) {
-  await db.members.update({ where: { id }, data: { status } })
+  try {
+    await db.members.update({ where: { id }, data: { status } })
 
-  revalidatePath('/membership')
+    revalidatePath('/membership')
+  } catch (error) {
+    console.log('updateStatusAction server action', error)
+    throw error
+  }
+}
+
+export async function deleteMember(id: string) {
+  try {
+    await db.members.delete({ where: { id } })
+
+    revalidatePath('/membership')
+  } catch (error) {
+    console.log('deleteMember server action', error)
+    throw error
+  }
 }
 
 export async function authMember(code: string, otpSecret: string) {
@@ -63,6 +96,8 @@ export async function authMember(code: string, otpSecret: string) {
     // console.log({ code, otpSecret }, 'token generate at:', new Date().toTimeString())
 
     if (member.length < 1) return { success: false, email: null }
+
+    if (!member[0].emailAdd) return { success: true, email: null }
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -114,4 +149,95 @@ export async function resendOTP(otpSecret: string, email: string) {
     console.log('resendOTP server action:', error)
     throw error
   }
+}
+
+export async function sendOTPWithEmail(code: string, otpSecret: string, email: string) {
+  try {
+    const member = await db.members.findMany({ where: { code } })
+    const isEmailExist = await db.members.findMany({ where: { emailAdd: email } })
+    const token = generateOTP(otpSecret)
+
+    if (member.length < 1) return { success: false }
+
+    if (isEmailExist.length > 0) return { status: 409, message: 'Email already exist.' }
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.NODEMAILER_EMAIL,
+        pass: process.env.NODEMAILER_PW
+      }
+    })
+
+    const options: Mail.Options = {
+      from: process.env.NODEMAILER_EMAIL,
+      to: email,
+      subject: 'Membership Authentication',
+      html: render(<EmailOtp code={token} />)
+    }
+
+    await Promise.all([transporter.sendMail(options), db.members.update({ data: { emailAdd: email }, where: { code } })])
+
+    return { success: true, email, id: member[0].id }
+  } catch (error) {
+    console.log('sendOTPWithEmail server action:', error)
+    throw error
+  }
+}
+
+type UpdateMemberOptions = { options?: { message: string } }
+
+export async function updateMembershipStatusAction({ id, status, options }: UpdateMembershipStatus & UpdateMemberOptions) {
+  try {
+    let chapter: { id: string; code: string; name: string } | null
+
+    const result = await db.members.update({
+      where: { id },
+      data: { status, message: options?.message },
+      select: {
+        code: true,
+        message: true,
+        opFirstName: true,
+        opLastName: true,
+        drugStoreName: true,
+        chapter: true,
+        emailAdd: true,
+        status: true
+      }
+    })
+
+    const chapterResult = result.chapter
+      ? await db.chapter.findUnique({ where: { id: result.chapter }, select: { id: true, code: true, name: true } })
+      : null
+
+    await emailMembershipStatus({ ...result, chapter: chapterResult?.name })
+
+    revalidatePath('/membership')
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function emailMembershipStatus(result: Partial<Members>) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.NODEMAILER_EMAIL,
+      pass: process.env.NODEMAILER_PW
+    }
+  })
+
+  const mailOptions: Mail.Options = {
+    from: process.env.NODEMAILER_EMAIL,
+    to: result.emailAdd,
+    subject:
+      result.status === 'approved'
+        ? `DSAP Membership Application Confirmation`
+        : result.status === 'pending'
+        ? 'DSAP Membership Application Pending'
+        : 'DSAP Membership Application Rejected',
+    html: render(<EmailMembershipStatus data={result} />)
+  }
+
+  await transporter.sendMail(mailOptions)
 }

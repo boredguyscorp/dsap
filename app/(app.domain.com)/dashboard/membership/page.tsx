@@ -1,11 +1,15 @@
 import db from '@/lib/db'
-import { Tasks } from '@prisma/client'
+import { Tasks, Members, Prisma } from '@prisma/client'
 
 import { searchParamsSchema } from './_components/schema'
 import { ActionButton } from './_components/action-button'
 import { DashboardShell } from '../../_components/dashboard-shell'
 // import { TasksTableShell } from './_components/tasks-table-shell'
 import { MembershipTableShell } from './_components/membership-table'
+import { getChapters } from '@/actions/fetchers'
+import { DataTableLoading } from '@/components/data-table/data-table-loading'
+import { Suspense } from 'react'
+import { Await } from '@/lib/utils'
 
 interface IndexPageProps {
   searchParams: {
@@ -15,7 +19,10 @@ interface IndexPageProps {
 
 export default async function IndexPage({ searchParams }: IndexPageProps) {
   // Parse search params using zod schema
-  const { page, per_page, sort, title, status, priority, operator } = searchParamsSchema.parse(searchParams)
+  const { page, per_page, sort, drugStoreName, chapter, status, ownershipType, membershipType, showStat } =
+    searchParamsSchema.parse(searchParams)
+
+  const searchVal = drugStoreName
 
   // Fallback page for invalid page numbers
   const pageAsNumber = Number(page)
@@ -27,30 +34,109 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
   const offset = fallbackPage > 0 ? (fallbackPage - 1) * limit : 0
   // Column and order to sort by
   // Spliting the sort string by "." to get the column and order
-  // Example: "title.desc" => ["title", "desc"]
-  const [column, order] = (sort?.split('.') as [keyof Tasks | undefined, 'asc' | 'desc' | undefined]) ?? ['title', 'desc']
+  // Example: "title.desc" => ["drugStoreName", "asc"]
+  const [column, order] = (sort?.split('.') as [keyof Members | undefined, 'asc' | 'desc' | undefined]) ?? ['drugStoreName', 'asc']
 
-  const statuses = (status?.split('.') as Tasks['status'][]) ?? []
+  const statuses = (status?.split('.') as Members['status'][]) ?? []
+  const chapterFilter = chapter?.split('.') ?? []
+  const ownershipTypeFilter = ownershipType?.split('.') ?? []
+  const membershipTypeFilter = membershipType?.split('.') ?? []
 
-  const priorities = (priority?.split('.') as Tasks['priority'][]) ?? []
+  const whereSearchVal: Prisma.MembersWhereInput['OR'] = []
 
-  // Transaction is used to ensure both queries are executed in a single transaction
-  const { allTasks, totalTasks } = await db.$transaction(async (tx) => {
-    const allTasks = await tx.members.findMany({ skip: offset, take: limit })
-    const totalTasks = await tx.members.count()
+  if (searchVal) {
+    whereSearchVal.push(
+      { code: { contains: searchVal } },
+      { drugStoreName: { contains: searchVal } },
+      { emailAdd: { contains: searchVal } },
+      { mobileNo: { contains: searchVal } },
+      { telNo: { contains: searchVal } }
+    )
+  }
 
-    return {
-      allTasks,
-      totalTasks
+  const statusFilterVal: Prisma.MembersWhereInput['OR'] = []
+
+  statuses.forEach((el) => {
+    statusFilterVal.push({ status: { equals: el } })
+  })
+
+  const chapterFilterVal: Prisma.MembersWhereInput['OR'] = []
+
+  chapterFilter.forEach((el) => {
+    chapterFilterVal.push({ memberChapter: { name: { equals: el } } })
+  })
+
+  const ownershipTypeFilterVal: Prisma.MembersWhereInput['OR'] = []
+
+  ownershipTypeFilter.forEach((el) => {
+    ownershipTypeFilterVal.push({ ownershipType: { equals: el } })
+  })
+
+  const membershipTypeFilterVal: Prisma.MembersWhereInput['OR'] = []
+
+  membershipTypeFilter.forEach((el) => {
+    membershipTypeFilterVal.push({
+      membershipType: { equals: el }
+    })
+  })
+
+  const whereVal: Prisma.MembersWhereInput = {
+    AND: [
+      {
+        AND: [
+          { OR: whereSearchVal },
+          { OR: statusFilterVal },
+          { OR: chapterFilterVal },
+          { OR: ownershipTypeFilterVal },
+          { OR: membershipTypeFilterVal }
+        ]
+      }
+    ]
+  }
+
+  const allMembers = db.members.findMany({
+    skip: offset,
+    take: limit,
+    where: whereVal,
+    include: {
+      memberChapter: { select: { id: true, code: true, name: true } }
     }
   })
 
-  const pageCount = Math.ceil(totalTasks / limit)
+  const totalMembers = db.members.count({ where: whereVal })
+
+  const chapters = getChapters()
+
+  const membersPromise = Promise.all([allMembers, totalMembers, chapters])
+
+  const statistics = showStat === 'true'
+
+  let statisticsPromise
+
+  if (statistics) {
+    const statCount = db.registration.groupBy({ by: ['status'], _count: true })
+    statisticsPromise = Promise.all([statCount])
+  }
 
   return (
-    <DashboardShell title='Membership' description='Manage your member(s) data.' className='mb-0' headerAction={<ActionButton />}>
+    <DashboardShell
+      title='Membership'
+      description='Manage your member(s) data.'
+      className='mb-0'
+      headerAction={<Await promise={chapters}>{(data) => <ActionButton chapters={data} />}</Await>}
+    >
       <div className='pb-8 pt-6 md:py-8'>
-        <MembershipTableShell data={allTasks} pageCount={pageCount} />
+        <Suspense fallback={<DataTableLoading columnCount={4} />}>
+          <Await promise={membersPromise}>
+            {(data) => {
+              const [allMembers, totalMembers, chapters] = data
+
+              const pageCount = Math.ceil(totalMembers / limit)
+
+              return <MembershipTableShell data={allMembers} pageCount={pageCount} chapters={chapters} />
+            }}
+          </Await>
+        </Suspense>
       </div>
     </DashboardShell>
   )

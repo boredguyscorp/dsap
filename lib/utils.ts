@@ -145,11 +145,11 @@ export function strProperCase(str: string) {
 }
 
 export const generateOTP = (otpSecret: string) => {
-  return totp.generate(otpSecret)
+  return totp.generate(otpSecret + '-' + process.env.NEXT_PUBLIC_OTP_SECRET_KEY)
 }
 
 export const isOTPValid = (token: string, otpSecret: string) => {
-  return totp.check(token, otpSecret)
+  return totp.check(token, otpSecret + '-' + process.env.NEXT_PUBLIC_OTP_SECRET_KEY)
 }
 
 // convert string dates property of an object to Date, leaving other property as it is including array, number, boolean string, etc.
@@ -177,4 +177,34 @@ export function convertStringDatesPropToDates<T extends AnyObject>(obj: T): T {
   })
 
   return newObj as T
+}
+
+export const onPreventInput = (e: React.KeyboardEvent<HTMLInputElement>, regexPattern: RegExp) => {
+  if (
+    e.key === 'ArrowLeft' ||
+    e.key === 'ArrowRight' ||
+    e.key === 'ArrowDown' ||
+    e.key === 'ArrowUp' ||
+    e.key === 'Backspace' ||
+    e.key === 'Tab' ||
+    (e.code === 'KeyA' && e.ctrlKey)
+  ) {
+    return
+  }
+
+  if (!regexPattern.test(e.key)) {
+    e.preventDefault()
+  }
+}
+
+export async function Await<T>({ promise, children }: { promise: Promise<T> | undefined; children: (value: T) => JSX.Element }) {
+  if (!promise) return null
+
+  // await new Promise((resolve) => {
+  //   setTimeout(resolve, 3000)
+  // })
+
+  const data = await promise
+
+  return children(data)
 }

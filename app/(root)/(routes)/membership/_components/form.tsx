@@ -26,19 +26,32 @@ import { STEPS } from './constant'
 import { getFormStepContent } from './form-content'
 import { MembershipLanding } from './landing'
 import { ChapterList } from '@/actions/fetchers'
-import { useToast } from '@/components/ui/use-toast'
 import { useParams, useRouter } from 'next/navigation'
 
 import MemberAuth from './member-auth'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
 
 export type MembershipFormProps = {
   chapters: ChapterList
   memberDetails?: MemberEntity
+  showFormDefaultValue?: boolean
+  className?: string
+  showFormHeader?: boolean
+  isModalForm?: boolean
+  onClose?: () => void
 }
 
-export default function MembershipForm({ chapters, memberDetails }: MembershipFormProps) {
+export default function MembershipForm({
+  chapters,
+  memberDetails,
+  showFormDefaultValue,
+  className,
+  showFormHeader = true,
+  isModalForm = false,
+  onClose
+}: MembershipFormProps) {
   const showBanner = process.env.NEXT_PUBLIC_SHOW_BANNER === 'true'
-  const { id } = useParams() as { id: string }
 
   const steps = useMemo(
     () => [
@@ -54,7 +67,7 @@ export default function MembershipForm({ chapters, memberDetails }: MembershipFo
     ],
     []
   )
-  const [showForm, setShowForm] = useState(id ? true : false)
+  const [showForm, setShowForm] = useState(showFormDefaultValue || memberDetails ? true : false)
   const [showMemberAuthForm, setShowMemberAuthForm] = useState(false)
   const [activeStep, setActiveStep] = useState(STEPS.GENERAL_INFO)
 
@@ -93,7 +106,6 @@ export default function MembershipForm({ chapters, memberDetails }: MembershipFo
   } as const
 
   const [isPending, startTransition] = useTransition()
-  const toaster = useToast()
   const router = useRouter()
 
   const form = useZodForm({
@@ -149,16 +161,30 @@ export default function MembershipForm({ chapters, memberDetails }: MembershipFo
         const data = validationResult.data
 
         try {
-          const response = id ? await updateMember({ id, ...data }) : await registerMember(data)
+          const response = memberDetails ? await updateMember({ id: memberDetails?.id, ...data }) : await registerMember(data)
 
           console.log('🚀 -> startTransition -> response:', response)
 
-          toaster.toast({
-            title: `${id ? 'Update' : 'Create'} Membership Application`,
-            description: `Your membership application has been ${id ? 'updated' : 'created'} successfully.`
+          if (typeof response === 'object' && response.status === 409) {
+            form.setError('emailAdd', { message: response.message })
+            toast.error(`Email "${form.getValues('emailAdd')}" is already exist.`, { position: 'top-center', duration: 5000 })
+            setActiveStep(STEPS.GENERAL_INFO)
+            return
+          }
+
+          toast.success(`Successfully ${memberDetails ? 'updated' : 'submitted'} your membership application.`, {
+            position: 'top-center'
           })
 
-          router.push('/')
+          if (!isModalForm) {
+            router.push('/')
+          }
+
+          if (isModalForm) {
+            if (onClose) {
+              onClose()
+            }
+          }
 
           // await new Promise((res) => setTimeout(() => res('sending...'), 1000))
         } catch (error) {
@@ -172,20 +198,28 @@ export default function MembershipForm({ chapters, memberDetails }: MembershipFo
   // console.log('errors', { errors })
 
   return (
-    <div className={cn('mx-auto mb-20 ml-0 mt-24 min-h-screen max-w-full px-4 sm:px-6 lg:px-8 2xl:ml-16', showBanner && 'mt-36')}>
-      <div className='mx-auto flex max-w-6xl items-center justify-between gap-x-1.5 p-10 text-sm text-gray-600 decoration-2 hover:text-teal-500'>
-        <div className='flex flex-col justify-center'>
-          <h5 className='text-xl font-bold text-gray-800 dark:text-gray-200 dark:group-hover:text-gray-400'>
-            DSAP Membership Online Service
-          </h5>
-          <p className='text-sm font-normal text-gray-800 dark:text-gray-200 dark:group-hover:text-gray-400'>
-            Complete the form below to {id ? 'edit your membership application' : 'sign up for membership.'}
-          </p>
+    <div
+      className={cn(
+        'relative mx-auto mb-20 ml-0 mt-24 min-h-screen max-w-full px-4 sm:px-6 lg:px-8 2xl:ml-16',
+        showBanner && 'mt-36',
+        className
+      )}
+    >
+      {showFormHeader && (
+        <div className='mx-auto flex max-w-6xl items-center justify-between gap-x-1.5 p-10 text-sm text-gray-600 decoration-2 hover:text-teal-500'>
+          <div className='flex flex-col justify-center'>
+            <h5 className='text-xl font-bold text-gray-800 dark:text-gray-200 dark:group-hover:text-gray-400'>
+              DSAP Membership Online Service
+            </h5>
+            <p className='text-sm font-normal text-gray-800 dark:text-gray-200 dark:group-hover:text-gray-400'>
+              Complete the form below to {memberDetails ? 'edit your membership application' : 'sign up for membership.'}
+            </p>
+          </div>
         </div>
-      </div>
-      <div className='mx-auto max-w-6xl p-5'>
-        <div className='mx-4 p-4'>
-          <div className='flex items-center'>
+      )}
+      <div className={cn('mx-auto', isModalForm ? 'max-w-5xl p-0' : 'max-w-6xl p-5')}>
+        <div className={cn('z-10 mx-4 bg-white', isModalForm ? 'sticky top-0 mx-0 h-[125px] w-full p-0 pt-1.5' : 'p-4')}>
+          <div className={cn('flex items-center', isModalForm && 'mx-auto w-[90%]')}>
             {steps.map((step, index) => {
               return (
                 <React.Fragment key={index}>
@@ -199,16 +233,18 @@ export default function MembershipForm({ chapters, memberDetails }: MembershipFo
                   >
                     <div
                       className={cn(
-                        'h-12 w-12 rounded-full border-2 border-gray-300 bg-transparent py-3 transition duration-500 ease-in-out',
+                        'flex items-center justify-center rounded-full border-2 border-gray-300 bg-transparent py-3 transition duration-500 ease-in-out',
                         activeStep === index && 'border-teal-600 bg-teal-600',
-                        activeStep > index && 'border-teal-600'
+                        activeStep > index && 'border-teal-600',
+                        isModalForm ? 'h-10 w-10' : 'h-12 w-12'
                       )}
                     >
                       <div
                         className={cn(
-                          'flex w-full items-center justify-center text-gray-500',
+                          'flex h-12 w-12 items-center justify-center text-gray-500',
                           activeStep === index && 'text-white',
-                          activeStep > index && 'text-teal-600'
+                          activeStep > index && 'text-teal-600',
+                          isModalForm ? 'h-8 w-8' : 'h-12 w-12'
                         )}
                       >
                         {step.icon}
@@ -216,8 +252,9 @@ export default function MembershipForm({ chapters, memberDetails }: MembershipFo
                     </div>
                     <div
                       className={cn(
-                        'absolute top-0 -ml-10 mt-16 w-32 text-center text-xs font-medium uppercase text-teal-600',
-                        activeStep < index && 'text-gray-500'
+                        'text-wrap absolute top-0 -ml-10 mt-16 w-32 text-center text-xs font-medium uppercase text-teal-600',
+                        activeStep < index && 'text-gray-500',
+                        isModalForm && 'text-[11.5px]'
                       )}
                     >
                       {step.label}
@@ -236,40 +273,73 @@ export default function MembershipForm({ chapters, memberDetails }: MembershipFo
             })}
           </div>
         </div>
-        <div className='mt-8 p-4'>
+        <div className={cn(isModalForm ? 'mt-0 pt-0' : 'mt-8 p-4 ')}>
           <Form {...form}>
-            <form className='mt-10 space-y-4'>{getFormStepContent({ activeStep, setActiveStep, chapters })}</form>
+            <form className={cn('space-y-4', isModalForm ? 'mt-0' : 'mt-10 ')}>
+              {getFormStepContent({ activeStep, setActiveStep, chapters, isModalForm })}
+            </form>
           </Form>
-          <div className='mt-10 flex items-center justify-end  p-2'>
-            {activeStep > 0 && (
-              <button
-                className={cn(
-                  'flex min-w-[150px] cursor-pointer justify-center rounded border bg-gray-100 px-4 py-2 text-base font-bold text-gray-700  transition duration-200 ease-in-out focus:outline-none enabled:border-gray-400  enabled:hover:bg-gray-200',
-                  activeStep === STEPS.GENERAL_INFO && 'cursor-not-allowed'
-                )}
-                disabled={activeStep === STEPS.GENERAL_INFO}
-                onClick={() => onBack()}
-              >
-                Previous
-              </button>
-            )}
+          <div className={cn('flex items-center justify-end p-2', isModalForm ? 'mt-4' : 'mt-10 ')}>
+            {activeStep > 0 &&
+              (isModalForm ? (
+                <Button
+                  variant='secondary'
+                  className={cn(activeStep === STEPS.GENERAL_INFO && 'cursor-not-allowed')}
+                  disabled={activeStep === STEPS.GENERAL_INFO}
+                  onClick={() => onBack()}
+                >
+                  Previous
+                </Button>
+              ) : (
+                <button
+                  className={cn(
+                    'flex min-w-[150px] cursor-pointer justify-center rounded border bg-gray-100 px-4 py-2 text-base font-bold text-gray-700  transition duration-200 ease-in-out focus:outline-none enabled:border-gray-400  enabled:hover:bg-gray-200',
+                    activeStep === STEPS.GENERAL_INFO && 'cursor-not-allowed'
+                  )}
+                  disabled={activeStep === STEPS.GENERAL_INFO}
+                  onClick={() => onBack()}
+                >
+                  Previous
+                </button>
+              ))}
 
             {/* <div className='flex flex-auto flex-row-reverse'> */}
             <div className='flex'>
-              <button
-                className={cn(
-                  'ml-2 flex min-w-[150px] cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:border-teal-500 enabled:hover:bg-teal-500',
-                  isPending && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
-                )}
-                onClick={form.handleSubmit(onSubmit)}
-                disabled={isPending}
-                // onClick={onNext}
-              >
-                {activeStep !== STEPS.UPLOAD_PAYMENT && 'Next'}
-                {/* {activeStep === STEPS.REGISTRATION_DETAIL && 'Review Information'} */}
-                {activeStep === STEPS.UPLOAD_PAYMENT &&
-                  (isPending ? (id ? 'Updating Application' : 'Submitting Application') : id ? 'Update Application' : 'Submit Application')}
-              </button>
+              {isModalForm ? (
+                <Button className='ml-2' onClick={form.handleSubmit(onSubmit)} disabled={isPending}>
+                  {activeStep !== STEPS.UPLOAD_PAYMENT && 'Next'}
+
+                  {activeStep === STEPS.UPLOAD_PAYMENT &&
+                    (isPending
+                      ? memberDetails
+                        ? 'Updating Application'
+                        : 'Submitting Application'
+                      : memberDetails
+                      ? 'Update Application'
+                      : 'Submit Application')}
+                </Button>
+              ) : (
+                <button
+                  className={cn(
+                    'ml-2 flex min-w-[150px] cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:border-teal-500 enabled:hover:bg-teal-500',
+                    isPending && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
+                  )}
+                  onClick={form.handleSubmit(onSubmit)}
+                  disabled={isPending}
+                  // onClick={onNext}
+                >
+                  {activeStep !== STEPS.UPLOAD_PAYMENT && 'Next'}
+                  {/* {activeStep === STEPS.REGISTRATION_DETAIL && 'Review Information'} */}
+                  {activeStep === STEPS.UPLOAD_PAYMENT &&
+                    (isPending
+                      ? memberDetails
+                        ? 'Updating Application'
+                        : 'Submitting Application'
+                      : memberDetails
+                      ? 'Update Application'
+                      : 'Submit Application')}
+                </button>
+              )}
             </div>
           </div>
         </div>

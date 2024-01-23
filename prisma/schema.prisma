@@ -176,7 +176,7 @@ model Post {
 model Members {
   id                String    @id @default(cuid())
   status            String    @default("pending")
-  chapter           String
+  chapter           String?
   code              String
   drugStoreName     String
   address           String
@@ -185,7 +185,7 @@ model Members {
   telNo             String?
   ownershipType     String
   membershipType    String
-  dpDateEstablished DateTime
+  dpDateEstablished DateTime?
   opPhImageUrl      String
   drugstoreClass    String
   dpSetup           String?
@@ -210,27 +210,29 @@ model Members {
   opEducOthers      Json?
   opDsapMember      Json?
 
-  fdaLtoNo         String
-  fdaDateIssued    DateTime
-  fdaDateExpiry    DateTime
-  fdaUrlAttachment String   @db.Text
+  fdaLtoNo         String?
+  fdaDateIssued    DateTime?
+  fdaDateExpiry    DateTime?
+  fdaUrlAttachment String?   @db.Text
 
-  bpNo            String
-  bpDateIssued    DateTime
-  bpDateExpiry    DateTime
-  bpUrlAttachment String   @db.Text
+  bpNo            String?
+  bpDateIssued    DateTime?
+  bpDateExpiry    DateTime?
+  bpUrlAttachment String?   @db.Text
 
-  docNo            String
-  docDateIssued    DateTime
-  docDateExpiry    DateTime
-  docUrlAttachment String   @db.Text
+  docNo            String?
+  docDateIssued    DateTime?
+  docDateExpiry    DateTime?
+  docUrlAttachment String?   @db.Text
+
+  message String? @db.Text()
 
   proofOfPaymentUrl String?
 
   createdAt DateTime @default(now()) @map(name: "created_at")
   updatedAt DateTime @default(now()) @map(name: "updated_at")
 
-  memberChapter Chapter @relation(fields: [chapter], references: [id])
+  memberChapter Chapter? @relation(fields: [chapter], references: [id])
 
   @@unique([code])
   @@index([chapter])

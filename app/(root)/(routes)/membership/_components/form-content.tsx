@@ -12,7 +12,7 @@ import { FileUpload } from '@/components/editor/settings/file-upload'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription, Form } from '@/components/ui/form'
-import { cn, toDate, toDateNormal, toProperCase } from '@/lib/utils'
+import { cn, onPreventInput, toDate, toDateNormal, toProperCase } from '@/lib/utils'
 
 import { watch } from 'fs'
 import { ChevronDownIcon, ChevronsUpDown } from 'lucide-react'
@@ -45,6 +45,7 @@ type StepProps = {
   activeStep: number
   setActiveStep: (step: number) => void
   chapters?: Pick<MembershipFormProps, 'chapters'>['chapters']
+  isModalForm?: boolean
 }
 
 export function getFormStepContent(props: StepProps) {
@@ -52,9 +53,9 @@ export function getFormStepContent(props: StepProps) {
     case STEPS.GENERAL_INFO:
       return <GeneralInfo chapters={props.chapters} />
     case STEPS.DRUGSTORE_PROFILE:
-      return <DrugstoreProfile />
+      return <DrugstoreProfile isModalForm={props.isModalForm} />
     case STEPS.OWNER_PROFILE:
-      return <OwnerProfile />
+      return <OwnerProfile isModalForm={props.isModalForm} />
     case STEPS.REGISTRATION_DETAIL:
       return <RegistrationDetails />
     case STEPS.REVIEW_INFORMATION:
@@ -159,13 +160,13 @@ function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
             <InputFieldForm
               control={control}
               name='mobileNo'
-              fieldProps={{ placeholder: 'Mobile No.', required: true, type: 'number', pattern: '[0-9]*' }}
+              fieldProps={{ placeholder: 'Mobile No.', required: true, type: 'tel', onKeyDown: (e) => onPreventInput(e, /^[0-9]+$/) }}
               extendedProps={{ label: 'Mobile No.' }}
             />
             <InputFieldForm
               control={control}
               name='telNo'
-              fieldProps={{ placeholder: 'Telephone No.', type: 'number', pattern: '[0-9]*' }}
+              fieldProps={{ placeholder: 'Telephone No.', type: 'tel', onKeyDown: (e) => onPreventInput(e, /^[0-9\s\-()]*$/) }}
               extendedProps={{ label: 'Telephone No.' }}
             />
           </div>
@@ -305,7 +306,7 @@ function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
   )
 }
 
-function DrugstoreProfile() {
+function DrugstoreProfile({ isModalForm }: { isModalForm?: boolean }) {
   const { control, watch } = useFormContext<MemberRegistrationForm>()
 
   return (
@@ -442,7 +443,7 @@ function DrugstoreProfile() {
 
         {watch('dpDSClassDetails.dsClass') === 'single' && (
           <div className='mt-8 w-full'>
-            <SingleDrugstoreProfilePharmacist />
+            <SingleDrugstoreProfilePharmacist isModalForm={isModalForm} />
           </div>
         )}
 
@@ -456,7 +457,7 @@ function DrugstoreProfile() {
   )
 }
 
-function SingleDrugstoreProfilePharmacist() {
+function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boolean }) {
   const {
     control,
     setValue,
@@ -628,11 +629,11 @@ function SingleDrugstoreProfilePharmacist() {
                   fieldProps={{ placeholder: 'First Name', required: true }}
                   extendedProps={{ label: 'First Name' }}
                 />
-                <div className='max-w-[140px]'>
+                <div className={cn(isModalForm ? 'max-w-[100px]' : 'max-w-[140px]')}>
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhMiddleName'
-                    fieldProps={{ placeholder: 'Middle Initial', width: '12px' }}
+                    fieldProps={{ placeholder: isModalForm ? 'M.I' : 'Middle Initial', width: '12px' }}
                     extendedProps={{ label: 'Middle Initial' }}
                   />
                 </div>
@@ -666,14 +667,14 @@ function SingleDrugstoreProfilePharmacist() {
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhCellNo'
-                    fieldProps={{ placeholder: 'Cellphone No.', type: 'number', pattern: '[0-9]*' }}
+                    fieldProps={{ placeholder: 'Cellphone No.', type: 'tel', onKeyDown: (e) => onPreventInput(e, /^[0-9]+$/) }}
                     extendedProps={{ label: 'Cellphone No.' }}
                   />
 
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhTelNo'
-                    fieldProps={{ placeholder: 'Telephone No', type: 'number', pattern: '[0-9]*' }}
+                    fieldProps={{ placeholder: 'Telephone No', type: 'tel', onKeyDown: (e) => onPreventInput(e, /^[0-9\s\-()]*$/) }}
                     extendedProps={{ label: 'Telephone No.' }}
                   />
                 </div>
@@ -861,11 +862,11 @@ function SingleDrugstoreProfilePharmacist() {
                   fieldProps={{ placeholder: 'First Name', required: true }}
                   extendedProps={{ label: 'First Name' }}
                 />
-                <div className='max-w-[140px]'>
+                <div className={cn(isModalForm ? 'max-w-[100px]' : 'max-w-[140px]')}>
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhAsMiddleName'
-                    fieldProps={{ placeholder: 'Middle Initial', width: '12px' }}
+                    fieldProps={{ placeholder: isModalForm ? 'M.I' : 'Middle Initial', width: '12px' }}
                     extendedProps={{ label: 'Middle Initial' }}
                   />
                 </div>
@@ -899,13 +900,13 @@ function SingleDrugstoreProfilePharmacist() {
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhAsCellNo'
-                    fieldProps={{ placeholder: 'Cellphone No.', type: 'number', pattern: '[0-9]*' }}
+                    fieldProps={{ placeholder: 'Cellphone No.', type: 'tel', onKeyDown: (e) => onPreventInput(e, /^[0-9]+$/) }}
                     extendedProps={{ label: 'Cellphone No.' }}
                   />
                   <InputFieldForm
                     control={control}
                     name='dpDSClassDetails.dpPhAsTelNo'
-                    fieldProps={{ placeholder: 'Telephone No.', type: 'number', pattern: '[0-9]*' }}
+                    fieldProps={{ placeholder: 'Telephone No.', type: 'tel', onKeyDown: (e) => onPreventInput(e, /^[0-9\s\-()]*$/) }}
                     extendedProps={{ label: 'Telephone No.' }}
                   />
                 </div>
@@ -1261,13 +1262,13 @@ function ChainDSGeneralInfo() {
         <InputFieldForm
           control={control}
           name='mobileNo'
-          fieldProps={{ placeholder: 'Mobile No.', type: 'number', pattern: '[0-9]*' }}
+          fieldProps={{ placeholder: 'Mobile No.', type: 'tel', onKeyDown: (e) => onPreventInput(e, /^[0-9]+$/) }}
           extendedProps={{ label: 'Mobile No.' }}
         />
         <InputFieldForm
           control={control}
           name='telNo'
-          fieldProps={{ placeholder: 'Telephone No.', type: 'number', pattern: '[0-9]*' }}
+          fieldProps={{ placeholder: 'Telephone No.', type: 'tel', onKeyDown: (e) => onPreventInput(e, /^[0-9\s\-()]*$/) }}
           extendedProps={{ label: 'Telephone No.' }}
         />
       </div>
@@ -1623,7 +1624,7 @@ function ChainDSProfile() {
   )
 }
 
-function OwnerProfile() {
+function OwnerProfile({ isModalForm }: { isModalForm?: boolean }) {
   const {
     control,
     setValue,
@@ -1741,18 +1742,12 @@ function OwnerProfile() {
               fieldProps={{ placeholder: 'First Name', required: true }}
               extendedProps={{ label: 'First Name' }}
             />
-            {/* <InputFieldForm
-              control={control}
-              name='opMiddleName'
-              fieldProps={{ placeholder: 'Middle Initial' }}
-              extendedProps={{ label: 'Middle Initial' }}
-            /> */}
 
-            <div className='max-w-[150px]'>
+            <div className={cn(isModalForm ? 'max-w-[120px]' : 'max-w-[150px]')}>
               <InputFieldForm
                 control={control}
                 name='opMiddleName'
-                fieldProps={{ placeholder: 'Middle Initial' }}
+                fieldProps={{ placeholder: isModalForm ? 'M.I' : 'Middle Initial' }}
                 extendedProps={{ label: 'Middle Initial' }}
               />
             </div>
@@ -1781,13 +1776,13 @@ function OwnerProfile() {
               <InputFieldForm
                 control={control}
                 name='opCellNo'
-                fieldProps={{ placeholder: 'Cellphone No.', type: 'number', pattern: '[0-9]*' }}
+                fieldProps={{ placeholder: 'Cellphone No.', type: 'tel', onKeyDown: (e) => onPreventInput(e, /^[0-9]+$/) }}
                 extendedProps={{ label: 'Cellphone No.' }}
               />
               <InputFieldForm
                 control={control}
                 name='opTelNo'
-                fieldProps={{ placeholder: 'Telephone No.', type: 'number', pattern: '[0-9]*' }}
+                fieldProps={{ placeholder: 'Telephone No.', type: 'tel', onKeyDown: (e) => onPreventInput(e, /^[0-9\s\-()]*$/) }}
                 extendedProps={{ label: 'Telephone No.' }}
               />
             </div>
@@ -2152,7 +2147,7 @@ function ReviewInformation(props: StepProps) {
 
     return (
       <dl className='grid gap-x-3 text-lg sm:flex'>
-        <dt className='min-w-[220px] text-gray-500'>{label}:</dt>
+        <dt className='min-w-[200px] text-gray-500'>{label}:</dt>
         <dd className='max-w-[50%] font-medium text-gray-800 dark:text-gray-200'>
           {options?.isLink ? (
             <a href={value} target='_blank' className='cursor-pointer font-normal text-blue-500 hover:underline'>
