@@ -119,7 +119,7 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
   let statisticsPromise
 
   if (statistics) {
-    const statCount = db.registration.groupBy({ by: ['status'], _count: true })
+    const statCount = db.registration.groupBy({ by: ['status'], _count: true, where: whereVal })
     statisticsPromise = Promise.all([statCount])
   }
 
