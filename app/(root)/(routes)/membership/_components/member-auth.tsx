@@ -3,7 +3,7 @@ import CountDown from '@/components/custom/countDown'
 import { InputFieldForm } from '@/components/forms/InputFieldForm'
 import { Icons } from '@/components/shared/icons'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
 import { Separator } from '@/components/ui/separator'
 import { MemberAuthEmailFormSchema, MemberAuthFormSchema } from '@/lib/schema'
@@ -28,6 +28,7 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
 
   const [showEmailField, setShowEmailField] = useState(false)
   const [showNoEmail, setShowNoEmail] = useState(false)
+  const [isForbidden, setIsForbidden] = useState(false)
 
   const [isMember, setIsMember] = useState(false)
   const [otpSecret, setOtpSecret] = useState('')
@@ -61,13 +62,19 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
 
           const response = await authMember(data.code, _secret)
 
-          if (!response.success) {
-            form.setError('code', { message: 'Membership code does not exist.' })
+          if (response.status === 404) {
+            form.setError('code', { message: response.message })
             return
           }
 
-          if (response.success && !response.email) {
-            toast.error(`Membership email not found!`, { position: 'top-center' })
+          if (response.status === 403) {
+            toast.error(response.message, { position: 'top-center' })
+            setIsForbidden(true)
+            return
+          }
+
+          if (response.status === 401) {
+            toast.error(response.message, { position: 'top-center' })
             // setShowEmailField(true)
             setShowNoEmail(true)
             return
@@ -161,10 +168,13 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
                 <Icons.lock className='h-8 w-8' />
                 <div className='flex flex-col items-center justify-center gap-1.5'>
                   <CardTitle>Membership Authentication</CardTitle>
-                  <CardDescription className='mb-5 text-center'>
-                    Before we proceed, we need to ensure that you are a DSAP member. Please complete the form below to verify your DSAP
-                    membership.
-                  </CardDescription>
+
+                  {!showNoEmail && !isForbidden && (
+                    <CardDescription className='mb-5 text-center'>
+                      Before we proceed, we need to ensure that you are a DSAP member. Please complete the form below to verify your DSAP
+                      membership.
+                    </CardDescription>
+                  )}
 
                   {isMember && (
                     <>
@@ -185,7 +195,7 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
               </CardHeader>
               <Separator />
 
-              {!showNoEmail ? (
+              {!showNoEmail && !isForbidden ? (
                 <>
                   <CardContent className='mt-5 pb-2.5'>
                     <div className='mx-auto w-[240px] space-y-4'>
@@ -251,16 +261,31 @@ export default function MemberAuth({ setShowForm, setShowMemberAuthForm }: Membe
                   </Form> */}
 
                   <CardContent className='space-y-2 p-5 text-sm'>
-                    <p>
-                      Oops! It seems that <span className='font-bold'>we couldn't locate an email associated with your membership</span>. If
-                      you believe this is an error or have any questions, please feel free to reach out{' '}
+                    <p className='text-center'>
+                      {showNoEmail && (
+                        <>
+                          Oops! It seems that <span className='font-bold'>we couldn't locate an email associated with your membership</span>
+                          .{' '}
+                        </>
+                      )}
+                      {isForbidden && (
+                        <>
+                          Oops! Sorry, you can't proceed with updating your membership because your membership status is still "
+                          <span className='font-bold'>Pending</span>."{' '}
+                        </>
+                      )}
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <p className='text-center text-xs text-muted-foreground'>
+                      If you believe this is an error or have any questions, please feel free to reach out{' '}
                       <Link className='text-teal-600' href='/contact-us'>
                         here
                       </Link>{' '}
-                      to the <span className='font-bold'>DSAP Office</span> for assistance.
+                      to the <span className='font-bold'>DSAP Office</span> for assistance. We're here to help and provide the information
+                      you need to proceed with updating your membership. Thank you!
                     </p>
-                    <p>We're here to help and provide the information you need to proceed with updating your membership. Thank you!</p>
-                  </CardContent>
+                  </CardFooter>
                 </>
               )}
             </Card>

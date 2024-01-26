@@ -51,6 +51,10 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
 
   const whereSearchVal: Prisma.RegistrationWhereInput['OR'] = []
 
+  const orderByVal: Prisma.RegistrationOrderByWithRelationInput = {
+    [column as keyof Prisma.RegistrationOrderByWithRelationInput]: order
+  }
+
   if (searchVal) {
     whereSearchVal.push(
       { code: { contains: searchVal } },
@@ -98,7 +102,8 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
   const allRegistration = db.registration.findMany({
     skip: offset,
     take: limit,
-    where: whereVal
+    where: whereVal,
+    orderBy: orderByVal
   })
 
   const totalRegistration = db.registration.count({

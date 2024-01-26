@@ -103,6 +103,7 @@ export type Ownership = (typeof owType)[number]
 // })
 
 const generalInfo = z.object({
+  code: z.string().optional(),
   drugStoreName: z.string({ required_error: 'Drugstore Name is required.' }).min(1, { message: 'Please enter Drugstore name.' }),
   chapter: z.string({ required_error: 'Chapter is required.' }).min(1, { message: 'Please select Chapter.' }),
   address: z.string({ required_error: 'Address is required.' }).min(1, { message: 'Please enter Address.' }),
@@ -299,6 +300,191 @@ export const MemberRegistrationMergeSchema = generalInfo
   .merge(ownerProfile)
   .merge(registrationDetails)
   .merge(uploadPayment)
+
+// Membership Form optional schema without additional field checker
+const _generalInfo = z.object({
+  code: z.string().nullish(),
+  drugStoreName: z.string().nullish(),
+  chapter: z.string().nullish(),
+  address: z.string().nullish(),
+  emailAdd: z.string().nullish(),
+  mobileNo: z.string().nullish(),
+  telNo: z.string().nullish(),
+  ownershipType: z.string().nullish(),
+  membershipType: z.string().nullish(),
+  drugstoreClass: z.string().nullish()
+})
+
+export const _dsEducAttSchema = z.object({
+  collegeUniv: z.string().nullish(),
+  course: z.string().nullish(),
+  yearGrad: z.coerce.number().nullish()
+})
+
+const _dpPharmacistSchema = z.object({
+  dsClass: z.literal('single'),
+  dpPhImageUrl: z.string().nullish(),
+  dpPhLastName: z.string().nullish(),
+  dpPhFirstName: z.string().nullish(),
+  dpPhMiddleName: z.string().nullish(),
+  dpPhAddress: z.string().nullish(),
+  dpPhBirthday: z.date().nullish(),
+  dpPhEmail: z.string().nullish(),
+  dpPhTelNo: z.string().nullish(),
+  dpPhCellNo: z.string().nullish(),
+  dpPhStatus: z.string().nullish(),
+  dpPhGender: z.string().nullish(),
+  dpPhNameInCert: z.string().nullish(),
+  dpPhOtherName: z.string().nullish(),
+  dpPhLicenseNo: z.string().nullish(),
+  dpPhDateIssued: z.date().nullish(),
+  dpPhExpDate: z.date().nullish(),
+  dpPhEducCollege: _dsEducAttSchema.nullish(),
+  dpPhEducMasters: _dsEducAttSchema.nullish(),
+  dpPhEducDoctorate: _dsEducAttSchema.nullish(),
+  dpPhEducSpecialProg: _dsEducAttSchema.nullish(),
+  dpPhEducOthers: _dsEducAttSchema.nullish(),
+  dpPhAsImageUrl: z.string().nullish(),
+  dpPhAsLastName: z.string().nullish(),
+  dpPhAsFirstName: z.string().nullish(),
+  dpPhAsMiddleName: z.string().nullish(),
+  dpPhAsAddress: z.string().nullish(),
+  dpPhAsBirthday: z.date().nullish(),
+  dpPhAsEmail: z.string().nullish(),
+  dpPhAsTelNo: z.string().nullish(),
+  dpPhAsCellNo: z.string().nullish(),
+  dpPhAsStatus: z.string().nullish(),
+  dpPhAsGender: z.string().nullish(),
+  dpPhAsEmployer: z.string().nullish(),
+  dpPhAsEmployerAddress: z.string().nullish(),
+  dpPhAsEducPrimary: _dsEducAttSchema.nullish(),
+  dpPhAsEducSecondary: _dsEducAttSchema.nullish(),
+  dpPhAsEducCollege: _dsEducAttSchema.nullish(),
+  dpPhAsEducMasters: _dsEducAttSchema.nullish(),
+  dpPhAsEducDoctorate: _dsEducAttSchema.nullish(),
+  dpPhAsEducSpecialProg: _dsEducAttSchema.nullish(),
+  dpPhAsEducOthers: _dsEducAttSchema.nullish(),
+  dpPhAsAttachmentCOEUrl: z.string().nullish(),
+  dpPhAsAttachmentDiplomaUrl: z.string().nullish(),
+  dpPhAsAttachmentCOAUrl: z.string().nullish()
+})
+
+export const _dpChainClassDetailsSchema = z.object({
+  branchName: z.string().nullish(),
+  address: z.string().nullish(),
+  emailAdd: z.string().email().nullish(),
+  mobileNo: z.string().nullish(),
+  telNo: z.string().nullish(),
+  fdaLtoNo: z.string().nullish(),
+  fdaDateIssued: z.date().nullish(),
+  fdaDateExpiry: z.date().nullish(),
+  fdaUrlAttachment: z.string().nullish(),
+  docNo: z.string().nullish(),
+  docDateIssued: z.date().nullish(),
+  docDateExpiry: z.date().nullish(),
+  docUrlAttachment: z.string().nullish(),
+  managerOic: z.string().nullish(),
+  dpPhLastName: z.string().nullish(),
+  dpPhFirstName: z.string().nullish(),
+  dpPhMiddleName: z.string().nullish(),
+  dpPhAddress: z.string().nullish(),
+  dpPhNameInCert: z.string().nullish(),
+  dpPhOtherName: z.string().nullish(),
+  dpPhLicenseNo: z.string().nullish(),
+  dpPhDateIssued: z.date().nullish(),
+  dpPhExpDate: z.date().nullish(),
+  dpPhAsLastName: z.string().nullish(),
+  dpPhAsFirstName: z.string().nullish(),
+  dpPhAsMiddleName: z.string().nullish(),
+  dpPhAsAddress: z.string().nullish(),
+  dpDateEstablished: z.date().nullish(),
+  dpSetup: z.string().nullish(),
+  dpLocation: z.string().nullish(),
+  dpStoreHours: z.string().nullish(),
+  dpInvSystem: z.string().nullish()
+})
+
+const _dpChainSchema = z.object({
+  dsClass: z.literal('chain'),
+  dpBranches: z.array(_dpChainClassDetailsSchema)
+})
+
+const _dpDSClassOthers = z.object({
+  dsClass: z.literal('others')
+})
+
+const _dpDSClassDetails = z.discriminatedUnion('dsClass', [_dpPharmacistSchema, _dpChainSchema, _dpDSClassOthers]).optional()
+
+const _dsProfile = z.object({
+  dpDateEstablished: z.date().nullish(),
+  dpSetup: z.string().nullish(),
+  dpLocation: z.string().nullish(),
+  dpStoreHours: z.string().nullish(),
+  dpInvSystem: z.string().nullish(),
+  dpDSClassDetails: _dpDSClassDetails
+})
+
+const _opDsapMemberOwner = z.object({
+  opDsapMemberType: z.literal('owner')
+})
+
+const _opDsapMemberRep = z.object({
+  opDsapMemberType: z.literal('representative'),
+  opRepFormUrl: z.string().nullish(),
+  opRepPhotoUrl: z.string().nullish()
+})
+
+const _opDsapMember = z.discriminatedUnion('opDsapMemberType', [_opDsapMemberOwner, _opDsapMemberRep]).nullish()
+
+const _ownerProfile = z.object({
+  opFirstName: z.string().nullish(),
+  opLastName: z.string().nullish(),
+  opMiddleName: z.string().nullish(),
+  opPhImageUrl: z.string().nullish(),
+  opAddress: z.string().nullish(),
+  opBirthday: z.date().nullish(),
+  opEmail: z.string().nullish(),
+  opTelNo: z.string().nullish(),
+  opCellNo: z.string().nullish(),
+  opStatus: z.string().nullish(),
+  opGender: z.string().nullish(),
+  opEducCollege: _dsEducAttSchema.nullish(),
+  opEducMasters: _dsEducAttSchema.nullish(),
+  opEducDoctorate: _dsEducAttSchema.nullish(),
+  opEducSpecialProg: _dsEducAttSchema.nullish(),
+  opEducOthers: _dsEducAttSchema.nullish(),
+  opDsapMember: _opDsapMember
+  // opDsapMember: z.string({ required_error: 'Please select who will be the DSAP Member.' })
+})
+
+const _registrationDetails = z.object({
+  fdaLtoNo: z.string().nullish(),
+  fdaDateIssued: z.date().nullish(),
+  fdaDateExpiry: z.date().nullish(),
+  fdaUrlAttachment: z.string().nullish(),
+  bpNo: z.string().nullish(),
+  bpDateIssued: z.date().nullish(),
+  bpDateExpiry: z.date().nullish(),
+  bpUrlAttachment: z.string().nullish(),
+
+  docNo: z.string().nullish(),
+  docDateIssued: z.date().nullish(),
+  docDateExpiry: z.date().nullish(),
+  docUrlAttachment: z.string().nullish()
+  // ownershipTypeDetails: z.discriminatedUnion('type', [singleProp, corporate, partnership])
+})
+
+export const _uploadPayment = z.object({
+  proofOfPaymentUrl: z.string().nullish()
+  // ownershipTypeDetails: z.discriminatedUnion('type', [singleProp, corporate, partnership])
+})
+
+export const _MemberRegistrationFormSchema = [_generalInfo, _dsProfile, _ownerProfile, _registrationDetails]
+export const _MemberRegistrationMergeSchema = _generalInfo
+  .merge(_dsProfile)
+  .merge(_ownerProfile)
+  .merge(_registrationDetails)
+  .merge(_uploadPayment)
 
 export type MemberGeneralInfo = z.infer<typeof generalInfo>
 export type MemberDrugStoreProfile = z.infer<typeof dsProfile>

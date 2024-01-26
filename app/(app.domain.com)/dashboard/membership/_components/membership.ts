@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const membershipStatusEnum = ['pending', 'approved', 'rejected'] as const
+export const membershipStatusEnum = ['pending', 'approved', 'rejected', 'import', 'updated'] as const
 
 // GENERAL INFORMATION
 export const ownershipType = [

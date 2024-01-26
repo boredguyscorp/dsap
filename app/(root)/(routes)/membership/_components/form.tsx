@@ -12,6 +12,9 @@ import {
   MemberRegistrationForm,
   MemberRegistrationFormSchema,
   MemberRegistrationMergeSchema,
+  _MemberRegistrationFormSchema,
+  _MemberRegistrationMergeSchema,
+  _uploadPayment,
   uploadPayment
 } from '@/lib/schema'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
@@ -20,7 +23,7 @@ const RHFDevTool = dynamic(() => import('../../../../../components/forms/DevTool
 
 import dynamic from 'next/dynamic'
 
-import { MemberEntity, registerMember, updateMember } from '@/actions/members'
+import { MemberEntity, isMemberEmailExist, registerMember, updateMember } from '@/actions/members'
 
 import { STEPS } from './constant'
 import { getFormStepContent } from './form-content'
@@ -40,6 +43,7 @@ export type MembershipFormProps = {
   showFormHeader?: boolean
   isModalForm?: boolean
   onClose?: () => void
+  strict?: boolean
 }
 
 export default function MembershipForm({
@@ -49,7 +53,8 @@ export default function MembershipForm({
   className,
   showFormHeader = true,
   isModalForm = false,
-  onClose
+  onClose,
+  strict = true
 }: MembershipFormProps) {
   const showBanner = process.env.NEXT_PUBLIC_SHOW_BANNER === 'true'
 
@@ -70,8 +75,11 @@ export default function MembershipForm({
   const [showForm, setShowForm] = useState(showFormDefaultValue || memberDetails ? true : false)
   const [showMemberAuthForm, setShowMemberAuthForm] = useState(false)
   const [activeStep, setActiveStep] = useState(STEPS.GENERAL_INFO)
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false)
 
   const currentValidationSchema = activeStep > 4 ? uploadPayment : MemberRegistrationFormSchema[activeStep < 4 ? activeStep : 0]
+
+  const _currentValidationSchema = activeStep > 4 ? _uploadPayment : _MemberRegistrationFormSchema[activeStep < 4 ? activeStep : 0]
 
   const defaultValues: MemberRegistrationForm = {
     drugStoreName: '',
@@ -109,7 +117,7 @@ export default function MembershipForm({
   const router = useRouter()
 
   const form = useZodForm({
-    schema: currentValidationSchema,
+    schema: strict ? currentValidationSchema : _currentValidationSchema,
     defaultValues: memberDetails ? convertStringDatesPropToDates(memberDetails ?? {}) : defaultValues,
     shouldUnregister: false
   })
@@ -138,27 +146,43 @@ export default function MembershipForm({
     if (isStepValid) setActiveStep((value) => value + 1)
   }
 
-  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+  const onSubmit = async (data: FieldValues, isForceSubmit?: boolean) => {
+    let isEmailExist = false
+
     if (activeStep !== STEPS.UPLOAD_PAYMENT) {
-      return onNext()
+      if (activeStep === STEPS.GENERAL_INFO) {
+        if (data.emailAdd) {
+          setIsCheckingEmail(true)
+
+          isEmailExist = memberDetails
+            ? await isMemberEmailExist({ action: 'edit', code: memberDetails.code, email: data.emailAdd })
+            : await isMemberEmailExist({ action: 'create', email: data.emailAdd })
+
+          setIsCheckingEmail(false)
+
+          if (isEmailExist) {
+            form.setError('emailAdd', { message: 'Email already exist' })
+            toast.error(`Email "${form.getValues('emailAdd')}" is already exist.`, { position: 'top-center', duration: 5000 })
+            return
+          }
+        }
+      }
+
+      if (!isForceSubmit) {
+        return onNext()
+      }
     }
 
-    // if (activeStep === STEPS.REVIEW_INFORMATION) {
-    //   setActiveStep((value) => value + 1)
-    //   console.log('zzzzzzzzzz')
-    //   return
-    // }
-
-    if (activeStep === STEPS.UPLOAD_PAYMENT) {
-      // console.log(data)
-      // console.log(' getValues:', getValues())
-
-      const validationResult = MemberRegistrationMergeSchema.safeParse(getValues())
+    if (isForceSubmit || activeStep === STEPS.UPLOAD_PAYMENT) {
+      const validationResult =
+        !strict && memberDetails
+          ? _MemberRegistrationMergeSchema.safeParse(getValues())
+          : MemberRegistrationMergeSchema.safeParse(getValues())
 
       if (!validationResult.success) throw new Error('Error Parsing Form Data.')
 
       startTransition(async () => {
-        const data = validationResult.data
+        const data = validationResult.data as any
 
         try {
           const response = memberDetails ? await updateMember({ id: memberDetails?.id, ...data }) : await registerMember(data)
@@ -177,7 +201,7 @@ export default function MembershipForm({
           })
 
           if (!isModalForm) {
-            router.push('/')
+            router.push(`/success/membership-application-${memberDetails ? 'updated' : 'submitted'}`)
           }
 
           if (isModalForm) {
@@ -279,67 +303,108 @@ export default function MembershipForm({
               {getFormStepContent({ activeStep, setActiveStep, chapters, isModalForm })}
             </form>
           </Form>
-          <div className={cn('flex items-center justify-end p-2', isModalForm ? 'mt-4' : 'mt-10 ')}>
-            {activeStep > 0 &&
-              (isModalForm ? (
-                <Button
-                  variant='secondary'
-                  className={cn(activeStep === STEPS.GENERAL_INFO && 'cursor-not-allowed')}
-                  disabled={activeStep === STEPS.GENERAL_INFO}
-                  onClick={() => onBack()}
-                >
-                  Previous
-                </Button>
-              ) : (
-                <button
-                  className={cn(
-                    'flex min-w-[150px] cursor-pointer justify-center rounded border bg-gray-100 px-4 py-2 text-base font-bold text-gray-700  transition duration-200 ease-in-out focus:outline-none enabled:border-gray-400  enabled:hover:bg-gray-200',
-                    activeStep === STEPS.GENERAL_INFO && 'cursor-not-allowed'
-                  )}
-                  disabled={activeStep === STEPS.GENERAL_INFO}
-                  onClick={() => onBack()}
-                >
-                  Previous
-                </button>
-              ))}
-
-            {/* <div className='flex flex-auto flex-row-reverse'> */}
+          <div
+            className={cn(
+              'flex items-center py-2',
+              isModalForm ? 'mt-4' : 'mt-10 ',
+              !strict && memberDetails && activeStep !== STEPS.UPLOAD_PAYMENT ? 'justify-between' : 'justify-end'
+            )}
+          >
+            {!strict && memberDetails && activeStep !== STEPS.UPLOAD_PAYMENT && (
+              <div>
+                {isModalForm ? (
+                  <Button onClick={form.handleSubmit((data) => onSubmit(data, true))} disabled={isPending}>
+                    {isPending
+                      ? memberDetails
+                        ? 'Updating Application'
+                        : 'Submitting Application'
+                      : memberDetails
+                      ? 'Update Application'
+                      : 'Submit Application'}
+                  </Button>
+                ) : (
+                  <button
+                    className={cn(
+                      'ml-2 flex min-w-[150px] cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:border-teal-500 enabled:hover:bg-teal-500',
+                      (isPending || isCheckingEmail) && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
+                    )}
+                    onClick={form.handleSubmit((data) => onSubmit(data, true))}
+                    disabled={isPending || isCheckingEmail}
+                    // onClick={onNext}
+                  >
+                    {isPending
+                      ? memberDetails
+                        ? 'Updating Application'
+                        : 'Submitting Application'
+                      : memberDetails
+                      ? 'Update Application'
+                      : 'Submit Application'}
+                  </button>
+                )}
+              </div>
+            )}
             <div className='flex'>
-              {isModalForm ? (
-                <Button className='ml-2' onClick={form.handleSubmit(onSubmit)} disabled={isPending}>
-                  {activeStep !== STEPS.UPLOAD_PAYMENT && 'Next'}
+              {activeStep > 0 &&
+                (isModalForm ? (
+                  <Button
+                    variant='secondary'
+                    className={cn(activeStep === STEPS.GENERAL_INFO && 'cursor-not-allowed')}
+                    disabled={activeStep === STEPS.GENERAL_INFO}
+                    onClick={() => onBack()}
+                  >
+                    Previous
+                  </Button>
+                ) : (
+                  <button
+                    className={cn(
+                      'flex min-w-[150px] cursor-pointer justify-center rounded border bg-gray-100 px-4 py-2 text-base font-bold text-gray-700  transition duration-200 ease-in-out focus:outline-none enabled:border-gray-400  enabled:hover:bg-gray-200',
+                      activeStep === STEPS.GENERAL_INFO && 'cursor-not-allowed'
+                    )}
+                    disabled={activeStep === STEPS.GENERAL_INFO}
+                    onClick={() => onBack()}
+                  >
+                    Previous
+                  </button>
+                ))}
 
-                  {activeStep === STEPS.UPLOAD_PAYMENT &&
-                    (isPending
-                      ? memberDetails
-                        ? 'Updating Application'
-                        : 'Submitting Application'
-                      : memberDetails
-                      ? 'Update Application'
-                      : 'Submit Application')}
-                </Button>
-              ) : (
-                <button
-                  className={cn(
-                    'ml-2 flex min-w-[150px] cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:border-teal-500 enabled:hover:bg-teal-500',
-                    isPending && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
-                  )}
-                  onClick={form.handleSubmit(onSubmit)}
-                  disabled={isPending}
-                  // onClick={onNext}
-                >
-                  {activeStep !== STEPS.UPLOAD_PAYMENT && 'Next'}
-                  {/* {activeStep === STEPS.REGISTRATION_DETAIL && 'Review Information'} */}
-                  {activeStep === STEPS.UPLOAD_PAYMENT &&
-                    (isPending
-                      ? memberDetails
-                        ? 'Updating Application'
-                        : 'Submitting Application'
-                      : memberDetails
-                      ? 'Update Application'
-                      : 'Submit Application')}
-                </button>
-              )}
+              {/* <div className='flex flex-auto flex-row-reverse'> */}
+              <div className='flex'>
+                {isModalForm ? (
+                  <Button className='ml-2' onClick={form.handleSubmit((data) => onSubmit(data))} disabled={isPending}>
+                    {activeStep !== STEPS.UPLOAD_PAYMENT && 'Next'}
+
+                    {activeStep === STEPS.UPLOAD_PAYMENT &&
+                      (isPending
+                        ? memberDetails
+                          ? 'Updating Application'
+                          : 'Submitting Application'
+                        : memberDetails
+                        ? 'Update Application'
+                        : 'Submit Application')}
+                  </Button>
+                ) : (
+                  <button
+                    className={cn(
+                      'ml-2 flex min-w-[150px] cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:border-teal-500 enabled:hover:bg-teal-500',
+                      (isPending || isCheckingEmail) && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
+                    )}
+                    onClick={form.handleSubmit((data) => onSubmit(data))}
+                    disabled={isPending || isCheckingEmail}
+                    // onClick={onNext}
+                  >
+                    {activeStep !== STEPS.UPLOAD_PAYMENT && 'Next'}
+                    {/* {activeStep === STEPS.REGISTRATION_DETAIL && 'Review Information'} */}
+                    {activeStep === STEPS.UPLOAD_PAYMENT &&
+                      (isPending
+                        ? memberDetails
+                          ? 'Updating Application'
+                          : 'Submitting Application'
+                        : memberDetails
+                        ? 'Update Application'
+                        : 'Submit Application')}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

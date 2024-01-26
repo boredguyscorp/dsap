@@ -80,6 +80,14 @@ const status: {
   {
     value: 'rejected',
     label: 'Rejected'
+  },
+  {
+    value: 'import',
+    label: 'Import'
+  },
+  {
+    value: 'updated',
+    label: 'Updated'
   }
 ]
 
@@ -133,7 +141,27 @@ export function MembershipTableShell({ data, pageCount, chapters }: MembershipTa
       {
         accessorKey: 'code',
         header: ({ column }) => <DataTableColumnHeader column={column} title='Code' />,
-        cell: ({ row }) => <div className='w-[100px]'>{row.getValue('code')}</div>,
+        cell: ({ row }) => (
+          <div
+            className='flex w-[100px] cursor-pointer space-x-2 hover:underline'
+            onClick={() => {
+              setOpenDialog({ isOpen: true, type: 'details', row: row.original })
+            }}
+          >
+            {row.getValue('code')}
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false
+      },
+      {
+        accessorKey: 'owner',
+        header: ({ column }) => <DataTableColumnHeader column={column} title='Owner' />,
+        cell: ({ row }) => (
+          <div className='max-w-[240px] truncate'>{`${toProperCase(row.original.opFirstName)} ${toProperCase(
+            row.original.opLastName
+          )}`}</div>
+        ),
         enableSorting: false,
         enableHiding: false
       },
@@ -217,6 +245,10 @@ export function MembershipTableShell({ data, pageCount, chapters }: MembershipTa
                 <Badge variant='default'>{stat.label}</Badge>
               ) : stat.value === 'pending' ? (
                 <Badge variant='outline'>{stat.label}</Badge>
+              ) : stat.value === 'import' ? (
+                <Badge variant='warning'>{stat.label}</Badge>
+              ) : stat.value === 'updated' ? (
+                <Badge variant='success'>{stat.label}</Badge>
               ) : (
                 <CircleIcon className='mr-2 h-4 w-4 text-muted-foreground' aria-hidden='true' />
               )}
@@ -312,11 +344,13 @@ export function MembershipTableShell({ data, pageCount, chapters }: MembershipTa
                           setOpenDialog({ isOpen: true, type, row: row.original })
                         }}
                       >
-                        {status.map((row) => (
-                          <DropdownMenuRadioItem key={row.value} value={row.value} disabled={isPending}>
-                            {row.label}
-                          </DropdownMenuRadioItem>
-                        ))}
+                        {status
+                          .filter((s) => s.value !== 'import' && s.value !== 'updated')
+                          .map((row) => (
+                            <DropdownMenuRadioItem key={row.value} value={row.value} disabled={isPending}>
+                              {row.label}
+                            </DropdownMenuRadioItem>
+                          ))}
                       </DropdownMenuRadioGroup>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
@@ -622,7 +656,7 @@ export function MembershipTableShell({ data, pageCount, chapters }: MembershipTa
           {
             id: 'membershipType',
             title: 'Membership',
-            options: ownershipType.map((membership) => ({
+            options: membershipType.map((membership) => ({
               label: membership.label[0]?.toUpperCase() + membership.label.slice(1),
               value: membership.value
             }))
@@ -630,13 +664,10 @@ export function MembershipTableShell({ data, pageCount, chapters }: MembershipTa
         ]}
         // Render dynamic searchable filters
         searchableColumns={[
-          {
-            id: 'code',
-            title: 'Code'
-          },
+          // !TODO when adding additiional element for searchable column other will not work
           {
             id: 'drugStoreName',
-            title: 'Drugstore'
+            title: 'Member'
           }
         ]}
         // Render floating filters at the bottom of the table on column selection
@@ -743,6 +774,7 @@ export function MembershipTableShell({ data, pageCount, chapters }: MembershipTa
               showFormHeader={false}
               isModalForm={true}
               onClose={() => setOpenDialog(null)}
+              strict={false}
             />
           </DialogContent>
         </Dialog>

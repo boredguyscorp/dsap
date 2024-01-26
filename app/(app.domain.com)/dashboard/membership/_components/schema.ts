@@ -1,6 +1,7 @@
 import * as z from 'zod'
 
 export const searchParamsSchema = z.object({
+  code: z.string().optional(),
   page: z.string().default('1'),
   per_page: z.string().default('10'),
   sort: z.string().optional(),

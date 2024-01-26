@@ -10,6 +10,7 @@ import { getChapters } from '@/actions/fetchers'
 import { DataTableLoading } from '@/components/data-table/data-table-loading'
 import { Suspense } from 'react'
 import { Await } from '@/lib/utils'
+import { MembershipStatCard } from './_components/stat'
 
 interface IndexPageProps {
   searchParams: {
@@ -19,7 +20,7 @@ interface IndexPageProps {
 
 export default async function IndexPage({ searchParams }: IndexPageProps) {
   // Parse search params using zod schema
-  const { page, per_page, sort, drugStoreName, chapter, status, ownershipType, membershipType, showStat } =
+  const { page, per_page, sort, drugStoreName, chapter, status, ownershipType, membershipType, showStat, code } =
     searchParamsSchema.parse(searchParams)
 
   const searchVal = drugStoreName
@@ -44,9 +45,15 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
 
   const whereSearchVal: Prisma.MembersWhereInput['OR'] = []
 
+  const orderByVal: Prisma.MembersOrderByWithRelationInput = {
+    [column as keyof Prisma.MembersOrderByWithRelationInput]: order
+  }
+
   if (searchVal) {
     whereSearchVal.push(
-      { code: { contains: searchVal } },
+      { code: { contains: drugStoreName } },
+      { opFirstName: { contains: searchVal } },
+      { opLastName: { contains: searchVal } },
       { drugStoreName: { contains: searchVal } },
       { emailAdd: { contains: searchVal } },
       { mobileNo: { contains: searchVal } },
@@ -100,7 +107,8 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
     where: whereVal,
     include: {
       memberChapter: { select: { id: true, code: true, name: true } }
-    }
+    },
+    orderBy: orderByVal
   })
 
   const totalMembers = db.members.count({ where: whereVal })
@@ -114,7 +122,7 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
   let statisticsPromise
 
   if (statistics) {
-    const statCount = db.registration.groupBy({ by: ['status'], _count: true })
+    const statCount = db.members.groupBy({ by: ['status'], _count: true })
     statisticsPromise = Promise.all([statCount])
   }
 
@@ -126,6 +134,36 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
       headerAction={<Await promise={chapters}>{(data) => <ActionButton chapters={data} />}</Await>}
     >
       <div className='pb-8 pt-6 md:py-8'>
+        {statistics && (
+          <Suspense fallback={<MembershipStatCard skeleton />}>
+            <Await promise={statisticsPromise}>
+              {(data) => {
+                const approved = data[0].find((r) => r.status === 'approved')?._count ?? 0
+                const pending = data[0].find((r) => r.status === 'pending')?._count ?? 0
+                const rejected = data[0].find((r) => r.status === 'rejected')?._count ?? 0
+                const _import = data[0].find((r) => r.status === 'import')?._count ?? 0
+                const updated = data[0].find((r) => r.status === 'updated')?._count ?? 0
+                const total = approved + pending + rejected + _import + updated
+
+                const stats = {
+                  total,
+                  approved,
+                  pending,
+                  rejected,
+                  import: _import,
+                  updated
+                }
+
+                return (
+                  <div className='mb-6'>
+                    <MembershipStatCard {...stats} skeleton={false} />
+                  </div>
+                )
+              }}
+            </Await>
+          </Suspense>
+        )}
+
         <Suspense fallback={<DataTableLoading columnCount={4} />}>
           <Await promise={membersPromise}>
             {(data) => {

@@ -68,7 +68,7 @@ export function getFormStepContent(props: StepProps) {
 }
 
 function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
-  const { control, setValue, watch } = useFormContext<MemberRegistrationForm>()
+  const { control, setValue, watch, getValues } = useFormContext<MemberRegistrationForm>()
   const [openChapter, setOpenChapter] = useState<boolean>(false)
   const [drugstoreClass, setDrugstoreClass] = useState<boolean>(false)
 
@@ -84,6 +84,15 @@ function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
 
       <CardContent className='mt-5'>
         <div className='space-y-4'>
+          {getValues('code') && (
+            <InputFieldForm
+              control={control}
+              name='code'
+              fieldProps={{ placeholder: 'Code', required: true, disabled: true }}
+              extendedProps={{ label: 'Code' }}
+            />
+          )}
+
           <InputFieldForm
             control={control}
             name='drugStoreName'
@@ -339,9 +348,9 @@ function DrugstoreProfile({ isModalForm }: { isModalForm?: boolean }) {
                   <FormLabel>Setup</FormLabel>
                   <FormControl>
                     <RadioGroup onValueChange={field.onChange} defaultValue={field.value as string} className='flex flex-col space-y-1'>
-                      {dpSetup.map((row) => {
+                      {dpSetup.map((row, i) => {
                         return (
-                          <FormItem className='flex items-center space-x-3 space-y-0'>
+                          <FormItem key={i} className='flex items-center space-x-3 space-y-0'>
                             <React.Fragment key={row.value}>
                               <FormControl>
                                 <RadioGroupItem value={row.value} />
@@ -490,7 +499,14 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
     if (errorKey.includes('dpPhAsAttachmentDiplomaUrl')) phAsDiplomaContainerRef.current?.focus()
     if (errorKey.includes('dpPhAsAttachmentCOAUrl')) phAsCOAContainerRef.current?.focus()
 
-    if ((errorKey.includes('dpPhAsFirstName') || errorKey.includes('dpPhAsLastName')) && errorKey.length < 1) {
+    if (
+      (errorKey.includes('dpPhAsFirstName') ||
+        errorKey.includes('dpPhAsLastName') ||
+        errorKey.includes('dpPhAsAttachmentCOEUrl') ||
+        errorKey.includes('dpPhAsAttachmentDiplomaUrl') ||
+        errorKey.includes('dpPhAsAttachmentCOAUrl')) &&
+      errorKey.length > 1
+    ) {
       setTab('pharmacy-assistant')
     }
   }, [errors])

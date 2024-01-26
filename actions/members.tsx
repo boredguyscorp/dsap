@@ -20,11 +20,17 @@ export async function registerMember(formData: MemberRegistrationForm) {
   const data = { ...formData, code }
 
   try {
-    const isEmailExist = await db.members.findMany({ where: { emailAdd: data.emailAdd } })
+    const isEmailExist = !data.emailAdd ? [] : await db.members.findMany({ where: { emailAdd: data.emailAdd } })
 
     if (isEmailExist.length > 0) return { status: 409, message: 'Email already exists.' }
 
-    await db.members.create({ data })
+    const result = await db.members.create({ data })
+
+    const chapterResult = result.chapter
+      ? await db.chapter.findUnique({ where: { id: result.chapter }, select: { id: true, code: true, name: true } })
+      : null
+
+    await emailMembershipStatus({ ...result, chapter: chapterResult?.name })
 
     revalidatePath('/membership')
 
@@ -41,12 +47,14 @@ export async function updateMember(formData: MemberRegistrationForm & { id: stri
 
     if (!member) notFound()
 
-    const isEmailExist = await db.members.findMany({ where: { emailAdd: formData.emailAdd, code: { not: member.code } } })
+    const isEmailExist = !formData.emailAdd
+      ? []
+      : await db.members.findMany({ where: { emailAdd: formData.emailAdd, code: { not: member.code } } })
 
     if (isEmailExist.length > 0) return { status: 409, message: 'Email already exists.' }
 
     await db.members.update({
-      data: formData,
+      data: { ...formData, status: member.status === 'import' ? 'updated' : member.status },
       where: { id: formData.id }
     })
 
@@ -88,6 +96,30 @@ export async function deleteMember(id: string) {
   }
 }
 
+type isMemberEmailExist =
+  | {
+      email: string
+      action: 'create'
+    }
+  | { email: string; code: string; action: 'edit' }
+
+export async function isMemberEmailExist(params: isMemberEmailExist) {
+  try {
+    if (params.action === 'edit') {
+      const isExist = await db.members.findMany({ where: { emailAdd: params.email, code: { not: params.code } } })
+
+      return isExist.length > 0
+    }
+
+    const isExist = await db.members.findMany({ where: { emailAdd: params.email } })
+
+    return isExist.length > 0
+  } catch (error) {
+    console.error('isMemberEmailExist server action', error)
+    throw error
+  }
+}
+
 export async function authMember(code: string, otpSecret: string) {
   try {
     const member = await db.members.findMany({ where: { code } })
@@ -95,9 +127,11 @@ export async function authMember(code: string, otpSecret: string) {
 
     // console.log({ code, otpSecret }, 'token generate at:', new Date().toTimeString())
 
-    if (member.length < 1) return { success: false, email: null }
+    if (member.length < 1) return { status: 404, message: 'Member does not exist' }
 
-    if (!member[0].emailAdd) return { success: true, email: null }
+    if (member[0].status === 'pending') return { status: 403, message: 'Member cannot proceed!' }
+
+    if (!member[0].emailAdd) return { status: 401, message: 'Membership email not found!' }
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',

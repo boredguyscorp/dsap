@@ -195,7 +195,8 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
               <span className='max-w-[500px]  truncate font-medium'>{row.original.code}</span>
             </div>
           )
-        }
+        },
+        enableSorting: false
       },
       {
         accessorKey: 'firstName',
@@ -254,7 +255,8 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
               <span className='max-w-[500px] truncate font-medium'>{dsInfo?.establishment}</span>
             </div>
           )
-        }
+        },
+        enableSorting: false
       },
       {
         accessorKey: 'drugstoreInfo',
@@ -267,7 +269,8 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
               <span className='max-w-[500px] truncate font-medium'>{dsInfo?.chapter}</span>
             </div>
           )
-        }
+        },
+        enableSorting: false
       },
       {
         accessorKey: 'type',
@@ -284,7 +287,7 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
       },
 
       {
-        accessorKey: 'regDate',
+        accessorKey: 'createdAt',
         header: ({ column }) => <DataTableColumnHeader column={column} title='Reg. Date' />,
         cell: ({ row }) => {
           const createdAt = toDateTime(row.original.createdAt)
