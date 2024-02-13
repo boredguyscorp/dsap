@@ -162,7 +162,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
           </div>
 
           <div className='mt-5 sm:mt-10 lg:mt-0'>
-            <div className='  space-y-6 sm:space-y-8'>
+            <div className='space-y-6 sm:space-y-8'>
               <div className='space-y-2 md:space-y-4'>
                 <p className='text-center text-lg'>
                   <Balancer>
@@ -174,11 +174,36 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
 
               <Separator />
               {/* <div className='flex flex-col items-center justify-center space-y-2 md:space-y-4'> */}
-              <h2 className=' text-center text-2xl font-bold text-teal-600 dark:text-white md:text-3xl lg:text-4xl'>How to Register</h2>
+              <h2 className='text-center text-2xl font-bold text-teal-600 dark:text-white md:text-3xl lg:text-4xl'>
+                Registration Procedures
+              </h2>
+
+              <ol className='max space-y-3 px-6 text-base font-semibold md:text-lg'>
+                <li className='list-decimal'>Pay DSAP Membership dues 2024.</li>
+                <li className='list-decimal'>Pay Registration Fee to DSAPCON2024</li>
+                <ul className='max space-y-3 px-5 font-semibold'>
+                  <li className='-ml-5'>Deposit to Metrobank Shaw Blvd. Branch Account:</li>
+                  <ul className='space-y-3 font-semibold'>
+                    <li className='list-disc'>
+                      Account Name: <span className='font-bold underline'>Drugstores Association of the Phils. Inc.</span>
+                    </li>
+                    <li className='list-disc'>
+                      Account Number: <span className='font-bold underline'>062-7-06251142-3</span>
+                    </li>
+                  </ul>
+                </ul>
+
+                <li className='list-decimal'>Register online (Click "Register Now")</li>
+                <li className='list-decimal'>Fill up Form & upload proof of payment and submit.</li>
+                <li className='list-decimal'>Check e-mail for acknowledgement of registration.</li>
+                <li className='list-decimal'>Wait for the Registration Confirmation thru email.</li>
+              </ol>
+              <Separator />
+              <h2 className='text-center text-2xl font-bold text-teal-600 dark:text-white md:text-3xl lg:text-4xl'>How to Register</h2>
 
               <ol className='max space-y-3 px-6 text-base font-semibold md:text-lg'>
                 <li className='list-decimal'>Fill up required fields.</li>
-                <ul className='max space-y-3 px-5  font-semibold'>
+                <ul className='max space-y-3 px-5 font-semibold'>
                   <li className='list-disc'>First Name</li>
                   <li className='list-disc'>Last Name</li>
                   <li className='list-disc'>Contact No.</li>
