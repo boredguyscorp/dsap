@@ -40,7 +40,7 @@ export const conventions: Convention[] = [
     description: 'Timeless DSAP: Adapting Through Generations',
     title: 'DSAPCon2024',
     date: 'April 24-26, 2024',
-    preRegCutOff: '2024-02-16',
+    preRegCutOff: '2024-02-23',
     rate: rateValues.filter((row) => row.convention === '25th')
   }
 ]
