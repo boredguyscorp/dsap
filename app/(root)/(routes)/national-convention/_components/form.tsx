@@ -46,6 +46,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
   const convention = useMemo(() => conventions.find((row) => row.code === CURRENT_CONVENTION), [])
   const cutOffDate = convention?.preRegCutOff ?? '2024-02-16'
   const isPreReg = cutOffDate > CURRENT_DATE
+  const showRegistration = process.env.NEXT_PUBLIC_SHOW_REGISTRATION === 'true'
 
   const defaultValues = {
     convention: CURRENT_CONVENTION,
@@ -219,7 +220,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
               <Separator />
               <Button
                 variant='main'
-                className='h-16 w-64'
+                className={cn('h-16 w-64', !showRegistration && 'hidden')}
                 onClick={() => {
                   setShowForm(true)
                 }}

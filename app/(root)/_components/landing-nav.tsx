@@ -23,6 +23,7 @@ export function LandingNav({ children, userId }: MainNavProps) {
   const segment = useSelectedLayoutSegment()
 
   const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false)
+  const showRegistration = process.env.NEXT_PUBLIC_SHOW_REGISTRATION === 'true'
 
   return (
     <div className='flex h-20 items-center justify-between py-6 '>
@@ -53,7 +54,7 @@ export function LandingNav({ children, userId }: MainNavProps) {
           </nav>
         ) : null}
 
-        <nav className='hidden items-center space-x-2 md:flex'>
+        <nav className='hidden items-center space-x-2 xl:flex'>
           <Link
             href='/national-convention'
             className={cn(
@@ -63,7 +64,8 @@ export function LandingNav({ children, userId }: MainNavProps) {
               }),
               'text-lg',
               'min-w-[200px]',
-              'xl:ml-3'
+              'xl:ml-3',
+              !showRegistration && 'hidden'
             )}
           >
             Register
@@ -84,7 +86,7 @@ export function LandingNav({ children, userId }: MainNavProps) {
             Become a Member
           </Link> */}
           {/* {userId ? (
-            <div className=' flex items-center space-x-2 '>
+            <div className='flex items-center space-x-2 '>
               <Link
                 href='/dashboard'
                 className={cn(

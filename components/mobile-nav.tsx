@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react'
 import Link from 'next/link'
 
@@ -15,6 +17,8 @@ interface MobileNavProps {
 }
 
 export function MobileNav({ items, children, userId }: MobileNavProps) {
+  const showRegistration = process.env.NEXT_PUBLIC_SHOW_REGISTRATION === 'true'
+
   useLockBody()
 
   return (
@@ -47,7 +51,8 @@ export function MobileNav({ items, children, userId }: MobileNavProps) {
               }),
               'text-lg',
               'min-w-[230px]',
-              'xl:ml-3'
+              'xl:ml-3',
+              !showRegistration && 'hidden'
             )}
           >
             Register
