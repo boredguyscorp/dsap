@@ -11,7 +11,7 @@ import TextareaAutosize from 'react-textarea-autosize'
 import { EditorBubbleMenu } from './bubble-menu'
 import { Post } from '@prisma/client'
 
-import { cn } from '@/lib/utils'
+import { cn, toProperCase } from '@/lib/utils'
 import { Icons } from '../shared/icons'
 import { useToast } from '../ui/use-toast'
 import { updatePost, updatePostMetadata } from '@/actions/post'
@@ -22,9 +22,12 @@ import Badge from '../custom/badge'
 import LoadingDots from '../custom/loading.dots'
 import { update } from 'react-spring'
 import { SettingsDialog } from './settings/post-settings'
+import { useSearchParams } from 'next/navigation'
 
 export default function Editor({ post }: { post: Post }) {
   const toaster = useToast()
+  const searchParams = useSearchParams()
+  const page = searchParams?.get('page')
 
   let [isPendingSaving, startTransitionSaving] = useTransition()
   let [isPendingPublishing, startTransitionPublishing] = useTransition()
@@ -176,6 +179,7 @@ export default function Editor({ post }: { post: Post }) {
               Back
             </>
           </Link>
+          {page ? <Badge text={toProperCase(page)} variant='teal' /> : null}
           <Badge text={data.published ? 'Publish' : 'Draft'} variant={data.published ? 'black' : 'outline'} />
         </div>
 
@@ -192,7 +196,7 @@ export default function Editor({ post }: { post: Post }) {
           )}
 
           {/* <Button variant='ghost' size='icon'>
-            <Icons.settings className='h-4 w-4 text-slate-600' />
+            <Icons.settings className='w-4 h-4 text-slate-600' />
           </Button> */}
 
           <SettingsDialog post={post} />
@@ -225,8 +229,18 @@ export default function Editor({ post }: { post: Post }) {
           <button
             onClick={() => {
               startTransitionSaving(async () => {
-                await updatePost(data).then(() => {
+                await updatePost(data).then((result) => {
                   // toast.success(`Successfully ${data.published ? 'unpublished' : 'published'} your post.`)
+
+                  if ('error' in result) {
+                    toaster.toast({
+                      title: 'Error occured',
+                      description: result.error,
+                      variant: 'destructive',
+                      duration: 5000
+                    })
+                    return
+                  }
 
                   toaster.toast({
                     title: `Successfully save your post.`,
@@ -244,7 +258,7 @@ export default function Editor({ post }: { post: Post }) {
             {isPendingSaving && <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />}
             <span>Save</span>
 
-            {/* <div className='rounded-lg bg-stone-100 px-2 py-1 text-sm text-stone-400 dark:bg-stone-800 dark:text-stone-500'>
+            {/* <div className='px-2 py-1 text-sm rounded-lg bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-500'>
             {isPendingSaving ? 'Saving...' : 'Saved'}
           </div> */}
 

@@ -38,6 +38,7 @@ export const updatePost = async (data: Post) => {
 
     revalidatePath(`/cpanel/${result.page}`)
     revalidatePath(`posts-${result.page}`)
+    revalidatePath(`posts-landing-${result.page}`)
 
     return result
   } catch (error: any) {
@@ -66,6 +67,7 @@ export const deletePost = async (id: string) => {
 
     revalidatePath(`/cpanel/${result.page}`)
     revalidatePath(`posts-${result.page}`)
+    revalidatePath(`posts-landing-${result.page}`)
 
     return result
   } catch (error: any) {
@@ -114,6 +116,8 @@ export const updatePostMetadata = withPostAuth(async (formData: FormData, post: 
     }
 
     revalidateTag(`/cpanel/${post.page}`)
+    revalidatePath(`posts-${post.page}`)
+    revalidatePath(`posts-landing-${post.page}`)
 
     return response
   } catch (error: any) {
@@ -164,6 +168,7 @@ export const updateMetaDataSettings = async (data: MetaDataSettings) => {
 
     revalidatePath(`/cpanel/${result.page}`)
     revalidatePath(`posts-${result.page}`)
+    revalidatePath(`posts-landing-${result.page}`)
 
     return result
   } catch (error: any) {
@@ -206,6 +211,7 @@ export const updatePostImageGallery = async (data: PostImageGallery) => {
 
     revalidatePath(`/cpanel/${result.page}`)
     revalidatePath(`posts-${result.page}`)
+    revalidatePath(`posts-landing-${result.page}`)
 
     return result
   } catch (error: any) {

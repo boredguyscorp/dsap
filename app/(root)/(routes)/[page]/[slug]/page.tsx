@@ -3,12 +3,14 @@ import BlurPostImage from '@/app/(root)/_components/BlurPostImage'
 import { MultiImage } from '@/components/editor/settings/multi-image-uploader'
 import MDX from '@/components/mdx'
 import { Icons } from '@/components/shared/icons'
-import { cn, imagePostEmpty, placeholderBlurhash, toDateString } from '@/lib/utils'
+import { cn, imagePostEmpty, placeholderBlurhash, toDateString, toProperCase } from '@/lib/utils'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import React from 'react'
+import readingTime from 'reading-time'
 
 import * as nextDynamic from 'next/dynamic'
+import { Icon } from '@radix-ui/react-select'
 
 const ImagesGallery = nextDynamic.default(() => import(`./images-gallery`), {
   loading: () => <h1 className='text-lg'>Loading Images...</h1>
@@ -23,21 +25,22 @@ interface PostPageProps {
 
 // export const dynamic = 'force-static'
 
-export default async function EventPagePost({ params }: PostPageProps) {
+export default async function PostPage({ params }: PostPageProps) {
   const { page, slug } = params
 
   const posts = await getPostsForSite(page)
-  const selectedSlug = posts.find((post) => post.slug === slug)
+  const post = posts.find((post) => post.slug === slug)
+  const postReadingTime = post && post.content ? readingTime(post.content) : null
   // console.log('🚀 -> EventPagePost -> selectedSlug:', selectedSlug?.imagesGallery)
 
   const adjacentPosts = posts.filter((post) => post.slug !== slug)
 
-  if (!selectedSlug) {
+  if (!post) {
     notFound()
   }
 
-  const mdxSource = await getMdxSource(selectedSlug.content!)
-  const imagesGallery = selectedSlug.imagesGallery as MultiImage[]
+  const mdxSource = await getMdxSource(post.content!)
+  const imagesGallery = post.imagesGallery as MultiImage[]
 
   const showBanner = process.env.SHOW_BANNER === 'true'
 
@@ -47,19 +50,27 @@ export default async function EventPagePost({ params }: PostPageProps) {
         <div className='lg:col-span-2'>
           <div className='py-8 md:pr-4 lg:pr-8'>
             <div className='mb-10 space-y-3 lg:space-y-4'>
-              <Link className='inline-flex items-center gap-x-1.5 text-sm text-gray-600 decoration-2 hover:text-teal-500' href='/event'>
+              <Link
+                className='inline-flex items-center gap-x-1.5 text-sm text-gray-600 decoration-2 hover:text-teal-500'
+                href={`/${page.toLowerCase()}`}
+              >
                 <Icons.chevronLeft className='mr-1 h-4 w-4' />
-                Back to Event
+                Back to {toProperCase(page)}
               </Link>
 
-              <h2 className='text-3xl font-bold text-teal-600 dark:text-white md:text-4xl lg:text-5xl'>{selectedSlug.title}</h2>
+              <h2 className='text-3xl font-bold text-teal-600 dark:text-white md:text-4xl lg:text-5xl'>{post.title}</h2>
 
-              <p className='text-lg text-gray-800 dark:text-gray-200'>{selectedSlug.description}</p>
+              <p className='text-lg text-gray-800 dark:text-gray-200'>{post.description}</p>
 
-              <div className='flex items-center justify-between gap-x-5'>
+              <div className='flex items-center gap-x-5'>
                 <div className='inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-800 sm:px-4 sm:py-2 sm:text-sm'>
-                  Published {toDateString(selectedSlug.createdAt)}
+                  Published {toDateString(post.createdAt)}
                 </div>
+                {postReadingTime ? (
+                  <div className='flex items-center gap-2 text-sm text-gray-800'>
+                    <span>{postReadingTime.text}</span> <Icons.clock className='h-4 w-4 text-gray-500' />
+                  </div>
+                ) : null}
                 {/* <p className='text-xs text-gray-800 dark:text-gray-200 sm:text-sm'>Published {toDateString(selectedSlug.createdAt)}</p> */}
               </div>
             </div>
@@ -95,7 +106,7 @@ export default async function EventPagePost({ params }: PostPageProps) {
                     <div className='grow'>
                       <span className='text-sm font-semibold text-teal-600 group-hover:text-teal-500 dark:text-gray-200 dark:group-hover:text-blue-500'>
                         {post.title}
-                        <p className='text-xs font-light text-gray-500'>{post.description}</p>
+                        <p className='line-clamp-4 text-xs font-light text-gray-500'>{post.description}</p>
                       </span>
                     </div>
 

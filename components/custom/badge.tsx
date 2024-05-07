@@ -6,7 +6,7 @@ export default function Badge({
   className
 }: {
   text: string
-  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'purple' | 'blue' | 'black' | 'gray'
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'purple' | 'blue' | 'black' | 'gray' | 'teal'
   className?: string
 }) {
   return (
@@ -21,7 +21,8 @@ export default function Badge({
           'border-violet-600 bg-violet-600 text-white': variant === 'purple',
           'border-blue-500 bg-blue-500 text-white': variant === 'blue',
           'border-black bg-black text-white': variant === 'black',
-          'border-gray-400 bg-gray-400 text-white': variant === 'gray'
+          'border-gray-400 bg-gray-400 text-white': variant === 'gray',
+          'border-teal-500 bg-teal-500 text-white': variant === 'teal'
         },
         className
       )}

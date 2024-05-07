@@ -46,7 +46,9 @@ import {
   CheckCheck,
   Files,
   Users,
-  Lock
+  Lock,
+  Clock9,
+  Dot
 } from 'lucide-react'
 
 export type Icon = LucideIcon
@@ -98,6 +100,8 @@ export const Icons = {
   docs: Files,
   users: Users,
   lock: Lock,
+  dot: Dot,
+  clock: Clock9,
 
   logo: ({ circleColor, ...props }: LucideProps & { circleColor: string }) => (
     <svg

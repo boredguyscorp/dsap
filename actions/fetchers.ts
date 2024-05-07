@@ -44,7 +44,7 @@ export async function getPostsForSite(page: string, options?: PostOptions) {
           content: true,
           imagesGallery: true
         },
-        where: { page },
+        where: { page, published: true },
         orderBy: [
           {
             createdAt: 'desc'
@@ -76,7 +76,7 @@ export async function getPostsForLandingPage(page: Pages, options?: PostOptions)
           content: true,
           imagesGallery: true
         },
-        where: { page },
+        where: { page, published: true },
         orderBy: [
           {
             createdAt: 'desc'

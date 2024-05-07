@@ -95,7 +95,7 @@ export default async function Page() {
                     alt={`vicente.png`}
                     width={250}
                     height={250}
-                    className='shadow- mx-auto mb-3 h-32  w-32  rounded-full'
+                    className='shadow- mx-auto mb-3 h-32 w-32 rounded-full'
                   />
                   <h2 className='text-sm font-bold leading-tight text-gray-700 md:text-xl'>Vicente U. Briones, RPh.</h2>
                   <small className='truncate text-xs text-gray-500 md:text-sm'>DSAP National President 2023</small>
@@ -181,7 +181,7 @@ async function FeaturedEvents() {
 
         <div className='mt-7'>
           <h3 className='text-xl font-semibold text-gray-800 group-hover:text-gray-600 dark:text-gray-200'>{row.title}</h3>
-          <p className='mt-3 text-gray-800 dark:text-gray-200'>{row.description}</p>
+          <p className='mt-3 line-clamp-3 text-gray-800 dark:text-gray-200'>{row.description}</p>
           <p className='mt-5 inline-flex items-center gap-x-1.5 font-medium text-teal-500 decoration-2 group-hover:underline'>
             Read more
             <svg className='h-2.5 w-2.5' width='16' height='16' viewBox='0 0 16 16' fill='none'>
@@ -207,7 +207,7 @@ async function FeaturedNews() {
       <Link key={row.slug} className='group overflow-hidden rounded-xl' href={`/news/${row.slug}`}>
         <div className='sm:flex'>
           <div className='relative h-44 w-full flex-shrink-0 overflow-hidden rounded-xl sm:w-56'>
-            {/* <img className="group-hover:scale-105 transition-transform duration-500 ease-in-out w-full h-full absolute top-0 left-0 object-cover rounded-xl" src="https://images.unsplash.com/photo-1540575861501-7cf05a4b125a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="Image Description"> */}
+            {/* <img className="absolute top-0 left-0 object-cover w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-105 rounded-xl" src="https://images.unsplash.com/photo-1540575861501-7cf05a4b125a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="Image Description"> */}
             <Image
               src={row.image ?? imagePostEmpty}
               alt='Image Description'
@@ -217,14 +217,17 @@ async function FeaturedNews() {
               placeholder='blur'
               blurDataURL={row.imageBlurhash ?? placeholderBlurhash}
             />
+            <span className='absolute right-0 top-0 rounded-bl-xl rounded-tr-xl bg-teal-500 px-3 py-1.5 text-xs font-medium text-white dark:bg-gray-900'>
+              Latest
+            </span>
           </div>
 
           <div className='mt-4 grow px-4 sm:ml-6 sm:mt-0 sm:px-0'>
             <h3 className='text-xl font-semibold text-gray-800 group-hover:text-gray-600 dark:text-gray-300 dark:group-hover:text-white'>
               {row.title}
             </h3>
-            <p className='mt-3 text-gray-600 dark:text-gray-400'>{row.description}</p>
-            <p className='mt-4 inline-flex items-center gap-x-1.5 font-medium text-blue-600 decoration-2 hover:underline'>
+            <p className='mt-3 line-clamp-3 text-gray-600 dark:text-gray-400'>{row.description}</p>
+            <p className='mt-4 inline-flex items-center gap-x-1.5 font-medium text-teal-500 decoration-2 hover:underline'>
               Read more
               <svg className='h-2.5 w-2.5' width='16' height='16' viewBox='0 0 16 16' fill='none'>
                 <path
