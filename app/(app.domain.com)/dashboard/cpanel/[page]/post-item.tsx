@@ -7,7 +7,7 @@ import { PostOperations } from './post-operations'
 import Badge from '@/components/custom/badge'
 import { Icons } from '@/components/shared/icons'
 import { siteConfig } from '@/app/config'
-import { SettingsDialog } from '@/components/editor/settings/post-settings'
+import PostSettingsDialog from '@/components/editor/settings/post-settings2'
 
 interface PostItemProps {
   post: Pick<Post, 'id' | 'title' | 'slug' | 'published' | 'createdAt' | 'image' | 'imagesGallery' | 'page'>
@@ -31,8 +31,6 @@ export function PostItem({ post, page }: PostItemProps) {
           <Link href={`${siteConfig.url.home}/${page}/${post.slug}`} target='_blank' rel='noreferrer'>
             <Icons.link className='h-4 w-4' />
           </Link>
-
-          <SettingsDialog post={post} />
 
           <PostOperations post={post} page={page} />
         </div>

@@ -32,7 +32,7 @@ export function SettingsDialog({ post }: { post: PostSettingsProps }) {
 
   const handleUpdateMetaData = () => {
     startTransitionSaving(async () => {
-      await updateMetaDataSettings({ id: post.id, slug, img: imgUrl }).then(() => {
+      await updateMetaDataSettings({ id: post.id, slug, img: imgUrl }).then((result) => {
         toaster.toast({
           title: `Successfully update post.`,
           variant: 'default'

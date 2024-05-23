@@ -242,8 +242,12 @@ const opDsapMemberOwner = z.object({
 
 const opDsapMemberRep = z.object({
   opDsapMemberType: z.literal('representative'),
-  opRepFormUrl: z.string({ required_error: 'Please attached Authorized Representative form' }),
-  opRepPhotoUrl: z.string({ required_error: 'Please select Authorized Representative photo' })
+  opRepFormUrl: z
+    .string({ required_error: 'Please attached Authorized Representative form.' })
+    .min(1, { message: 'Please attached Authorized Representative form.' }),
+  opRepPhotoUrl: z
+    .string({ required_error: 'Please select Authorized Representative photo.' })
+    .min(1, { message: 'Please select Authorized Representative photo.' })
 })
 
 const opDsapMember = z.discriminatedUnion('opDsapMemberType', [opDsapMemberOwner, opDsapMemberRep], {
@@ -497,7 +501,10 @@ export type MemberRegistrationForm = MemberGeneralInfo &
   MemberRegistrationDetails &
   MemberProofOfPayment
 
-export type DrugstoreChainClassDetails = z.infer<typeof dpChainClassDetailsSchema>
+export type DrugstoreChainClassBranch = z.infer<typeof dpChainClassDetailsSchema>
+export type DrugStoreChainClassDetails = z.infer<typeof dpChainSchema>
+export type DrugStoreSingleClassDetails = z.infer<typeof dpPharmacistSchema>
+export type OwnerProfileRepresentativeMemberType = z.infer<typeof opDsapMemberRep>
 
 // NATIONAL CONVENTION
 export const title = ['Select Title', 'Mr.', 'Mrs.', 'Ms.', 'Rph.', 'Dr.'] as const
@@ -524,8 +531,7 @@ export const ConventionRegistrationFormSchema = z.object({
       mainAddress: z.string().optional()
     })
     .optional(),
-  proofOfPaymentUrl: z.string().min(1, { message: 'Proof of payment is required.' })
-  // proofOfPaymentUrl: z.string({ required_error: 'Proof of Payment is required.' }).min(1, { message: 'Please enter Proof of Payment.' })
+  proofOfPaymentUrl: z.string({ required_error: 'Proof of payment is required.' }).min(1, { message: 'Proof of payment is required.' })
 })
 
 export type ConventionRegistrationForm = z.infer<typeof ConventionRegistrationFormSchema>
@@ -538,3 +544,29 @@ export const MemberAuthFormSchema = z.object({
 export const MemberAuthEmailFormSchema = z.object({
   email: z.string().min(1, { message: 'Please enter an email.' }).email()
 })
+
+export const PostFormSchema = z.object({
+  title: z
+    .string()
+    .min(3, {
+      message: 'Title must be at least 3 characters long'
+    })
+    .max(128, {
+      message: 'Title must be less than 128 characters long'
+    }),
+  description: z.string().min(1, { message: 'Please enter a description.' }),
+  content: z.string().optional(),
+  image: z.string().optional(),
+  imagesGallery: z.array(z.string()).optional()
+})
+
+export type PostForm = z.infer<typeof PostFormSchema>
+
+export const PostSettingsDialogFormSchema = z.object({
+  id: z.string().min(1, { message: 'Please enter post id.' }),
+  slug: z.string({ required_error: 'Please enter slug.' }).min(1, { message: 'Please enter slug.' }),
+  image: z.string().optional(),
+  imagesGallery: z.array(z.string()).optional()
+})
+
+export type PostSettingsDialogForm = z.infer<typeof PostSettingsDialogFormSchema>

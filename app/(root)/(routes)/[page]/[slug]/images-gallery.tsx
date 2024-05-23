@@ -10,13 +10,13 @@ import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery'
 import 'react-image-gallery/styles/css/image-gallery.css'
 
 type ImagesProps = {
-  imagesGallery: MultiImage[]
+  imagesGallery: string[]
 }
 
 export default function ImagesGallery({ imagesGallery }: ImagesProps) {
   const items = useMemo(() => {
-    return imagesGallery.map((img) => {
-      return { original: img.url, thumbnail: img.url }
+    return imagesGallery.map((url) => {
+      return { original: url, thumbnail: url }
     })
   }, [])
 
@@ -62,9 +62,9 @@ export default function ImagesGallery({ imagesGallery }: ImagesProps) {
         setIsMaximize(isFullScreen)
         return null
         // return (
-        //   <div className='-mt-10 flex w-full justify-end'>
+        //   <div className='flex justify-end w-full -mt-10'>
         //     {/* <button
-        //       className='absolute bottom-0 z-50 h-10 w-28 bg-red-300'
+        //       className='absolute bottom-0 z-50 h-10 bg-red-300 w-28'
         //       onClick={(e) => {
         //         onClick(e)
 
@@ -74,7 +74,7 @@ export default function ImagesGallery({ imagesGallery }: ImagesProps) {
         //       Click Me
         //     </button> */}
         //     <button
-        //       className='z-40 -mt-1 mb-4 mr-1 h-9 w-9 min-w-min items-center justify-center rounded-sm text-lg font-bold text-white transition duration-200 ease-in-out  hover:scale-125'
+        //       className='z-40 items-center justify-center mb-4 mr-1 -mt-1 text-lg font-bold text-white transition duration-200 ease-in-out rounded-sm h-9 w-9 min-w-min hover:scale-125'
         //       onClick={(e) => {
         //         onClick(e)
         //         // setIsMaximize((state) => !state)

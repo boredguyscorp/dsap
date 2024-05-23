@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { memo, useEffect, useRef, useState, useTransition } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { TiptapEditorProps } from './props'
 import { TiptapExtensions } from './extensions'
@@ -23,8 +23,9 @@ import LoadingDots from '../custom/loading.dots'
 import { update } from 'react-spring'
 import { SettingsDialog } from './settings/post-settings'
 import { useSearchParams } from 'next/navigation'
+import PostSettingsDialog from './settings/post-settings2'
 
-export default function Editor({ post }: { post: Post }) {
+const Editor = memo(function Editor({ post }: { post: Post }) {
   const toaster = useToast()
   const searchParams = useSearchParams()
   const page = searchParams?.get('page')
@@ -58,7 +59,7 @@ export default function Editor({ post }: { post: Post }) {
       if (e.metaKey && e.key === 's') {
         e.preventDefault()
         startTransitionSaving(async () => {
-          await updatePost(data)
+          // await updatePost(data)
         })
       }
     }
@@ -199,7 +200,9 @@ export default function Editor({ post }: { post: Post }) {
             <Icons.settings className='w-4 h-4 text-slate-600' />
           </Button> */}
 
-          <SettingsDialog post={post} />
+          {/* <SettingsDialog post={post} /> */}
+
+          <PostSettingsDialog post={post} />
 
           <button
             onClick={() => {
@@ -207,16 +210,20 @@ export default function Editor({ post }: { post: Post }) {
               // console.log(data.published, typeof data.published)
               formData.append('published', String(!data.published))
               startTransitionPublishing(async () => {
-                await updatePostMetadata(formData, post.id, 'published').then(() => {
-                  // toast.success(`Successfully ${data.published ? 'unpublished' : 'published'} your post.`)
+                await updatePostMetadata(formData, post.id, 'published')
+                  .then(() => {
+                    // toast.success(`Successfully ${data.published ? 'unpublished' : 'published'} your post.`)
 
-                  toaster.toast({
-                    title: `Successfully ${data.published ? 'unpublished' : 'published'} your post.`,
-                    variant: 'default'
+                    toaster.toast({
+                      title: `Successfully ${data.published ? 'unpublished' : 'published'} your post.`,
+                      variant: 'default'
+                    })
+
+                    setData((prev) => ({ ...prev, published: !prev.published }))
                   })
-
-                  setData((prev) => ({ ...prev, published: !prev.published }))
-                })
+                  .catch((err) => {
+                    console.error(err)
+                  })
               })
             }}
             disabled={isPendingPublishing}
@@ -228,29 +235,26 @@ export default function Editor({ post }: { post: Post }) {
 
           <button
             onClick={() => {
-              startTransitionSaving(async () => {
-                await updatePost(data).then((result) => {
-                  // toast.success(`Successfully ${data.published ? 'unpublished' : 'published'} your post.`)
-
-                  if ('error' in result) {
-                    toaster.toast({
-                      title: 'Error occured',
-                      description: result.error,
-                      variant: 'destructive',
-                      duration: 5000
-                    })
-                    return
-                  }
-
-                  toaster.toast({
-                    title: `Successfully save your post.`,
-                    variant: 'default'
-                  })
-
-                  // setData((prev) => ({ ...prev, published: !prev.published }))
-                })
-                // await new Promise((resolve) => setTimeout(resolve, 2000))
-              })
+              // startTransitionSaving(async () => {
+              //   await updatePost(data).then((result) => {
+              //     // toast.success(`Successfully ${data.published ? 'unpublished' : 'published'} your post.`)
+              //     if ('error' in result) {
+              //       toaster.toast({
+              //         title: 'Error occured',
+              //         description: result.error,
+              //         variant: 'destructive',
+              //         duration: 5000
+              //       })
+              //       return
+              //     }
+              //     toaster.toast({
+              //       title: `Successfully save your post.`,
+              //       variant: 'default'
+              //     })
+              //     // setData((prev) => ({ ...prev, published: !prev.published }))
+              //   })
+              //   // await new Promise((resolve) => setTimeout(resolve, 2000))
+              // })
             }}
             disabled={isPendingSaving}
             className={cn(buttonVariants(), 'min-w-[90px]')}
@@ -324,4 +328,6 @@ export default function Editor({ post }: { post: Post }) {
       <EditorContent editor={editor} />
     </div>
   )
-}
+})
+
+export default Editor

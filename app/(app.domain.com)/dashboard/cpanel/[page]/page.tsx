@@ -3,12 +3,11 @@ import { siteConfig } from '@/app/config'
 import db from '@/lib/db'
 import { getCurrentUser } from '@/lib/session'
 import { redirect } from 'next/navigation'
-import { PostItem } from './post-item'
-import { EmptyPlaceholder } from '@/components/empty-placeholder'
 import { PostCreateButton } from './post-create-button'
 import { toProperCase } from '@/lib/utils'
 import { Icons } from '@/components/shared/icons'
 import Link from 'next/link'
+import Postlist from './post-list'
 
 interface PageProps {
   params: {
@@ -59,22 +58,8 @@ export default async function CPanelContentPage({ params }: PageProps) {
           <PostCreateButton page={page} />
         </div>
       </SidebarShellHeader>
-      <div>
-        {posts?.length ? (
-          <div className='divide-y divide-border rounded-md border'>
-            {posts.map((post) => (
-              <PostItem key={post.id} post={post} page={page} />
-            ))}
-          </div>
-        ) : (
-          <EmptyPlaceholder>
-            <EmptyPlaceholder.Icon name='post' />
-            <EmptyPlaceholder.Title>No posts created</EmptyPlaceholder.Title>
-            <EmptyPlaceholder.Description>You don&apos;t have any posts yet. Start creating content.</EmptyPlaceholder.Description>
-            <PostCreateButton variant='outline' page={page} />
-          </EmptyPlaceholder>
-        )}
-      </div>
+
+      <Postlist posts={posts} page={page} />
     </SidebarShell>
   )
 

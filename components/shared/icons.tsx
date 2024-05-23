@@ -48,7 +48,11 @@ import {
   Users,
   Lock,
   Clock9,
-  Dot
+  Dot,
+  FileIcon,
+  UploadCloudIcon,
+  Loader2Icon,
+  AlertCircle
 } from 'lucide-react'
 
 export type Icon = LucideIcon
@@ -102,7 +106,9 @@ export const Icons = {
   lock: Lock,
   dot: Dot,
   clock: Clock9,
-
+  file: FileIcon,
+  cloudUpload: UploadCloudIcon,
+  error: AlertCircle,
   logo: ({ circleColor, ...props }: LucideProps & { circleColor: string }) => (
     <svg
       width='800px'

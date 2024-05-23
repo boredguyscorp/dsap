@@ -11,7 +11,8 @@ const nextConfig = {
       'public.blob.vercel-storage.com',
       'illustrations.popsy.co',
       'flag.vercel.app',
-      'images.unsplash.com'
+      'images.unsplash.com',
+      'utfs.io'
     ]
   },
   experimental: {

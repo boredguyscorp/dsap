@@ -8,14 +8,12 @@ import {
   dpInvSystem,
   opStatus
 } from '@/app/(app.domain.com)/dashboard/membership/_components/membership'
-import { FileUpload } from '@/components/editor/settings/file-upload'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription, Form } from '@/components/ui/form'
-import { cn, onPreventInput, toDate, toDateNormal, toProperCase } from '@/lib/utils'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from '@/components/ui/form'
+import { cn, onPreventInput, toDate, toProperCase } from '@/lib/utils'
 
-import { watch } from 'fs'
-import { ChevronDownIcon, ChevronsUpDown } from 'lucide-react'
+import { ChevronsUpDown } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
 import { DatePickerForm } from '../../../../../components/forms/DatePickerForm'
 import { InputFieldForm } from '../../../../../components/forms/InputFieldForm'
@@ -24,22 +22,24 @@ import { Separator } from '@/components/ui/separator'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { SubmitHandler, useFieldArray, useFormContext } from 'react-hook-form'
 import { STEPS } from './constant'
-import { DrugstoreChainClassDetails, MemberRegistrationForm, dpChainClassDetailsSchema } from '@/lib/schema'
+import { DrugstoreChainClassBranch, MemberRegistrationForm, dpChainClassDetailsSchema } from '@/lib/schema'
 import { Label } from '@/components/ui/label'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Accordion, AccordionContent, AccordionItem } from '@/components/ui/accordion'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
 import { Check } from 'lucide-react'
-import { ChapterList } from '@/actions/fetchers'
 import { MembershipFormProps } from './form'
 import { useZodForm } from '@/lib/zod-form'
 import { Icons } from '@/components/shared/icons'
+import { ImageUploader } from '@/components/image-uploader'
+import { FileUploader } from '@/components/file-uploader'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 type StepProps = {
   activeStep: number
@@ -469,8 +469,10 @@ function DrugstoreProfile({ isModalForm }: { isModalForm?: boolean }) {
 function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boolean }) {
   const {
     control,
+    getValues,
     setValue,
     watch,
+    clearErrors,
     formState: { errors }
   } = useFormContext<MemberRegistrationForm>()
 
@@ -591,40 +593,41 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
 
   return (
     <Tabs value={tab} onValueChange={onTabChange} className='w-full'>
-      <TabsList className='grid w-[500px] grid-cols-2'>
+      <TabsList className='grid w-full grid-cols-2 md:w-[500px]'>
         <TabsTrigger value='registered-pharmacist'>Registered Pharmacist</TabsTrigger>
         <TabsTrigger value='pharmacy-assistant'>Pharmacy Assistant</TabsTrigger>
       </TabsList>
+
       <TabsContent value='registered-pharmacist'>
         <Card>
           <CardHeader>
-            <div className='relative flex justify-between'>
+            <div className='relative flex justify-between gap-2'>
               <div className='flex flex-col '>
                 <CardTitle>Registered Pharmacist Details</CardTitle>
                 <CardDescription>Drugstore Pharmacist Form.</CardDescription>
               </div>
-              <div
-                ref={phImgContainerRef}
-                tabIndex={0}
-                className={cn(
-                  'absolute -top-3 right-0 flex h-[150px] w-[156px] flex-col items-center justify-center space-y-1 rounded-md border-2 border-dashed',
-                  photoErr.ph && 'border-red-400 text-destructive'
-                )}
-              >
-                {(watch('dpDSClassDetails.dpPhImageUrl')?.length < 1 || !watch('dpDSClassDetails.dpPhImageUrl')) && (
-                  <p className={cn('text-sm font-medium')}>Photo *</p>
-                )}
 
-                <FileUpload
-                  uploader='button'
-                  endpoint='photoUploader'
-                  value={watch('dpDSClassDetails.dpPhImageUrl')}
-                  onChange={(urlValue) => {
-                    setValue('dpDSClassDetails.dpPhImageUrl', urlValue ?? '')
-                    setPhotoErr((prev) => {
-                      return { ph: urlValue ? false : true, phAs: prev.phAs }
-                    })
+              <div ref={phImgContainerRef} tabIndex={0}>
+                <ImageUploader
+                  label='Photo'
+                  value={getValues('dpDSClassDetails.dpPhImageUrl')}
+                  isRequired
+                  uploaderKey='dpDSClassDetails-dpPhImageUrl'
+                  icon={Icons.media}
+                  limitSize={2}
+                  isMultiple={false}
+                  display={null}
+                  className='h-[200px] w-[200px]'
+                  onChange={(url) => {
+                    setValue('dpDSClassDetails.dpPhImageUrl', url ?? '')
+                    clearErrors('dpDSClassDetails.dpPhImageUrl')
                   }}
+                  isError={errors.dpDSClassDetails && 'dpPhImageUrl' in errors.dpDSClassDetails}
+                  errorMessage={
+                    errors.dpDSClassDetails &&
+                    'dpPhImageUrl' in errors.dpDSClassDetails &&
+                    (errors.dpDSClassDetails.dpPhImageUrl as Record<string, any>)?.message
+                  }
                 />
               </div>
             </div>
@@ -645,14 +648,13 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
                   fieldProps={{ placeholder: 'First Name', required: true }}
                   extendedProps={{ label: 'First Name' }}
                 />
-                <div className={cn(isModalForm ? 'max-w-[100px]' : 'max-w-[140px]')}>
-                  <InputFieldForm
-                    control={control}
-                    name='dpDSClassDetails.dpPhMiddleName'
-                    fieldProps={{ placeholder: isModalForm ? 'M.I' : 'Middle Initial', width: '12px' }}
-                    extendedProps={{ label: 'Middle Initial' }}
-                  />
-                </div>
+
+                <InputFieldForm
+                  control={control}
+                  name='dpDSClassDetails.dpPhMiddleName'
+                  fieldProps={{ placeholder: isModalForm ? 'M.I' : 'Middle Initial', width: '12px' }}
+                  extendedProps={{ label: 'Middle Initial' }}
+                />
               </div>
 
               <TextAreaForm
@@ -702,21 +704,22 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
                   name='dpDSClassDetails.dpPhStatus'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
+                      <FormLabel>Civil Status</FormLabel>
                       <div className='relative w-full'>
-                        <FormControl>
-                          <select
-                            className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')}
-                            {...field}
-                          >
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select Civil Status' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
                             {opStatus.map((row) => (
-                              <option key={row.value} value={row.value}>
-                                {row.label}
-                              </option>
+                              <SelectItem key={row.value} value={row.label}>
+                                {!row.label ? 'Select Civil Status' : row.label}
+                              </SelectItem>
                             ))}
-                          </select>
-                        </FormControl>
-                        <ChevronDownIcon className='absolute right-3 top-2.5 h-4 w-4 opacity-50' />
+                          </SelectContent>
+                        </Select>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -832,33 +835,33 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
       <TabsContent value='pharmacy-assistant'>
         <Card>
           <CardHeader>
-            <div className='relative flex justify-between'>
+            <div className='relative flex justify-between gap-2'>
               <div className='flex flex-col '>
                 <CardTitle>Pharmacy Assistant Details</CardTitle>
                 <CardDescription>Drugstore Pharmacy Assistant Form.</CardDescription>
               </div>
-              <div
-                ref={phAsImgContainerRef}
-                tabIndex={0}
-                className={cn(
-                  'absolute -top-3 right-0 flex h-[150px] w-[156px] flex-col items-center justify-center space-y-1 rounded-md border-2 border-dashed',
-                  photoErr.phAs && 'border-red-400 text-destructive'
-                )}
-              >
-                {(watch('dpDSClassDetails.dpPhAsImageUrl')?.length < 1 || !watch('dpDSClassDetails.dpPhAsImageUrl')) && (
-                  <p className={cn('text-sm font-medium')}>Photo *</p>
-                )}
 
-                <FileUpload
-                  uploader='button'
-                  endpoint='photoUploader'
-                  value={watch('dpDSClassDetails.dpPhAsImageUrl')}
-                  onChange={(urlValue) => {
-                    setValue('dpDSClassDetails.dpPhAsImageUrl', urlValue ?? '')
-                    setPhotoErr((prev) => {
-                      return { ph: prev.ph, phAs: urlValue ? false : true }
-                    })
+              <div ref={phAsImgContainerRef} tabIndex={0}>
+                <ImageUploader
+                  label='Photo'
+                  value={getValues('dpDSClassDetails.dpPhAsImageUrl')}
+                  isRequired
+                  uploaderKey='dpDSClassDetails-dpPhAsImageUrl'
+                  icon={Icons.media}
+                  limitSize={2}
+                  isMultiple={false}
+                  display={null}
+                  className='h-[200px] w-[200px]'
+                  onChange={(url) => {
+                    setValue('dpDSClassDetails.dpPhAsImageUrl', url ?? '')
+                    clearErrors('dpDSClassDetails.dpPhAsImageUrl')
                   }}
+                  isError={errors.dpDSClassDetails && 'dpPhAsImageUrl' in errors.dpDSClassDetails}
+                  errorMessage={
+                    errors.dpDSClassDetails &&
+                    'dpPhAsImageUrl' in errors.dpDSClassDetails &&
+                    (errors.dpDSClassDetails.dpPhAsImageUrl as Record<string, any>)?.message
+                  }
                 />
               </div>
             </div>
@@ -878,14 +881,13 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
                   fieldProps={{ placeholder: 'First Name', required: true }}
                   extendedProps={{ label: 'First Name' }}
                 />
-                <div className={cn(isModalForm ? 'max-w-[100px]' : 'max-w-[140px]')}>
-                  <InputFieldForm
-                    control={control}
-                    name='dpDSClassDetails.dpPhAsMiddleName'
-                    fieldProps={{ placeholder: isModalForm ? 'M.I' : 'Middle Initial', width: '12px' }}
-                    extendedProps={{ label: 'Middle Initial' }}
-                  />
-                </div>
+
+                <InputFieldForm
+                  control={control}
+                  name='dpDSClassDetails.dpPhAsMiddleName'
+                  fieldProps={{ placeholder: isModalForm ? 'M.I' : 'Middle Initial', width: '12px' }}
+                  extendedProps={{ label: 'Middle Initial' }}
+                />
               </div>
 
               <TextAreaForm
@@ -934,21 +936,22 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
                   name='dpDSClassDetails.dpPhAsStatus'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
+                      <FormLabel>Civil Status</FormLabel>
                       <div className='relative w-full'>
-                        <FormControl>
-                          <select
-                            className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')}
-                            {...field}
-                          >
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select Civil Status' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
                             {opStatus.map((row) => (
-                              <option key={row.value} value={row.value}>
-                                {row.label}
-                              </option>
+                              <SelectItem key={row.value} value={row.label}>
+                                {!row.label ? 'Select Civil Status' : row.label}
+                              </SelectItem>
                             ))}
-                          </select>
-                        </FormControl>
-                        <ChevronDownIcon className='absolute right-3 top-2.5 h-4 w-4 opacity-50' />
+                          </SelectContent>
+                        </Select>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -1036,38 +1039,76 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
               <div className='!mt-10 flex h-11 w-full items-center justify-center rounded-md border-2 border-teal-500'>
                 <h1>Attached Required Forms *</h1>
               </div>
-              <div className='grid grid-cols-3 gap-2'>
-                <div className='flex flex-col space-y-4' ref={phAsCOEContainerRef} tabIndex={0}>
-                  <Label className={cn('', !watch('dpDSClassDetails.dpPhAsAttachmentCOEUrl') && 'text-red-500')}>
-                    Certificate of Employment *
-                  </Label>
-                  <FileUpload
-                    uploader='button'
-                    endpoint='pdfUploader'
-                    value={watch('dpDSClassDetails.dpPhAsAttachmentCOEUrl')}
-                    onChange={(urlValue) => setValue('dpDSClassDetails.dpPhAsAttachmentCOEUrl', urlValue ?? '')}
+              <div className='grid gap-2 lg:grid-cols-3'>
+                <div ref={phAsCOEContainerRef} tabIndex={0}>
+                  <FileUploader
+                    value={getValues('dpDSClassDetails.dpPhAsAttachmentCOEUrl')}
+                    label='Certificate of Employment'
+                    isRequired
+                    type={['application/pdf']}
+                    uploaderKey='dpDSClassDetails-dpPhAsAttachmentCOEUrl'
+                    className='h-[240px] w-full'
+                    icon={Icons.cloudUpload}
+                    limitSize={2}
+                    isMultiple={false}
+                    onChange={(url) => {
+                      setValue('dpDSClassDetails.dpPhAsAttachmentCOEUrl', url ?? '')
+                      clearErrors('dpDSClassDetails.dpPhAsAttachmentCOEUrl')
+                    }}
+                    isError={errors.dpDSClassDetails && 'dpPhAsAttachmentCOEUrl' in errors.dpDSClassDetails}
+                    errorMessage={
+                      errors.dpDSClassDetails &&
+                      'dpPhAsAttachmentCOEUrl' in errors.dpDSClassDetails &&
+                      (errors.dpDSClassDetails.dpPhAsAttachmentCOEUrl as Record<string, any>)?.message
+                    }
                   />
                 </div>
 
-                <div className='flex flex-col space-y-4' ref={phAsDiplomaContainerRef} tabIndex={0}>
-                  <Label className={cn('', !watch('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl') && 'text-red-500')}>Diploma *</Label>
-                  <FileUpload
-                    uploader='button'
-                    endpoint='pdfUploader'
-                    value={watch('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl')}
-                    onChange={(urlValue) => setValue('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl', urlValue ?? '')}
+                <div ref={phAsDiplomaContainerRef} tabIndex={0}>
+                  <FileUploader
+                    value={getValues('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl')}
+                    label='Diploma'
+                    isRequired
+                    type={['application/pdf']}
+                    uploaderKey='dpDSClassDetails-dpPhAsAttachmentDiplomaUrl'
+                    className='h-[240px] w-full'
+                    icon={Icons.cloudUpload}
+                    limitSize={2}
+                    isMultiple={false}
+                    onChange={(url) => {
+                      setValue('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl', url ?? '')
+                      clearErrors('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl')
+                    }}
+                    isError={errors.dpDSClassDetails && 'dpPhAsAttachmentDiplomaUrl' in errors.dpDSClassDetails}
+                    errorMessage={
+                      errors.dpDSClassDetails &&
+                      'dpPhAsAttachmentDiplomaUrl' in errors.dpDSClassDetails &&
+                      (errors.dpDSClassDetails.dpPhAsAttachmentDiplomaUrl as Record<string, any>)?.message
+                    }
                   />
                 </div>
 
-                <div className='flex flex-col space-y-4' ref={phAsCOAContainerRef} tabIndex={0}>
-                  <Label className={cn('', !watch('dpDSClassDetails.dpPhAsAttachmentCOAUrl') && 'text-red-500')}>
-                    Certificate of Attendance *
-                  </Label>
-                  <FileUpload
-                    uploader='button'
-                    endpoint='pdfUploader'
-                    value={watch('dpDSClassDetails.dpPhAsAttachmentCOAUrl')}
-                    onChange={(urlValue) => setValue('dpDSClassDetails.dpPhAsAttachmentCOAUrl', urlValue ?? '')}
+                <div ref={phAsCOAContainerRef} tabIndex={0}>
+                  <FileUploader
+                    value={getValues('dpDSClassDetails.dpPhAsAttachmentCOAUrl')}
+                    label='Certificate of Attendance'
+                    isRequired
+                    type={['application/pdf']}
+                    uploaderKey='dpDSClassDetails-dpPhAsAttachmentCOAUrl'
+                    className='h-[240px] w-full'
+                    icon={Icons.cloudUpload}
+                    limitSize={2}
+                    isMultiple={false}
+                    onChange={(url) => {
+                      setValue('dpDSClassDetails.dpPhAsAttachmentCOAUrl', url ?? '')
+                      clearErrors('dpDSClassDetails.dpPhAsAttachmentCOAUrl')
+                    }}
+                    isError={errors.dpDSClassDetails && 'dpPhAsAttachmentCOAUrl' in errors.dpDSClassDetails}
+                    errorMessage={
+                      errors.dpDSClassDetails &&
+                      'dpPhAsAttachmentCOAUrl' in errors.dpDSClassDetails &&
+                      (errors.dpDSClassDetails.dpPhAsAttachmentCOAUrl as Record<string, any>)?.message
+                    }
                   />
                 </div>
               </div>
@@ -1109,7 +1150,7 @@ function DrugstoreChainDetails() {
 
   const onTabChange = (value: string) => setTab(value)
 
-  const onSubmit: SubmitHandler<DrugstoreChainClassDetails> = (data, event) => {
+  const onSubmit: SubmitHandler<DrugstoreChainClassBranch> = (data, event) => {
     if (openDialog?.type === 'add') {
       append(data)
       reset()
@@ -1128,7 +1169,7 @@ function DrugstoreChainDetails() {
     }
   }
 
-  const onEdit = (index: number, row: DrugstoreChainClassDetails) => {
+  const onEdit = (index: number, row: DrugstoreChainClassBranch) => {
     setOpenDialog({ isOpen: true, type: 'edit', row: index })
 
     reset(row, { keepDefaultValues: true })
@@ -1148,7 +1189,7 @@ function DrugstoreChainDetails() {
         </div>
         <Button
           type='button'
-          className='cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out hover:border-teal-500  hover:bg-teal-500 focus:outline-none'
+          className='cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold text-white transition duration-200 ease-in-out hover:border-teal-500 hover:bg-teal-500 focus:outline-none'
           onClick={() => {
             setOpenDialog({ isOpen: true, type: 'add' })
             reset()
@@ -1259,10 +1300,11 @@ function DrugstoreChainDetails() {
 function ChainDSGeneralInfo() {
   const {
     control,
+    getValues,
     setValue,
     watch,
     formState: { errors }
-  } = useFormContext<DrugstoreChainClassDetails>()
+  } = useFormContext<DrugstoreChainClassBranch>()
 
   return (
     <div className='gap-2 space-y-2'>
@@ -1323,12 +1365,17 @@ function ChainDSGeneralInfo() {
               extendedProps={{ label: 'Date Expiry' }}
             />
 
-            <Label className={cn('', errors.fdaUrlAttachment && 'text-red-500')}>FDA LTO Document Attachment</Label>
-            <FileUpload
-              uploader='button'
-              endpoint='pdfUploader'
-              value={watch('fdaUrlAttachment')}
-              onChange={(urlValue) => setValue('fdaUrlAttachment', urlValue ?? '')}
+            <FileUploader
+              value={getValues('fdaUrlAttachment') ?? ''}
+              label='FDA LTO Document Attachment'
+              type={['application/pdf']}
+              uploaderKey='chainDSGeneralInfo-fdaUrlAttachment'
+              className='h-[240px] w-full'
+              icon={Icons.cloudUpload}
+              limitSize={2}
+              isMultiple={false}
+              onChange={(url) => setValue('fdaUrlAttachment', url ?? '')}
+              isError={!!errors.fdaUrlAttachment}
             />
           </div>
         </div>
@@ -1356,12 +1403,17 @@ function ChainDSGeneralInfo() {
               extendedProps={{ label: 'Date Expiry' }}
             />
 
-            <Label className={cn('', errors.docUrlAttachment && 'text-red-500')}>DTI/SEC Document Attachment</Label>
-            <FileUpload
-              uploader='button'
-              endpoint='pdfUploader'
-              value={watch('docUrlAttachment')}
-              onChange={(urlValue) => setValue('docUrlAttachment', urlValue ?? '')}
+            <FileUploader
+              value={getValues('docUrlAttachment') ?? ''}
+              label='DTI/SEC Document Attachment'
+              type={['application/pdf']}
+              uploaderKey='chainDSGeneralInfo-docUrlAttachment'
+              className='h-[240px] w-full'
+              icon={Icons.cloudUpload}
+              limitSize={2}
+              isMultiple={false}
+              onChange={(url) => setValue('docUrlAttachment', url ?? '')}
+              isError={!!errors.docUrlAttachment}
             />
           </div>
         </div>
@@ -1376,7 +1428,7 @@ function ChainDSPharmacyInfo() {
     setValue,
     watch,
     formState: { errors }
-  } = useFormContext<DrugstoreChainClassDetails>()
+  } = useFormContext<DrugstoreChainClassBranch>()
 
   const [tab, setTab] = useState('registered-pharmacist')
   const onTabChange = (value: string) => setTab(value)
@@ -1514,7 +1566,7 @@ function ChainDSProfile() {
     setValue,
     watch,
     formState: { errors }
-  } = useFormContext<DrugstoreChainClassDetails>()
+  } = useFormContext<DrugstoreChainClassBranch>()
 
   return (
     <div className='space-y-4'>
@@ -1644,6 +1696,7 @@ function OwnerProfile({ isModalForm }: { isModalForm?: boolean }) {
   const {
     control,
     setValue,
+    getValues,
     formState: { errors },
     clearErrors,
     watch
@@ -1703,13 +1756,13 @@ function OwnerProfile({ isModalForm }: { isModalForm?: boolean }) {
 
   return (
     <Card className='w-full'>
-      {/* <CardHeader>
+      <CardHeader>
         <CardTitle>Owners Profile</CardTitle>
         <CardDescription className='mb-5'>
           Please fill up the form below. <span className='text-lg font-bold text-teal-500'> * </span> is required.
         </CardDescription>
       </CardHeader>
-      <Separator /> */}
+      <Separator />
 
       <CardHeader>
         <div className='relative flex justify-between'>
@@ -1717,27 +1770,24 @@ function OwnerProfile({ isModalForm }: { isModalForm?: boolean }) {
             <CardTitle>Registered Pharmacist Details</CardTitle>
             <CardDescription>Drugstore Pharmacist Form.</CardDescription>
           </div>
-          <div
-            ref={opPhImageContainerRef}
-            tabIndex={0}
-            className={cn(
-              'absolute -top-3 right-0 flex h-[150px] w-[156px] flex-col items-center justify-center space-y-1 rounded-md border-2 border-dashed',
-              errors.opPhImageUrl && 'border-red-400 text-destructive'
-            )}
-          >
-            {(watch('opPhImageUrl')?.length < 1 || !watch('opPhImageUrl')) && <p className={cn('text-sm font-medium')}>Photo *</p>}
 
-            <FileUpload
-              uploader='button'
-              endpoint='photoUploader'
-              value={watch('opPhImageUrl')}
-              onChange={(urlValue) => {
-                setValue('opPhImageUrl', urlValue ?? '')
+          <div ref={opPhImageContainerRef} tabIndex={0}>
+            <ImageUploader
+              value={getValues('opPhImageUrl')}
+              label='Photo'
+              isRequired
+              uploaderKey='ownerProfile-opPhImageUrl'
+              icon={Icons.media}
+              limitSize={2}
+              isMultiple={false}
+              display={null}
+              className='h-[200px] w-[200px]'
+              onChange={(url) => {
+                setValue('opPhImageUrl', url ?? '')
                 clearErrors('opPhImageUrl')
-                // setPhotoErr((prev) => {
-                //   return { ph: urlValue ? false : true, phAs: prev.phAs }
-                // })
               }}
+              isError={!!errors.opPhImageUrl}
+              errorMessage={errors.opPhImageUrl?.message}
             />
           </div>
         </div>
@@ -1759,14 +1809,12 @@ function OwnerProfile({ isModalForm }: { isModalForm?: boolean }) {
               extendedProps={{ label: 'First Name' }}
             />
 
-            <div className={cn(isModalForm ? 'max-w-[120px]' : 'max-w-[150px]')}>
-              <InputFieldForm
-                control={control}
-                name='opMiddleName'
-                fieldProps={{ placeholder: isModalForm ? 'M.I' : 'Middle Initial' }}
-                extendedProps={{ label: 'Middle Initial' }}
-              />
-            </div>
+            <InputFieldForm
+              control={control}
+              name='opMiddleName'
+              fieldProps={{ placeholder: isModalForm ? 'M.I' : 'Middle Initial' }}
+              extendedProps={{ label: 'Middle Initial' }}
+            />
           </div>
 
           <TextAreaForm control={control} name='opAddress' fieldProps={{ placeholder: 'Address' }} extendedProps={{ label: 'Address' }} />
@@ -1812,20 +1860,20 @@ function OwnerProfile({ isModalForm }: { isModalForm?: boolean }) {
                 <FormItem>
                   <FormLabel>Status</FormLabel>
                   <div className='relative w-full'>
-                    <FormControl>
-                      <select
-                        className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')}
-                        {...field}
-                        value={field.value as string}
-                      >
+                    <Select onValueChange={field.onChange} defaultValue={field.value ?? ''}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select Civil Status' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
                         {opStatus.map((row) => (
-                          <option key={row.value} value={row.value}>
-                            {row.label}
-                          </option>
+                          <SelectItem key={row.value} value={row.label}>
+                            {!row.label ? 'Select Civil Status' : row.label}
+                          </SelectItem>
                         ))}
-                      </select>
-                    </FormControl>
-                    <ChevronDownIcon className='absolute right-3 top-2.5 h-4 w-4 opacity-50' />
+                      </SelectContent>
+                    </Select>
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -1935,34 +1983,50 @@ function OwnerProfile({ isModalForm }: { isModalForm?: boolean }) {
           />
 
           {watch('opDsapMember.opDsapMemberType') === 'representative' && (
-            <div className='!mt-8 grid grid-cols-2'>
-              <div className='flex flex-col gap-2' ref={opRepFormContainerRef} tabIndex={0}>
-                <Label className={cn('', errors.opDsapMember && 'text-red-500')}>Authorized Representative form *</Label>
-                <FileUpload
-                  uploader='button'
-                  endpoint='pdfUploader'
-                  value={watch('opDsapMember.opRepFormUrl')}
-                  onChange={(urlValue) => setValue('opDsapMember.opRepFormUrl', urlValue ?? '')}
-                />
+            <div className='!mt-8 grid grid-cols-2 gap-3'>
+              <FileUploader
+                value={getValues('opDsapMember.opRepFormUrl')}
+                label='Authorized Representative form'
+                isRequired
+                type={['application/pdf']}
+                uploaderKey='ownerProfile-opDsapMember-opRepFormUrl'
+                className='h-[240px] w-full'
+                icon={Icons.cloudUpload}
+                limitSize={2}
+                isMultiple={false}
+                onChange={(url) => {
+                  setValue('opDsapMember.opRepFormUrl', url ?? '')
+                  clearErrors('opDsapMember.opRepFormUrl')
+                }}
+                isError={errors.opDsapMember && 'opRepFormUrl' in errors.opDsapMember}
+                errorMessage={
+                  errors.opDsapMember &&
+                  'opRepFormUrl' in errors.opDsapMember &&
+                  (errors.opDsapMember.opRepFormUrl as Record<string, any>)?.message
+                }
+              />
 
-                {errors.opDsapMember && 'opRepFormUrl' in errors.opDsapMember && (
-                  <p className='text-sm font-medium text-destructive'>Please attached Authorized Representative form</p>
-                )}
-              </div>
-
-              <div className='flex flex-col gap-2' ref={opRepPhotoContainerRef} tabIndex={0}>
-                <Label className={cn('', errors.opDsapMember && 'text-red-500')}>Authorized Representative photo *</Label>
-                <FileUpload
-                  uploader='button'
-                  endpoint='photoUploader'
-                  value={watch('opDsapMember.opRepPhotoUrl')}
-                  onChange={(urlValue) => setValue('opDsapMember.opRepPhotoUrl', urlValue ?? '')}
-                />
-
-                {errors.opDsapMember && 'opRepPhotoUrl' in errors.opDsapMember && (
-                  <p className='text-sm font-medium text-destructive'>Please select Authorized Representative photo.</p>
-                )}
-              </div>
+              <FileUploader
+                value={getValues('opDsapMember.opRepPhotoUrl')}
+                label='Authorized Representative photo'
+                isRequired
+                type={['image/png', 'image/jpeg']}
+                uploaderKey='ownerProfile-opDsapMember-opRepPhotoUrl'
+                className='h-[240px] w-full'
+                icon={Icons.cloudUpload}
+                limitSize={2}
+                isMultiple={false}
+                onChange={(url) => {
+                  setValue('opDsapMember.opRepPhotoUrl', url ?? '')
+                  clearErrors('opDsapMember.opRepPhotoUrl')
+                }}
+                isError={errors.opDsapMember && 'opRepPhotoUrl' in errors.opDsapMember}
+                errorMessage={
+                  errors.opDsapMember &&
+                  'opRepPhotoUrl' in errors.opDsapMember &&
+                  (errors.opDsapMember.opRepPhotoUrl as Record<string, any>)?.message
+                }
+              />
             </div>
           )}
         </div>
@@ -1974,8 +2038,10 @@ function OwnerProfile({ isModalForm }: { isModalForm?: boolean }) {
 function RegistrationDetails() {
   const {
     control,
+    getValues,
     setValue,
     watch,
+    clearErrors,
     formState: { errors }
   } = useFormContext<MemberRegistrationForm>()
 
@@ -2025,16 +2091,23 @@ function RegistrationDetails() {
               extendedProps={{ label: 'Date Expiry', required: true }}
             />
 
-            {/* <Label>FDA LTO Document Attachment *</Label> */}
-
-            <Label className={cn('', errors.fdaUrlAttachment && 'text-red-500')}>FDA LTO Document Attachment *</Label>
-
             <div ref={fdaAttachmentContainerRef} tabIndex={0}>
-              <FileUpload
-                uploader='button'
-                endpoint='pdfUploader'
-                value={watch('fdaUrlAttachment')}
-                onChange={(urlValue) => setValue('fdaUrlAttachment', urlValue ?? '')}
+              <FileUploader
+                value={getValues('fdaUrlAttachment')}
+                label='FDA LTO Document Attachment'
+                isRequired
+                type={['application/pdf']}
+                uploaderKey='registrationDetails-fdaUrlAttachment'
+                className='h-[240px] w-full'
+                icon={Icons.cloudUpload}
+                limitSize={2}
+                isMultiple={false}
+                onChange={(url) => {
+                  setValue('fdaUrlAttachment', url ?? '')
+                  clearErrors('fdaUrlAttachment')
+                }}
+                isError={!!errors.fdaUrlAttachment}
+                errorMessage={errors.fdaUrlAttachment?.message}
               />
             </div>
           </div>
@@ -2063,14 +2136,23 @@ function RegistrationDetails() {
               extendedProps={{ label: 'Date Expiry', required: true }}
             />
 
-            <Label className={cn('', errors.bpUrlAttachment && 'text-red-500')}>Business Permit Document Attachment *</Label>
-
             <div ref={bpaAttachmentContainerRef} tabIndex={0}>
-              <FileUpload
-                uploader='button'
-                endpoint='pdfUploader'
-                value={watch('bpUrlAttachment')}
-                onChange={(urlValue) => setValue('bpUrlAttachment', urlValue ?? '')}
+              <FileUploader
+                value={getValues('bpUrlAttachment')}
+                label='Business Permit Document Attachment'
+                isRequired
+                type={['application/pdf']}
+                uploaderKey='registrationDetails-bpUrlAttachment'
+                className='h-[240px] w-full'
+                icon={Icons.cloudUpload}
+                limitSize={2}
+                isMultiple={false}
+                onChange={(url) => {
+                  setValue('bpUrlAttachment', url ?? '')
+                  clearErrors('bpUrlAttachment')
+                }}
+                isError={!!errors.bpUrlAttachment}
+                errorMessage={errors.bpUrlAttachment?.message}
               />
             </div>
           </div>
@@ -2099,14 +2181,23 @@ function RegistrationDetails() {
               extendedProps={{ label: 'Date Expiry', required: true }}
             />
 
-            <Label className={cn('', errors.docUrlAttachment && 'text-red-500')}>DTI/SEC Document Attachment *</Label>
-
             <div ref={docAttachmentContainerRef} tabIndex={0}>
-              <FileUpload
-                uploader='button'
-                endpoint='pdfUploader'
-                value={watch('docUrlAttachment')}
-                onChange={(urlValue) => setValue('docUrlAttachment', urlValue ?? '')}
+              <FileUploader
+                value={getValues('docUrlAttachment')}
+                label='DTI/SEC Document Attachment'
+                isRequired
+                type={['application/pdf']}
+                uploaderKey='registrationDetails-docUrlAttachment'
+                className='h-[240px] w-full'
+                icon={Icons.cloudUpload}
+                limitSize={2}
+                isMultiple={false}
+                onChange={(url) => {
+                  setValue('docUrlAttachment', url ?? '')
+                  clearErrors('docUrlAttachment')
+                }}
+                isError={!!errors.docUrlAttachment}
+                errorMessage={errors.docUrlAttachment?.message}
               />
             </div>
           </div>
@@ -2119,6 +2210,7 @@ function RegistrationDetails() {
 function ProofOfPayment() {
   const {
     control,
+    getValues,
     setValue,
     watch,
     formState: { errors }
@@ -2131,15 +2223,20 @@ function ProofOfPayment() {
       </CardHeader>
       <Separator />
 
-      <CardContent className='mt-5 flex flex-col space-y-4'>
-        <Label className={cn('')}>Proof of Payment</Label>
-        <FileUpload
-          uploader='button'
-          endpoint='pdfUploader'
-          value={watch('proofOfPaymentUrl')}
-          onChange={(urlValue) => setValue('proofOfPaymentUrl', urlValue ?? '')}
+      <div className='p-2'>
+        <ImageUploader
+          value={getValues('proofOfPaymentUrl') ?? ''}
+          label='Photo'
+          uploaderKey='proofOfPayment-proofOfPaymentUrl'
+          icon={Icons.media}
+          limitSize={2}
+          isMultiple={false}
+          display={null}
+          className='h-[380px]'
+          onChange={(url) => setValue('proofOfPaymentUrl', url ?? '')}
+          isError={!!errors.proofOfPaymentUrl}
         />
-      </CardContent>
+      </div>
     </Card>
   )
 }

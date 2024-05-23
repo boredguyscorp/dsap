@@ -26,7 +26,7 @@ export function LandingNav({ children, userId }: MainNavProps) {
   const showRegistration = process.env.NEXT_PUBLIC_SHOW_REGISTRATION === 'true'
 
   return (
-    <div className='flex h-20 items-center justify-between py-6 '>
+    <div className='flex h-20 items-center justify-between py-6'>
       <Link href='/' className='flex items-center'>
         <Logo />
         <span className='flex flex-col'>

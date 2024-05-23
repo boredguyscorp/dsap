@@ -39,8 +39,9 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound()
   }
 
-  const mdxSource = await getMdxSource(post.content!)
-  const imagesGallery = post.imagesGallery as MultiImage[]
+  const mdxSourceContent = await getMdxSource(post.content!)
+  const mdxSourceDescription = await getMdxSource(post.description!)
+  const imagesGallery = post.imagesGallery as string[]
 
   const showBanner = process.env.SHOW_BANNER === 'true'
 
@@ -60,8 +61,6 @@ export default async function PostPage({ params }: PostPageProps) {
 
               <h2 className='text-3xl font-bold text-teal-600 dark:text-white md:text-4xl lg:text-5xl'>{post.title}</h2>
 
-              <p className='text-lg text-gray-800 dark:text-gray-200'>{post.description}</p>
-
               <div className='flex items-center gap-x-5'>
                 <div className='inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-800 sm:px-4 sm:py-2 sm:text-sm'>
                   Published {toDateString(post.createdAt)}
@@ -73,12 +72,16 @@ export default async function PostPage({ params }: PostPageProps) {
                 ) : null}
                 {/* <p className='text-xs text-gray-800 dark:text-gray-200 sm:text-sm'>Published {toDateString(selectedSlug.createdAt)}</p> */}
               </div>
+
+              <div>
+                <MDX source={mdxSourceDescription} />
+              </div>
             </div>
 
             <div className='my-10'>{imagesGallery.length > 0 && <ImagesGallery imagesGallery={imagesGallery} />}</div>
 
             <div className='space-y-5 lg:space-y-8'>
-              <MDX source={mdxSource} />
+              <MDX source={mdxSourceContent} />
 
               {/* <EditorOutput content={data.content} /> */}
             </div>

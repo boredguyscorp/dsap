@@ -74,17 +74,6 @@ export function EmailRegistrationConvention(props: { formData: ConventionRegistr
   )
 }
 
-type EmailRegistrationConfirmProps = {
-  convention: string
-  code: string
-  firstName: string
-  lastName: string
-  emailAdd: string
-  drugstoreInfo: Prisma.JsonValue
-  message: string | null
-  status: string
-}
-
 export function EmailRegistrationStatus({ data }: { data: Partial<Registration> }) {
   const conventionDetails = conventions.find((row) => row.code == data.convention)
   const dsInfo = data.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']

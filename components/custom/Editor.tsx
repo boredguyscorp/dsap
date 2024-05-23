@@ -74,14 +74,13 @@ export function Editor({ post }: EditorProps) {
             config: {
               uploader: {
                 async uploadByFile(file: File) {
-                  const [res] = await uploadFiles({ endpoint: 'imageUploader', files: [file] })
-
-                  return {
-                    success: 1,
-                    file: {
-                      url: res.fileUrl
-                    }
-                  }
+                  // const [res] = await uploadFiles({ endpoint: 'imageUploader', files: [file] })
+                  // return {
+                  //   success: 1,
+                  //   file: {
+                  //     url: res.fileUrl
+                  //   }
+                  // }
                 }
               }
             }
@@ -155,7 +154,7 @@ export function Editor({ post }: EditorProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className='mx-auto grid w-[800px]  gap-10 '>
-        <div className='flex  items-center justify-between'>
+        <div className='flex items-center justify-between'>
           <div className='flex items-center space-x-4'>
             <Link href={`/cpanel/${page}`} className={cn(buttonVariants({ variant: 'ghost' }))}>
               <>

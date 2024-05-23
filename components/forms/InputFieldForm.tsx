@@ -9,6 +9,7 @@ type ExtendedProps = {
   label?: string
   labelClassName?: string
   errorMessageClassName?: string
+  description?: string
   style?: 'default' | 'classic'
 }
 
@@ -43,12 +44,14 @@ export function InputFieldForm<T extends FieldValues>(props: TextFieldFormProps<
                 <Input
                   {...field}
                   {...fieldProps}
+                  required={undefined}
                   value={getValues(name)}
                   className={cn('', style === 'classic' && 'border-none', fieldProps?.className)}
                 />
                 {fieldProps?.required && <p className='absolute right-1 top-0 text-lg font-bold text-teal-500'> * </p>}
               </div>
             </FormControl>
+            {extendedProps?.description ? <FormDescription className='text-xs'>{extendedProps.description}</FormDescription> : null}
             <FormMessage className={cn(extendedProps?.errorMessageClassName)} />
           </FormItem>
         )

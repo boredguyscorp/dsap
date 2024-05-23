@@ -1,7 +1,7 @@
 'use client'
 
 import { Icons } from '@/components/shared/icons'
-import cn from 'classnames'
+import { cn } from '@/lib/utils'
 import createGlobe from 'cobe'
 import { motion } from 'framer-motion'
 import {
@@ -278,7 +278,7 @@ const SolutionPlatformSection = () => {
         {/* <Balancer>Solutions and Platform</Balancer> */}
         <div>
           {/* <span className='animate-gradient bg-gradient-to-r from-purple-400 to-yellow-500 bg-300% bg-clip-text font-black text-transparent'> */}
-          <span className='bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text  font-black text-transparent'>Explore </span>
+          <span className='bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text font-black text-transparent'>Explore </span>
           <span className='font-bold'>the Portal way.</span>
         </div>
 

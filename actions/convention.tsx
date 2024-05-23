@@ -11,15 +11,24 @@ import Mail from 'nodemailer/lib/mailer'
 import { render } from '@react-email/render'
 
 import { EmailRegistrationStatus, EmailRegistrationConvention } from '@/app/(root)/(routes)/national-convention/_docs/email'
-import { Chapter, Registration } from '@prisma/client'
+import { Registration } from '@prisma/client'
+import { UTApi } from 'uploadthing/server'
 
-export async function registerConvention(formData: ConventionRegistrationForm) {
+const utapi = new UTApi()
+
+export async function registerConvention(formValues: ConventionRegistrationForm, formData: FormData) {
   const code = generateRandomString(4).toUpperCase() + '-' + generateNumberString(4)
-  const { title, ...restFormData } = formData
+  const { title, ...restFormData } = formValues
   const data = { ...restFormData, title: title === 'Select Title' ? null : title, code }
 
   try {
-    await db.registration.create({ data })
+    //? get file value from formData
+    const proofOfPaymentUrlFile = formData.get('proofOfPaymentUrl') as File
+
+    //? upload file
+    const proofOfPaymentUrl = await utapi.uploadFiles(proofOfPaymentUrlFile)
+
+    await db.registration.create({ data: { ...data, proofOfPaymentUrl: proofOfPaymentUrl.data?.url ?? '' } })
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -31,14 +40,12 @@ export async function registerConvention(formData: ConventionRegistrationForm) {
 
     const options: Mail.Options = {
       from: process.env.NODEMAILER_EMAIL,
-      to: formData.emailAdd,
-      subject: `New Registration ${formData.convention} DSAP National Convention`,
-      html: render(<EmailRegistrationConvention formData={formData} />)
+      to: formValues.emailAdd,
+      subject: `New Registration ${formValues.convention} DSAP National Convention`,
+      html: render(<EmailRegistrationConvention formData={{ ...formValues, proofOfPaymentUrl: proofOfPaymentUrl.data?.url ?? '' }} />)
     }
 
     await transporter.sendMail(options)
-
-    // await new Promise((res) => setTimeout(res, 2500))
 
     return { code }
   } catch (error) {

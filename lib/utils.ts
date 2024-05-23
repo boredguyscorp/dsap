@@ -1,10 +1,11 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
-import { format, isValid, parseISO } from 'date-fns'
-
-import formatDistance from 'date-fns/formatDistance'
 import { z } from 'zod'
+import axios from 'axios'
 import { toast } from 'sonner'
+import { twMerge } from 'tailwind-merge'
+import { type ClassValue, clsx } from 'clsx'
+import { format, isValid, parseISO } from 'date-fns'
+import formatDistance from 'date-fns/formatDistance'
+import { v4 as uuidv4 } from 'uuid'
 
 import { totp } from 'otplib'
 
@@ -18,6 +19,13 @@ export function cn(...inputs: ClassValue[]) {
 export const formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD'
+})
+
+export const byteFormatter = Intl.NumberFormat('en', {
+  notation: 'compact',
+  style: 'unit',
+  unit: 'byte',
+  unitDisplay: 'narrow'
 })
 
 export function formatDate(input: string | number): string {
@@ -207,4 +215,16 @@ export async function Await<T>({ promise, children }: { promise: Promise<T> | un
   const data = await promise
 
   return children(data)
+}
+
+export async function getFileFromBlobUrl(url: string) {
+  const res = await axios.get(url, { responseType: 'blob' })
+  const blob = res.data as Blob
+
+  return new File([blob], uuidv4(), { type: blob.type })
+}
+
+export function extractFileKeyFromUrl(url: string) {
+  if (url) return url.split('/').pop() ?? ''
+  return ''
 }

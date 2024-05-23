@@ -16,6 +16,7 @@ import { useFormContext } from 'react-hook-form'
 import { Separator } from '@/components/ui/separator'
 import { ChapterList } from '@/actions/fetchers'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 type NationalConventionFormProps = {
   chapters: ChapterList
@@ -99,24 +100,20 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
           name='title'
           render={({ field }) => (
             <FormItem>
-              {/* <FormLabel>Status</FormLabel> */}
-              <div className='relative w-full'>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <select
-                    className={cn(buttonVariants({ variant: 'outline' }), 'w-full appearance-none bg-transparent')}
-                    placeholder='Select Title'
-                    {...field}
-                  >
-                    {title.map((row) => (
-                      <option key={row} value={row}>
-                        {row}
-                      </option>
-                    ))}
-                  </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Select Title' />
+                  </SelectTrigger>
                 </FormControl>
-                <ChevronDownIcon className='absolute right-3 top-2.5 h-4 w-4 opacity-50' />
-              </div>
-              {/* <FormDescription>Select Owner Status.</FormDescription> */}
+                <SelectContent>
+                  {title.map((row) => (
+                    <SelectItem key={row} value={row}>
+                      {row}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

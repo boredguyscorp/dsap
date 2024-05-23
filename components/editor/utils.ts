@@ -15,32 +15,30 @@ export const handleImageUpload = (file: File, view: EditorView, event: Clipboard
     toast.error('File size too big (max 50MB).')
   } else {
     // upload to UploadThing.com
-    toast.promise(
-      uploadFiles({ endpoint: 'imageUploader', files: [file] }).then(async (res) => {
-        // Successfully uploaded image
-        if (res) {
-          console.log('🚀 -> uploadFiles -> res:', res)
-          // oscar comment
-
-          const url = res[0].url
-
-          // preload the image
-          let image = new Image()
-          image.src = url
-          image.onload = () => {
-            insertImage(url)
-          }
-        } else {
-          throw new Error(`Error uploading image. Please try again.`)
-        }
-      }),
-      {
-        loading: 'Uploading image...',
-        success: 'Image uploaded successfully.',
-        error: (e) => e.message
-      },
-      { position: 'bottom-center' }
-    )
+    // toast.promise(
+    //   uploadFiles({ endpoint: 'imageUploader', files: [file] }).then(async (res) => {
+    //     // Successfully uploaded image
+    //     if (res) {
+    //       console.log('🚀 -> uploadFiles -> res:', res)
+    //       // oscar comment
+    //       const url = res[0].url
+    //       // preload the image
+    //       let image = new Image()
+    //       image.src = url
+    //       image.onload = () => {
+    //         insertImage(url)
+    //       }
+    //     } else {
+    //       throw new Error(`Error uploading image. Please try again.`)
+    //     }
+    //   }),
+    //   {
+    //     loading: 'Uploading image...',
+    //     success: 'Image uploaded successfully.',
+    //     error: (e) => e.message
+    //   },
+    //   { position: 'bottom-center' }
+    // )
   }
 
   const insertImage = (url: string) => {
