@@ -106,6 +106,11 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
     orderBy: orderByVal
   })
 
+  const allRegistrationUnPaginated = db.registration.findMany({
+    where: whereVal,
+    orderBy: orderByVal
+  })
+
   const totalRegistration = db.registration.count({
     where: whereVal
   })
@@ -128,7 +133,7 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
       title={convention.code + ' DSAP National Convention' + ' ' + convention.date}
       description={`${convention.title} [${convention.description}]`}
       className='mb-0'
-      headerAction={<ActionButton />}
+      headerAction={<Await promise={allRegistrationUnPaginated}>{(data) => <ActionButton registrations={data} />}</Await>}
     >
       <div className='pb-8 pt-6 md:py-8'>
         {statistics && (

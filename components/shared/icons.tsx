@@ -52,7 +52,8 @@ import {
   FileIcon,
   UploadCloudIcon,
   Loader2Icon,
-  AlertCircle
+  AlertCircle,
+  DownloadIcon
 } from 'lucide-react'
 
 export type Icon = LucideIcon

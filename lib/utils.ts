@@ -6,6 +6,7 @@ import { type ClassValue, clsx } from 'clsx'
 import { format, isValid, parseISO } from 'date-fns'
 import formatDistance from 'date-fns/formatDistance'
 import { v4 as uuidv4 } from 'uuid'
+import { CellStyle, WorkSheet, utils } from 'xlsx-js-style'
 
 import { totp } from 'otplib'
 
@@ -227,4 +228,33 @@ export async function getFileFromBlobUrl(url: string) {
 export function extractFileKeyFromUrl(url: string) {
   if (url) return url.split('/').pop() ?? ''
   return ''
+}
+
+type StyleWorkSheet = {
+  worksheet: WorkSheet
+  cellStyle: CellStyle
+  headerStyle?: CellStyle
+}
+
+export function styleWorkSheet({ worksheet, cellStyle, headerStyle }: StyleWorkSheet) {
+  const range = utils.decode_range(worksheet['!ref'] ?? '')
+  const rowCount = range.e.r
+  const columnCount = range.e.c
+
+  for (let row = 0; row <= rowCount; row++) {
+    for (let col = 0; col <= columnCount; col++) {
+      const cellRef = utils.encode_cell({ r: row, c: col })
+
+      // Add center alignment to every cell
+      worksheet[cellRef].s = cellStyle
+
+      if (headerStyle && row === 0) {
+        // Format headers and names
+        worksheet[cellRef].s = {
+          ...worksheet[cellRef].s,
+          ...headerStyle
+        }
+      }
+    }
+  }
 }

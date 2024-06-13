@@ -111,11 +111,19 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
     orderBy: orderByVal
   })
 
+  const allMembersUnPaginated = db.members.findMany({
+    where: whereVal,
+    include: {
+      memberChapter: { select: { id: true, code: true, name: true } }
+    },
+    orderBy: orderByVal
+  })
+
   const totalMembers = db.members.count({ where: whereVal })
 
   const chapters = getChapters()
 
-  const membersPromise = Promise.all([allMembers, totalMembers, chapters])
+  const membersPromise = Promise.all([allMembers, allMembersUnPaginated, totalMembers, chapters])
 
   const statistics = showStat === 'true'
 
@@ -131,7 +139,15 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
       title='Membership'
       description='Manage your member(s) data.'
       className='mb-0'
-      headerAction={<Await promise={chapters}>{(data) => <ActionButton chapters={data} />}</Await>}
+      headerAction={
+        <Await promise={membersPromise}>
+          {(data) => {
+            const [allMembers, allMembersUnPaginated, totalMembers, chapters] = data
+
+            return <ActionButton members={allMembersUnPaginated} chapters={chapters} />
+          }}
+        </Await>
+      }
     >
       <div className='pb-8 pt-6 md:py-8'>
         {statistics && (
@@ -167,7 +183,7 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
         <Suspense fallback={<DataTableLoading columnCount={4} />}>
           <Await promise={membersPromise}>
             {(data) => {
-              const [allMembers, totalMembers, chapters] = data
+              const [allMembers, allMembersUnPaginated, totalMembers, chapters] = data
 
               const pageCount = Math.ceil(totalMembers / limit)
 

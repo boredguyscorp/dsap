@@ -330,7 +330,7 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
       {
         id: 'actions',
         cell: ({ row }) => (
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button aria-label='Open menu' variant='ghost' className='flex h-8 w-8 p-0 data-[state=open]:bg-muted'>
                 <DotsHorizontalIcon className='h-4 w-4' aria-hidden='true' />
