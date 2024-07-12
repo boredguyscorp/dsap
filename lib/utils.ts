@@ -245,11 +245,11 @@ export function styleWorkSheet({ worksheet, cellStyle, headerStyle }: StyleWorkS
     for (let col = 0; col <= columnCount; col++) {
       const cellRef = utils.encode_cell({ r: row, c: col })
 
-      // Add center alignment to every cell
+      //* add styles to cells
       worksheet[cellRef].s = cellStyle
 
       if (headerStyle && row === 0) {
-        // Format headers and names
+        //* add styles to header
         worksheet[cellRef].s = {
           ...worksheet[cellRef].s,
           ...headerStyle

@@ -36,7 +36,8 @@ export function ActionButton({ registrations }: { registrations: Registration[] 
         'Registration Date': toDateTime(registration.createdAt),
         Status: registration.status,
         Email: registration.emailAdd,
-        'Contact No': registration.contactNo
+        'Contact No': registration.contactNo,
+        'Proof of Payment URL': registration.proofOfPaymentUrl
       }
     })
 
@@ -54,7 +55,8 @@ export function ActionButton({ registrations }: { registrations: Registration[] 
       { wch: 25 }, // Registration Date,
       { wch: 15 }, // Status,
       { wch: 30 }, // Email,
-      { wch: 15 } // Contact No
+      { wch: 15 }, // Contact No
+      { wch: 35 } // Proof of Payment URL
     ]
 
     // tyle worksheet
