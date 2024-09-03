@@ -36,7 +36,8 @@ export function ActionButton({ members, chapters }: { members: MemberType[]; cha
       'Telephone No': member.telNo,
       'Ownership Type': member.ownershipType,
       'Membership Type': member.membershipType,
-      'Drugstore Classification': member.drugstoreClass
+      'Drugstore Classification': member.drugstoreClass,
+      'Proof of Payment URL': member.proofOfPaymentUrl
     }))
 
     const wb = utils.book_new()
@@ -53,7 +54,8 @@ export function ActionButton({ members, chapters }: { members: MemberType[]; cha
       { wch: 15 }, // Telephone No
       { wch: 20 }, // Ownership Type
       { wch: 20 }, // Membership Type
-      { wch: 25 } // Drugstore Classification
+      { wch: 25 }, // Drugstore Classification
+      { wch: 35 } // Proof of Payment URL
     ]
 
     // tyle worksheet
