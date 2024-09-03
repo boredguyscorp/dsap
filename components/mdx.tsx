@@ -16,7 +16,10 @@ export default function MDX({ source }: { source: MDXRemoteProps }) {
   }
 
   return (
-    <article className={`prose-md prose w-11/12 dark:prose-invert sm:w-full ${styles.root}`} suppressHydrationWarning={true}>
+    <article
+      className={`empty-p prose-md prose inline-block w-full max-w-[100%] dark:prose-invert ${styles.root}`}
+      suppressHydrationWarning={true}
+    >
       {/* @ts-ignore */}
       <MDXRemote {...source} components={components} />
     </article>
