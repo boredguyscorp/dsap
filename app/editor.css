@@ -63,3 +63,8 @@
 .codex-editor__redactor {
   padding-bottom: 0 !important;
 }
+
+/* style empty p tags to behave like <br/> */
+.empty-p p:empty::after {
+  content: '\00A0';
+}
