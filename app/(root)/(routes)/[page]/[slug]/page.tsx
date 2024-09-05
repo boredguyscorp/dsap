@@ -1,20 +1,18 @@
-import { getMdxSource, getPostData, getPostsForSite } from '@/actions/fetchers'
+import { getPostsForSite } from '@/actions/fetchers'
 import BlurPostImage from '@/app/(root)/_components/BlurPostImage'
-import { MultiImage } from '@/components/editor/settings/multi-image-uploader'
-import MDX from '@/components/mdx'
 import { Icons } from '@/components/shared/icons'
 import { cn, imagePostEmpty, placeholderBlurhash, toDateString, toProperCase } from '@/lib/utils'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import React from 'react'
 import readingTime from 'reading-time'
 
-import * as nextDynamic from 'next/dynamic'
-import { Icon } from '@radix-ui/react-select'
+import dyanmic from 'next/dynamic'
 
-const ImagesGallery = nextDynamic.default(() => import(`./images-gallery`), {
+const ImagesGallery = dyanmic(() => import(`./images-gallery`), {
   loading: () => <h1 className='text-lg'>Loading Images...</h1>
 })
+
+const EditorHtmlContent = dyanmic(() => import('@/components/advance-text-editor/editor-html-content'), { ssr: false })
 
 interface PostPageProps {
   params: {
@@ -23,15 +21,12 @@ interface PostPageProps {
   }
 }
 
-// export const dynamic = 'force-static'
-
 export default async function PostPage({ params }: PostPageProps) {
   const { page, slug } = params
 
   const posts = await getPostsForSite(page)
   const post = posts.find((post) => post.slug === slug)
   const postReadingTime = post && post.content ? readingTime(post.content) : null
-  // console.log('🚀 -> EventPagePost -> selectedSlug:', selectedSlug?.imagesGallery)
 
   const adjacentPosts = posts.filter((post) => post.slug !== slug)
 
@@ -39,10 +34,7 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound()
   }
 
-  const mdxSourceContent = await getMdxSource(post.content!)
-  const mdxSourceDescription = await getMdxSource(post.description!)
   const imagesGallery = post.imagesGallery as string[]
-
   const showBanner = process.env.SHOW_BANNER === 'true'
 
   return (
@@ -70,20 +62,17 @@ export default async function PostPage({ params }: PostPageProps) {
                     <span>{postReadingTime.text}</span> <Icons.clock className='h-4 w-4 text-gray-500' />
                   </div>
                 ) : null}
-                {/* <p className='text-xs text-gray-800 dark:text-gray-200 sm:text-sm'>Published {toDateString(selectedSlug.createdAt)}</p> */}
               </div>
 
               <div>
-                <MDX source={mdxSourceDescription} />
+                <EditorHtmlContent value={post.description} />
               </div>
             </div>
 
             <div className='my-10'>{imagesGallery.length > 0 && <ImagesGallery imagesGallery={imagesGallery} />}</div>
 
             <div className='space-y-5 lg:space-y-8'>
-              <MDX source={mdxSourceContent} />
-
-              {/* <EditorOutput content={data.content} /> */}
+              <EditorHtmlContent value={post.content} />
             </div>
           </div>
         </div>
@@ -109,7 +98,9 @@ export default async function PostPage({ params }: PostPageProps) {
                     <div className='grow'>
                       <span className='text-sm font-semibold text-teal-600 group-hover:text-teal-500 dark:text-gray-200 dark:group-hover:text-blue-500'>
                         {post.title}
-                        <p className='line-clamp-4 text-xs font-light text-gray-500'>{post.description}</p>
+                        <div className='line-clamp-4 font-light text-gray-500 [&>*]:text-xs'>
+                          <EditorHtmlContent value={post.description} />
+                        </div>
                       </span>
                     </div>
 

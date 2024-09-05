@@ -57,6 +57,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         <form
           onSubmit={(e) => {
             const target = e.currentTarget as HTMLFormElement
+            e.stopPropagation()
             e.preventDefault()
             const input = target[0] as HTMLInputElement
             const url = getUrlFromString(input.value)

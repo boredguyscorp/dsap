@@ -10,7 +10,7 @@ export default function EditorInitializer({ value, setInitialContent }: EditorIn
   const { editor } = useEditor()
 
   useEffect(() => {
-    if (editor && value) editor.commands.setContent(value)
+    if (editor && value) editor.commands.setContent(JSON.parse(value))
     else setInitialContent(defaultEditorContent)
 
     return () => {

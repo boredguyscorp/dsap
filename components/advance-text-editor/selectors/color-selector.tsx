@@ -96,9 +96,12 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
   const { editor } = useEditor()
 
   if (!editor) return null
-  const activeColorItem = TEXT_COLORS.find(({ color }) => editor.isActive('textStyle', { color }))
 
+  const activeColorItem = TEXT_COLORS.find(({ color }) => editor.isActive('textStyle', { color }))
   const activeHighlightItem = HIGHLIGHT_COLORS.find(({ color }) => editor.isActive('highlight', { color }))
+
+  const isDefaultColorActive = !TEXT_COLORS.some(({ color }) => editor.isActive('textStyle', { color }))
+  const isDefaultHightlightActive = !HIGHLIGHT_COLORS.some(({ color }) => editor.isActive('highlight', { color }))
 
   return (
     <Popover modal={true} open={open} onOpenChange={onOpenChange}>
@@ -135,6 +138,7 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
                     .focus()
                     .setColor(color || '')
                     .run()
+                onOpenChange(false)
               }}
               className='flex cursor-pointer items-center justify-between px-2 py-1 text-sm hover:bg-accent'
             >
@@ -144,6 +148,8 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
                 </div>
                 <span>{name}</span>
               </div>
+              {editor.isActive('textStyle', { color }) && <Check className='h-4 w-4' />}
+              {name === 'Default' && isDefaultColorActive && <Check className='h-4 w-4' />}
             </EditorBubbleItem>
           ))}
         </div>
@@ -154,7 +160,8 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
               key={index}
               onSelect={() => {
                 editor.commands.unsetHighlight()
-                name !== 'Default' && editor.commands.setHighlight({ color })
+                name !== 'Default' && editor.chain().focus().setHighlight({ color }).run()
+                onOpenChange(false)
               }}
               className='flex cursor-pointer items-center justify-between px-2 py-1 text-sm hover:bg-accent'
             >
@@ -165,6 +172,7 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
                 <span>{name}</span>
               </div>
               {editor.isActive('highlight', { color }) && <Check className='h-4 w-4' />}
+              {name === 'Default' && isDefaultHightlightActive && <Check className='h-4 w-4' />}
             </EditorBubbleItem>
           ))}
         </div>

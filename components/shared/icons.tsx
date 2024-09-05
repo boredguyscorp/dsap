@@ -53,7 +53,12 @@ import {
   UploadCloudIcon,
   Loader2Icon,
   AlertCircle,
-  DownloadIcon
+  DownloadIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  ChevronDown
 } from 'lucide-react'
 
 export type Icon = LucideIcon
@@ -110,6 +115,11 @@ export const Icons = {
   file: FileIcon,
   cloudUpload: UploadCloudIcon,
   error: AlertCircle,
+  alignLeft: AlignLeft,
+  alignCenter: AlignCenter,
+  alignRight: AlignRight,
+  alignJustify: AlignJustify,
+  down: ChevronDown,
   logo: ({ circleColor, ...props }: LucideProps & { circleColor: string }) => (
     <svg
       width='800px'

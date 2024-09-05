@@ -15,6 +15,11 @@ import GlobalDragHandle from 'tiptap-extension-global-drag-handle'
 import AutoJoiner from 'tiptap-extension-auto-joiner'
 
 import { cx } from 'class-variance-authority'
+import TextStyle from '@tiptap/extension-text-style'
+import Color from '@tiptap/extension-color'
+import Highlight from '@tiptap/extension-highlight'
+import TiptapUnderline from '@tiptap/extension-underline'
+import TextAlign from '@tiptap/extension-text-align'
 
 //TODO I am using cx here to get tailwind autocomplete working, idk if someone else can write a regex to just capture the class key in objects
 
@@ -68,8 +73,18 @@ const markdown = Markdown.configure({
   html: true,
   linkify: true,
   transformCopiedText: true,
-  tightLists: false,
   transformPastedText: true
+})
+
+const highlight = Highlight.configure({
+  multicolor: true
+})
+
+const textStyle = TextStyle
+const color = Color
+const tiptapUnderline = TiptapUnderline
+const textAlign = TextAlign.configure({
+  types: ['heading', 'paragraph']
 })
 
 const horizontalRule = HorizontalRule.extend({
@@ -123,7 +138,7 @@ const starterKit = StarterKit.configure({
   },
   code: {
     HTMLAttributes: {
-      class: cx('rounded-md bg-muted  px-1.5 py-1 font-mono font-medium'),
+      class: cx('rounded-md bg-muted  px-1.5 py-1 font-mono font-medium before:content-none after:content-none'),
       spellcheck: 'false'
     }
   },
@@ -141,15 +156,15 @@ export const defaultExtensions = [
   starterKit,
   placeholder,
   tiptapLink,
+  tiptapUnderline,
   tiptapImage,
+  textAlign,
   updatedImage,
   taskList,
   taskItem,
   horizontalRule,
-  Markdown.configure({
-    html: false,
-    linkify: true,
-    transformCopiedText: true,
-    transformPastedText: true
-  })
+  markdown,
+  highlight,
+  textStyle,
+  color
 ]

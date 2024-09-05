@@ -24,7 +24,7 @@ const Postlist = memo(function PostList({ posts, page }: PostListProps) {
       ) : (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon name='post' />
-          <EmptyPlaceholder.Title>No posts created</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Title>No {page} created</EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>You don&apos;t have any posts yet. Start creating content.</EmptyPlaceholder.Description>
           <PostCreateButton variant='outline' page={page} />
         </EmptyPlaceholder>

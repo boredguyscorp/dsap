@@ -4,7 +4,10 @@ import type { Post } from '@prisma/client'
 import BlurPostImage from './BlurPostImage'
 import { imagePostEmpty, placeholderBlurhash, toDateString } from '@/lib/utils'
 import { Pages } from '../_constant/constant'
+import dynamic from 'next/dynamic'
 // import postImage from 'public/images/post.png'
+
+const EditorHtmlContent = dynamic(() => import('@/components/advance-text-editor/editor-html-content'), { ssr: false })
 
 interface PostCardProps {
   data: Pick<Post, 'slug' | 'image' | 'imageBlurhash' | 'title' | 'description' | 'createdAt'>
@@ -26,9 +29,9 @@ export default function PostCard({ data, page }: PostCardProps) {
         />
         <div className='h-40 border-t border-stone-200 px-5 py-8 dark:border-stone-700 dark:bg-black'>
           <h3 className='font-title text-xl font-medium tracking-wide  text-teal-600 dark:text-white'>{data.title}</h3>
-          <p className='text-md my-2 truncate italic text-stone-600 dark:text-stone-400'>
-            {data.description && data.description.length > 0 ? data.description : <br />}
-          </p>
+          <div className='my-2 line-clamp-2 max-h-10 w-full italic text-stone-600 dark:text-stone-400 [&>*]:text-sm'>
+            {data.description && data.description.length > 0 ? <EditorHtmlContent className='w-full' value={data.description} /> : <br />}
+          </div>
           <p className='my-2 text-sm text-stone-600 dark:text-stone-400'>Published {toDateString(data.createdAt)}</p>
         </div>
       </div>

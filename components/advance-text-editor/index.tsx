@@ -30,6 +30,7 @@ import { cn, extractFileKeyFromUrl } from '@/lib/utils'
 import { onDelete } from '@/actions/editor'
 import EditorInitializer from './editor-initializer'
 import { ImageResizer } from './image-resizer'
+import { TextAlignSelector } from './selectors/text-align-selector'
 
 type AdvanceEditorProps = {
   className?: string
@@ -58,17 +59,19 @@ export default function AdvanceEditor({
   const [openNode, setOpenNode] = useState(false)
   const [openLink, setOpenLink] = useState(false)
   const [openColor, setOpenColor] = useState(false)
+  const [openTextAlign, setOpenTextAlign] = useState(false)
 
   const extensions = [...defaultExtensions, slashCommand]
 
   const debouncedUpdates = useDebouncedCallback(async (editor: EditorInstance) => {
-    const markDown = editor.storage.markdown.getMarkdown() as string
-    onChange(markDown)
+    const jsonContent = editor.getJSON()
+    onChange(JSON.stringify(jsonContent))
   }, 500)
 
   const onUpdate = ({ editor }: EditorEvents['update']) => {
     debouncedUpdates(editor)
   }
+
   const onTransaction = async ({ transaction }: EditorEvents['transaction']) => {
     const getImageSrcs = (fragment: Fragment) => {
       let srcs = new Set()
@@ -162,9 +165,12 @@ export default function AdvanceEditor({
           <div>
             <TextButtons />
           </div>
-
-          {/* //? Color selector apply color which output html element with "style" prop and allowing to output html from editor breaks or causes error when using it with next-mdx-remote */}
-          {/* <ColorSelector open={openColor} onOpenChange={setOpenColor} /> */}
+          <div>
+            <TextAlignSelector open={openTextAlign} onOpenChange={setOpenTextAlign} />
+          </div>
+          <div>
+            <ColorSelector open={openColor} onOpenChange={setOpenColor} />
+          </div>
         </EditorBubble>
       </EditorContent>
       {isError && errorMessage ? <p className={cn('text-sm font-medium text-destructive', errorClassName)}>{errorMessage}</p> : null}
