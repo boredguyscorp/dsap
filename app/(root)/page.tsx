@@ -1,19 +1,14 @@
 import Link from 'next/link'
 
-import url from '@/constants/url'
 import { cn, imagePostEmpty, placeholderBlurhash } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import { siteConfig } from '../config'
-import SolutionPlatformSection from './_components/solution-platform'
-import { Suspense } from 'react'
-import GlobeClient from './_components/globe-client'
-import Globe from './_components/globe'
 import { Balancer } from 'react-wrap-balancer'
-import Features from './_components/features'
 import Image from 'next/image'
-import image1 from 'public/images/image1.jpg'
-import image2 from 'public/images/image2.jpg'
 import { getPostsForLandingPage } from '@/actions/fetchers'
+import dynamic from 'next/dynamic'
+
+const EditorHtmlContent = dynamic(() => import('@/components/advance-text-editor/editor-html-content'), { ssr: false })
 
 export default async function Page() {
   // LANDING PAGE CONTENT
@@ -181,7 +176,9 @@ async function FeaturedEvents() {
 
         <div className='mt-7'>
           <h3 className='text-xl font-semibold text-gray-800 group-hover:text-gray-600 dark:text-gray-200'>{row.title}</h3>
-          <p className='mt-3 line-clamp-3 text-gray-800 dark:text-gray-200'>{row.description}</p>
+          <div className='mt-3 line-clamp-3 text-gray-800 dark:text-gray-200'>
+            <EditorHtmlContent value={row.description} />
+          </div>
           <p className='mt-5 inline-flex items-center gap-x-1.5 font-medium text-teal-500 decoration-2 group-hover:underline'>
             Read more
             <svg className='h-2.5 w-2.5' width='16' height='16' viewBox='0 0 16 16' fill='none'>
@@ -226,7 +223,9 @@ async function FeaturedNews() {
             <h3 className='text-xl font-semibold text-gray-800 group-hover:text-gray-600 dark:text-gray-300 dark:group-hover:text-white'>
               {row.title}
             </h3>
-            <p className='mt-3 line-clamp-3 text-gray-600 dark:text-gray-400'>{row.description}</p>
+            <div className='mt-3 line-clamp-3 text-gray-600 dark:text-gray-400'>
+              <EditorHtmlContent value={row.description} />
+            </div>
             <p className='mt-4 inline-flex items-center gap-x-1.5 font-medium text-teal-500 decoration-2 hover:underline'>
               Read more
               <svg className='h-2.5 w-2.5' width='16' height='16' viewBox='0 0 16 16' fill='none'>

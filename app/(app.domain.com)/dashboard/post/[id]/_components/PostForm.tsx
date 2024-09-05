@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { memo, useTransition } from 'react'
+import { memo, useMemo, useTransition } from 'react'
 
 import Badge from '@/components/custom/badge'
 import { Icons } from '@/components/shared/icons'
@@ -13,13 +13,19 @@ import { siteConfig } from '@/app/config'
 import PostSettingsDialog from '@/components/editor/settings/post-settings2'
 import { updatePost, updatePostMetadata, updatePostPublished } from '@/actions/post'
 import { toast } from 'sonner'
-import AdvanceEditor from '@/components/advance-text-editor'
+
 import { useZodForm } from '@/lib/zod-form'
 import { PostForm, PostFormSchema } from '@/lib/schema'
 import { InputFieldForm } from '@/components/forms/InputFieldForm'
 import { Form } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
 import { ImageUploader } from '@/components/image-uploader'
+import { defaultEditorContent } from '@/components/advance-text-editor/default-editor-content'
+import dynamic from 'next/dynamic'
+import { getGeneratedHTML } from '@/lib/editor'
+import { JSONContent } from 'novel'
+
+const AdvanceEditor = dynamic(() => import('@/components/advance-text-editor'), { ssr: false })
 
 interface PostFormProps {
   post: Post
@@ -30,7 +36,7 @@ const PostForm = memo(function PostForm({ post }: PostFormProps) {
     schema: PostFormSchema,
     defaultValues: {
       title: post.title,
-      content: post.content ?? '',
+      content: post.content ?? JSON.stringify(defaultEditorContent),
       description: post.description ?? '',
       image: post.image ?? '',
       imagesGallery: (post.imagesGallery as string[]) ?? []

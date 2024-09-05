@@ -72,13 +72,13 @@ const items: SelectorItem[] = [
     icon: TextQuote,
     command: (editor) => editor?.chain().focus().toggleNode('paragraph', 'paragraph').toggleBlockquote().run(),
     isActive: (editor) => (editor ? editor.isActive('blockquote') : false)
-  },
-  {
-    name: 'Code',
-    icon: Code,
-    command: (editor) => editor?.chain().focus().toggleCodeBlock().run(),
-    isActive: (editor) => (editor ? editor.isActive('codeBlock') : false)
   }
+  // {
+  //   name: 'Code',
+  //   icon: Code,
+  //   command: (editor) => editor?.chain().focus().toggleCodeBlock().run(),
+  //   isActive: (editor) => (editor ? editor.isActive('codeBlock') : false)
+  // }
 ]
 
 interface NodeSelectorProps {
