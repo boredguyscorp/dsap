@@ -1,9 +1,9 @@
 import { Chapter } from '@prisma/client'
 
-export const CURRENT_CONVENTION: ConventionEnum = '25th'
+export const CURRENT_CONVENTION: ConventionEnum = '26th'
 export const CURRENT_DATE = new Date().toISOString().split('T')[0]
 
-export const conventionEnum = ['25th'] as const
+export const conventionEnum = ['25th', '26th'] as const
 export type ConventionEnum = (typeof conventionEnum)[number]
 
 export type Convention = {
@@ -14,9 +14,10 @@ export type Convention = {
   date: string
   preRegCutOff: string
   rate: RateTypeValues[]
+  img: string
 }
 
-export const typeEnum = ['25th-prm', '25th-prnm', '25th-m', '25th-nm'] as const
+export const typeEnum = ['25th-prm', '25th-prnm', '25th-m', '25th-nm', '26th-prm', '26th-prnm', '26th-m', '26th-nm'] as const
 export type TypeRate = (typeof typeEnum)[number]
 
 type RateTypeValues = {
@@ -30,7 +31,11 @@ export const rateValues: RateTypeValues[] = [
   { convention: '25th', value: '25th-prm', label: 'Pre-Reg Member (9,800.00)', amount: 9800, preReg: true },
   { convention: '25th', value: '25th-prnm', label: 'Pre-Reg Non-Member (11,300.00)', amount: 11300, preReg: true },
   { convention: '25th', value: '25th-m', label: 'Member (10,800.00)', amount: 10800, preReg: false },
-  { convention: '25th', value: '25th-nm', label: 'Non-Member (12,300.00)', amount: 12300, preReg: false }
+  { convention: '25th', value: '25th-nm', label: 'Non-Member (12,300.00)', amount: 12300, preReg: false },
+  { convention: '26th', value: '26th-prm', label: 'Pre-Reg Member (9,000.00)', amount: 9000, preReg: true },
+  { convention: '26th', value: '26th-prnm', label: 'Pre-Reg Non-Member (10,500.00)', amount: 10500, preReg: true },
+  { convention: '26th', value: '26th-m', label: 'Member (10,000.00)', amount: 10000, preReg: false },
+  { convention: '26th', value: '26th-nm', label: 'Non-Member (11,500.00)', amount: 11500, preReg: false }
 ]
 
 export const conventions: Convention[] = [
@@ -41,7 +46,18 @@ export const conventions: Convention[] = [
     title: 'DSAPCon2024',
     date: 'April 24-26, 2024',
     preRegCutOff: '2024-02-23',
+    img: '/images/dsap25th.jpg',
     rate: rateValues.filter((row) => row.convention === '25th')
+  },
+  {
+    code: '26th',
+    name: 'Baguio City',
+    description: 'Timeless DSAP: Adapting Through Generations',
+    title: 'DSAPCon2025',
+    date: 'March 26-28, 2025',
+    preRegCutOff: '2025-01-28',
+    img: '/images/dsap26th.png',
+    rate: rateValues.filter((row) => row.convention === '26th')
   }
 ]
 

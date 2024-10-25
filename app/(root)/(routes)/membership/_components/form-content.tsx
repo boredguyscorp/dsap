@@ -255,7 +255,7 @@ function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
               render={({ field }) => {
                 return (
                   <FormItem className='flex w-full flex-col'>
-                    <FormLabel>Drugstore Classification</FormLabel>
+                    <FormLabel>Drugstore Classification *</FormLabel>
                     <Popover open={drugstoreClass} onOpenChange={setDrugstoreClass} modal={true}>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -317,6 +317,8 @@ function GeneralInfo({ chapters }: Pick<StepProps, 'chapters'>) {
 
 function DrugstoreProfile({ isModalForm }: { isModalForm?: boolean }) {
   const { control, watch } = useFormContext<MemberRegistrationForm>()
+
+  const [date, setDate] = useState<Date | undefined>(undefined)
 
   return (
     <Card className='w-full'>
@@ -1767,7 +1769,7 @@ function OwnerProfile({ isModalForm }: { isModalForm?: boolean }) {
       <CardHeader>
         <div className='relative flex justify-between'>
           <div className='flex flex-col '>
-            <CardTitle>Registered Pharmacist Details</CardTitle>
+            <CardTitle>Owner Details</CardTitle>
             <CardDescription>Drugstore Pharmacist Form.</CardDescription>
           </div>
 

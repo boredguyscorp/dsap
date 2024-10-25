@@ -18,6 +18,14 @@ const nextConfig = {
   experimental: {
     serverActions: true,
     serverComponentsExternalPackages: ['@prisma/client', '@react-email/render']
+  },
+  images: {
+    remotePatterns: [
+      { hostname: 'avatar.vercel.sh' },
+      { hostname: 'localhost' },
+      { hostname: 'dsaph.org' },
+      { hostname: 'uploadthing.com' }
+    ]
   }
   // reactStrictMode: true,
   // pageExtensions: ['ts', 'tsx', 'mdx']

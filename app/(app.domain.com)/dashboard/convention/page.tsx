@@ -10,7 +10,7 @@ import { getRandomPatternStyle } from '@/lib/generate-pattern'
 import { Convention, conventions } from './_components/constant'
 import BlurImage from '@/components/shared/blur-image'
 
-import dsap25th from 'public/images/dsap25th.jpg'
+import url from '@/constants/url'
 // import { TasksTableShell } from './_components/tasks-table-shell'
 // import { MembershipTableShell } from './_components/membership-table'
 
@@ -42,7 +42,13 @@ function ConventionCardSkeleton({ convention }: { convention: Convention }) {
     <Link href={`/convention/${convention.code}/`} className='group'>
       <Card className='overflow-hidden group-hover:border-primary'>
         <div className='relative mt-10 h-64'>
-          <BlurImage fill src={dsap25th} alt='No links yet' className='pointer-events-none relative object-contain object-center' />
+          {/* //!TODO  - src should be coming from cloud storage */}
+          <BlurImage
+            fill
+            src={`${url.protocol}:${url.home}${convention.img}`}
+            alt='No links yet'
+            className='pointer-events-none relative object-contain object-center'
+          />
         </div>
 
         <CardHeader className='flex flex-row items-center justify-between p-4'>

@@ -119,7 +119,7 @@ export default function MembershipForm({
 
   const form = useZodForm({
     schema: strict ? currentValidationSchema : _currentValidationSchema,
-    defaultValues: memberDetails ? convertStringDatesPropToDates(memberDetails ?? {}) : defaultValues,
+    defaultValues: memberDetails ? memberDetails : defaultValues,
     shouldUnregister: false
   })
 
@@ -200,20 +200,20 @@ export default function MembershipForm({
               !_.isEmpty(data.dpDSClassDetails)
             ) {
               const dpDSClassDetails = data.dpDSClassDetails
-              const dpPhImageUrl = dpDSClassDetails.dpPhImageUrl.startsWith('blob:')
+              const dpPhImageUrl = dpDSClassDetails.dpPhImageUrl?.startsWith('blob:')
                 ? getFileFromBlobUrl(dpDSClassDetails.dpPhImageUrl)
                 : null
 
-              const dpPhAsImageUrl = dpDSClassDetails.dpPhAsImageUrl.startsWith('blob:')
+              const dpPhAsImageUrl = dpDSClassDetails.dpPhAsImageUrl?.startsWith('blob:')
                 ? getFileFromBlobUrl(dpDSClassDetails.dpPhAsImageUrl)
                 : null
-              const dpPhAsAttachmentCOEUrl = dpDSClassDetails.dpPhAsAttachmentCOEUrl.startsWith('blob:')
+              const dpPhAsAttachmentCOEUrl = dpDSClassDetails.dpPhAsAttachmentCOEUrl?.startsWith('blob:')
                 ? getFileFromBlobUrl(dpDSClassDetails.dpPhAsAttachmentCOEUrl)
                 : null
-              const dpPhAsAttachmentDiplomaUrl = dpDSClassDetails.dpPhAsAttachmentDiplomaUrl.startsWith('blob:')
+              const dpPhAsAttachmentDiplomaUrl = dpDSClassDetails.dpPhAsAttachmentDiplomaUrl?.startsWith('blob:')
                 ? getFileFromBlobUrl(dpDSClassDetails.dpPhAsAttachmentDiplomaUrl)
                 : null
-              const dpPhAsAttachmentCOAUrl = dpDSClassDetails.dpPhAsAttachmentCOAUrl.startsWith('blob:')
+              const dpPhAsAttachmentCOAUrl = dpDSClassDetails.dpPhAsAttachmentCOAUrl?.startsWith('blob:')
                 ? getFileFromBlobUrl(dpDSClassDetails.dpPhAsAttachmentCOAUrl)
                 : null
 
@@ -284,7 +284,7 @@ export default function MembershipForm({
             }
 
             //? Owner profile
-            if (data && data.opPhImageUrl && data.opPhImageUrl.startsWith('blob:')) {
+            if (data && data.opPhImageUrl && data.opPhImageUrl?.startsWith('blob:')) {
               const opPhImageUrlFile = await getFileFromBlobUrl(data.opPhImageUrl)
               formData.append('opPhImageUrl', opPhImageUrlFile)
             }
@@ -297,8 +297,8 @@ export default function MembershipForm({
               data.opDsapMember.opDsapMemberType === 'representative'
             ) {
               const opDsapMember = data.opDsapMember
-              const opRepFormUrl = opDsapMember.opRepFormUrl.startsWith('blob:') ? getFileFromBlobUrl(opDsapMember.opRepFormUrl) : null
-              const opRepPhotoUrl = opDsapMember.opRepPhotoUrl.startsWith('blob:') ? getFileFromBlobUrl(opDsapMember.opRepPhotoUrl) : null
+              const opRepFormUrl = opDsapMember.opRepFormUrl?.startsWith('blob:') ? getFileFromBlobUrl(opDsapMember.opRepFormUrl) : null
+              const opRepPhotoUrl = opDsapMember.opRepPhotoUrl?.startsWith('blob:') ? getFileFromBlobUrl(opDsapMember.opRepPhotoUrl) : null
 
               const [opRepFormUrlFile, opRepPhotoUrlFile] = await Promise.all([opRepFormUrl, opRepPhotoUrl])
 
@@ -316,22 +316,22 @@ export default function MembershipForm({
             }
 
             //? Registration details
-            if (data.fdaUrlAttachment && data.fdaUrlAttachment.startsWith('blob:')) {
+            if (data.fdaUrlAttachment && data.fdaUrlAttachment?.startsWith('blob:')) {
               const fdaUrlAttachmentFile = await getFileFromBlobUrl(data.fdaUrlAttachment)
               formData.append('fdaUrlAttachment', fdaUrlAttachmentFile)
             }
 
-            if (data.bpUrlAttachment && data.bpUrlAttachment.startsWith('blob:')) {
+            if (data.bpUrlAttachment && data.bpUrlAttachment?.startsWith('blob:')) {
               const bpUrlAttachment = await getFileFromBlobUrl(data.bpUrlAttachment)
               formData.append('bpUrlAttachment', bpUrlAttachment)
             }
 
-            if (data.docUrlAttachment && data.docUrlAttachment.startsWith('blob:')) {
+            if (data.docUrlAttachment && data.docUrlAttachment?.startsWith('blob:')) {
               const docUrlAttachment = await getFileFromBlobUrl(data.docUrlAttachment)
               formData.append('docUrlAttachment', docUrlAttachment)
             }
 
-            if (data.proofOfPaymentUrl && data.proofOfPaymentUrl.startsWith('blob:')) {
+            if (data.proofOfPaymentUrl && data.proofOfPaymentUrl?.startsWith('blob:')) {
               const proofOfPaymentUrl = await getFileFromBlobUrl(data.proofOfPaymentUrl)
               formData.append('proofOfPaymentUrl', proofOfPaymentUrl)
             }

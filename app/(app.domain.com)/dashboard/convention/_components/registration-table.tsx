@@ -116,14 +116,14 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
           emailAdd: openDialog.row.emailAdd,
           contactNo: openDialog.row.contactNo,
           proofOfPaymentUrl: openDialog.row.proofOfPaymentUrl,
-          title: openDialog.row.title ?? '',
+          title: openDialog.row.title ?? undefined,
           middleName: openDialog.row.middleName ?? '',
           drugstoreInfo: dsInfo ?? {},
           address: addressInfo ?? {}
         }
       : {
           convention: CURRENT_CONVENTION,
-          type: '25th-prm',
+          type: '26th-prm',
           firstName: '',
           lastName: '',
           emailAdd: '',

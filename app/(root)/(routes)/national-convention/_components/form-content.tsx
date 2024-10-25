@@ -25,7 +25,7 @@ type NationalConventionFormProps = {
 
 export function RegistrationFormInputs({ chapters, showAllFees }: NationalConventionFormProps) {
   const convention = useMemo(() => conventions.find((row) => row.code === CURRENT_CONVENTION), [])
-  const cutOffDate = convention?.preRegCutOff ?? '2024-02-16'
+  const cutOffDate = convention?.preRegCutOff ?? '2025-01-28'
   const isPreReg = cutOffDate > CURRENT_DATE
 
   const [openChapter, setOpenChapter] = useState<boolean>(false)
@@ -69,7 +69,12 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
           <FormItem className='space-y-3'>
             {/* <FormLabel>Ownership Type</FormLabel> */}
             <FormControl>
-              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex items-center space-x-2'>
+              <RadioGroup
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                value={field.value}
+                className='flex items-center space-x-2'
+              >
                 {convention?.rate
                   .filter((r) => {
                     return showAllFees ? true : r.preReg === isPreReg

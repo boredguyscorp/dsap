@@ -38,32 +38,36 @@ export function DatePickerForm<T extends FieldValues>(props: TextFieldFormProps<
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{labelText}</FormLabel>
-          <Popover>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                  {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
-                  <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent className='w-auto p-0' align='start'>
-              <Calendar
-                {...fieldProps}
-                mode={fieldProps.mode}
-                initialFocus
-                selected={field.value}
-                onSelect={field.onChange}
-                disabled={disabledFuture ? (date) => date > new Date() || date < new Date('1900-01-01') : false}
-              />
-            </PopoverContent>
-          </Popover>
-          <FormMessage />
-        </FormItem>
-      )}
+      render={({ field }) => {
+        const value = field.value ? (typeof field.value === 'string' ? new Date(field.value) : field.value) : undefined
+
+        return (
+          <FormItem>
+            <FormLabel>{labelText}</FormLabel>
+            <Popover modal>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                    {field.value ? format(new Date(field.value), 'PPP') : <span>Pick a date</span>}
+                    <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className='w-auto p-0' align='start'>
+                <Calendar
+                  {...fieldProps}
+                  mode={fieldProps.mode as any}
+                  defaultMonth={value}
+                  selected={value}
+                  onSelect={field.onChange}
+                  disabled={disabledFuture ? (date) => date > new Date() || date < new Date('1900-01-01') : false}
+                />
+              </PopoverContent>
+            </Popover>
+            <FormMessage />
+          </FormItem>
+        )
+      }}
     />
   )
 }

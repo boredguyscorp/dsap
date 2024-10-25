@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 
 const RHFDevTool = dynamic(() => import('../../../../../components/forms/DevTools'), { ssr: false })
 
-import dsap25th from 'public/images/dsap25th.jpg'
+import dsap26th from 'public/images/dsap26th.png'
 // import logo from 'public/images/logo.jpg'
 
 import Image from 'next/image'
@@ -46,13 +46,13 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
   const [showForm, setShowForm] = useState(false)
 
   const convention = useMemo(() => conventions.find((row) => row.code === CURRENT_CONVENTION), [])
-  const cutOffDate = convention?.preRegCutOff ?? '2024-02-16'
+  const cutOffDate = convention?.preRegCutOff ?? '2025-01-28'
   const isPreReg = cutOffDate > CURRENT_DATE
   const showRegistration = process.env.NEXT_PUBLIC_SHOW_REGISTRATION === 'true'
 
   const defaultValues = {
     convention: CURRENT_CONVENTION,
-    type: isPreReg ? '25th-prm' : '25th-m',
+    type: isPreReg ? '26th-prm' : '26th-m',
     firstName: '',
     lastName: '',
     contactNo: '',
@@ -78,12 +78,14 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
     setValue
   } = form
 
+  const year = new Date().getFullYear() + 1
+
   if (!showForm) {
     return (
       <div className='mx-auto mt-32 max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
         <div className='md:grid md:grid-cols-2 md:items-center md:gap-12 xl:gap-32'>
           <div>
-            <Image src={dsap25th} alt='dsap-national-convention-25th' className='w-full rounded-xl object-cover' />
+            <Image src={dsap26th} alt='dsap-national-convention-26th' className='w-full rounded-xl object-cover' />
           </div>
 
           <div className='mt-5 sm:mt-10 lg:mt-0'>
@@ -91,7 +93,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
               <div className='space-y-2 md:space-y-4'>
                 <p className='text-center text-lg'>
                   <Balancer>
-                    Those who wish to join <span className='font-bold'>DSAP Convention 2024</span> shall submit registration together with
+                    Those who wish to join <span className='font-bold'>DSAP Convention {year}</span> shall submit registration together with
                     the corresponding fee and requirements.
                   </Balancer>
                 </p>
@@ -104,8 +106,8 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
               </h2>
 
               <ol className='max space-y-3 px-6 text-base font-semibold md:text-lg'>
-                <li className='list-decimal'>Pay DSAP Membership dues 2024.</li>
-                <li className='list-decimal'>Pay Registration Fee to DSAPCON2024</li>
+                <li className='list-decimal'>Pay DSAP Membership dues {year}.</li>
+                <li className='list-decimal'>Pay Registration Fee to DSAPCON{year}</li>
                 <ul className='max space-y-3 px-5 font-semibold'>
                   <li className='-ml-5'>Deposit to Metrobank Shaw Blvd. Branch Account:</li>
                   <ul className='space-y-3 font-semibold'>

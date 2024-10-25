@@ -19,6 +19,7 @@ export const url = {
   // },
   homeWithoutApp: home,
   home: `//${home}`,
+  protocol: isProduction ? 'https' : 'http',
   api: `${isProduction ? 'https://app.' : 'http://app.'}${home}`,
   serverApi: `${isProduction ? 'https://' : 'http://'}${home}`,
   app: {
