@@ -17,6 +17,7 @@ import { Separator } from '@/components/ui/separator'
 import { ChapterList } from '@/actions/fetchers'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useParams } from 'next/navigation'
 
 type NationalConventionFormProps = {
   chapters: ChapterList
@@ -24,7 +25,11 @@ type NationalConventionFormProps = {
 }
 
 export function RegistrationFormInputs({ chapters, showAllFees }: NationalConventionFormProps) {
-  const convention = useMemo(() => conventions.find((row) => row.code === CURRENT_CONVENTION), [])
+  const params = useParams() as { code: string }
+
+  const conventionCode = useMemo(() => params.code ?? CURRENT_CONVENTION, [params.code])
+
+  const convention = useMemo(() => conventions.find((row) => row.code === conventionCode), [conventionCode])
   const cutOffDate = convention?.preRegCutOff ?? '2025-01-28'
   const isPreReg = cutOffDate > CURRENT_DATE
 
@@ -105,21 +110,29 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
           name='title'
           render={({ field }) => (
             <FormItem>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={(value: string) => {
+                  if (value === '') return
+                  field.onChange(value)
+                }}
+                value={field.value}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder='Select Title' />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {title.map((row) => (
-                    <SelectItem key={row} value={row}>
-                      {row}
-                    </SelectItem>
-                  ))}
+                  {title &&
+                    title.map((t, i) => {
+                      return (
+                        <SelectItem key={`${i}-${t}`} value={t}>
+                          {t}
+                        </SelectItem>
+                      )
+                    })}
                 </SelectContent>
               </Select>
-              <FormMessage />
             </FormItem>
           )}
         />
