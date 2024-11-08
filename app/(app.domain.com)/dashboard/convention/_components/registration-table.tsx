@@ -105,6 +105,17 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
   const dsInfo = openDialog?.row.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
   const addressInfo = openDialog?.row.address as ConventionRegistrationForm['address']
 
+  const delegateClass = openDialog?.row.delegateClass === 'Non-Pharmacist' ? 'Non-Pharmacist' : 'Pharmacist'
+  const title = delegateClass === 'Non-Pharmacist' ? (openDialog?.row.title ?? '') : ''
+
+  const regPharmacistMembership = openDialog?.row.delegateMembershipInfo
+
+  const regDelegateTempValue = delegateClass === 'Non-Pharmacist' ? { delegateClass, title } : { delegateClass, regPharmacistMembership }
+
+  const regDelegateParser = ConventionRegistrationFormSchema.shape.regDelegate
+  const regDelegateData = regDelegateParser.safeParse(regDelegateTempValue)
+  const regDelegate = regDelegateData.success ? regDelegateData.data : ({ delegateClass: 'Non-Pharmacist', title: '' } as const)
+
   const form = useZodForm({
     schema: ConventionRegistrationFormSchema,
     values: openDialog?.row
@@ -116,10 +127,10 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
           emailAdd: openDialog.row.emailAdd,
           contactNo: openDialog.row.contactNo,
           proofOfPaymentUrl: openDialog.row.proofOfPaymentUrl,
-          title: openDialog.row.title ?? '',
           middleName: openDialog.row.middleName ?? '',
           drugstoreInfo: dsInfo ?? {},
-          address: addressInfo ?? {}
+          address: addressInfo ?? {},
+          regDelegate
         }
       : {
           convention: CURRENT_CONVENTION,
@@ -128,7 +139,8 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
           lastName: '',
           emailAdd: '',
           contactNo: '',
-          proofOfPaymentUrl: ''
+          proofOfPaymentUrl: '',
+          regDelegate
         },
     shouldUnregister: false
   })
