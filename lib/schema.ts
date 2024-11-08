@@ -509,9 +509,7 @@ export type OwnerProfileRepresentativeMemberType = z.infer<typeof opDsapMemberRe
 // NATIONAL CONVENTION
 export const title = ['Mr.', 'Mrs.', 'Ms.', 'Rph.', 'Dr.'] as const
 
-const regPharmacistMember = z.object({
-  memberType: z.literal('CPhAD Member'),
-  cphadIdNo: z.string({ required_error: 'Please enter CPhAD ID No.' }),
+const regPharmacistDetails = z.object({
   prcLicenseNo: z.string({ required_error: 'Please enter PRC License No.' }),
   dateIssued: z.coerce.date({
     errorMap: (issue, ctx) => {
@@ -531,9 +529,18 @@ const regPharmacistMember = z.object({
   })
 })
 
-const regPharmacistNonMember = z.object({
-  memberType: z.literal('Non-Member')
-})
+const regPharmacistMember = z
+  .object({
+    memberType: z.literal('CPhAD Member'),
+    cphadIdNo: z.string({ required_error: 'Please enter CPhAD ID No.' })
+  })
+  .merge(regPharmacistDetails)
+
+const regPharmacistNonMember = z
+  .object({
+    memberType: z.literal('Non-Member')
+  })
+  .merge(regPharmacistDetails)
 
 const regPharmacistMembership = z.discriminatedUnion('memberType', [regPharmacistMember, regPharmacistNonMember], {
   errorMap: (issue, ctx) => {

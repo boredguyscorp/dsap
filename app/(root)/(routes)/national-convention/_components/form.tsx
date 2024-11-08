@@ -236,6 +236,18 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
               </form>
             </Form>
 
+            <div className='mt-5 flex flex-col space-y-3'>
+              <h2 className='text-xl font-bold text-teal-600 underline dark:text-white'>Terms & Conditions</h2>
+
+              <ol className='max space-y-2 px-6 text-base  md:text-lg'>
+                <li className='list-decimal'>
+                  Registration is <span className='font-bold underline'>Non-transferable</span> and{' '}
+                  <span className='font-bold underline'>Non-refundable</span>
+                </li>
+                <li className='list-decimal'>DSAP and CPhAD Membership dues 2025 should be paid to avail of member Registration rate.</li>
+              </ol>
+            </div>
+
             {response && (
               <div
                 className='mt-10 flex cursor-pointer justify-center text-center'

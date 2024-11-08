@@ -212,39 +212,41 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
               )}
             />
 
-            {watch('regDelegate.regPharmacistMembership.memberType') === 'CPhAD Member' ? (
-              <>
-                <div className='grid grid-cols-2 gap-2'>
-                  <InputFieldForm
-                    control={control}
-                    name='regDelegate.regPharmacistMembership.cphadIdNo'
-                    fieldProps={{ placeholder: 'CPhAD ID No.', required: true }}
-                  />
+            <>
+              <div className='grid grid-cols-2 gap-2'>
+                <InputFieldForm
+                  control={control}
+                  name='regDelegate.regPharmacistMembership.cphadIdNo'
+                  fieldProps={{
+                    placeholder: 'CPhAD ID No.',
+                    required: watch('regDelegate.regPharmacistMembership.memberType') === 'CPhAD Member',
+                    disabled: watch('regDelegate.regPharmacistMembership.memberType') !== 'CPhAD Member'
+                  }}
+                />
 
-                  <InputFieldForm
-                    control={control}
-                    name='regDelegate.regPharmacistMembership.prcLicenseNo'
-                    fieldProps={{ placeholder: 'PRC License No.', required: true }}
-                  />
-                </div>
+                <InputFieldForm
+                  control={control}
+                  name='regDelegate.regPharmacistMembership.prcLicenseNo'
+                  fieldProps={{ placeholder: 'PRC License No.', required: true }}
+                />
+              </div>
 
-                <div className='grid grid-cols-2 gap-2'>
-                  <DatePickerForm
-                    control={control}
-                    name='regDelegate.regPharmacistMembership.dateIssued'
-                    fieldProps={{ mode: 'single', fromYear: 2010, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
-                    extendedProps={{ disabledFuture: true, buttonClassName: '!mt-0', placeholder: 'Date Issued' }}
-                  />
+              <div className='grid grid-cols-2 gap-2'>
+                <DatePickerForm
+                  control={control}
+                  name='regDelegate.regPharmacistMembership.dateIssued'
+                  fieldProps={{ mode: 'single', fromYear: 2010, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
+                  extendedProps={{ disabledFuture: true, buttonClassName: '!mt-0', placeholder: 'Date Issued' }}
+                />
 
-                  <DatePickerForm
-                    control={control}
-                    name='regDelegate.regPharmacistMembership.expiryDate'
-                    fieldProps={{ mode: 'single', fromYear: 2010, toYear: 2030, captionLayout: 'dropdown-buttons' }}
-                    extendedProps={{ buttonClassName: '!mt-0', placeholder: 'Expiry Date' }}
-                  />
-                </div>
-              </>
-            ) : null}
+                <DatePickerForm
+                  control={control}
+                  name='regDelegate.regPharmacistMembership.expiryDate'
+                  fieldProps={{ mode: 'single', fromYear: 2010, toYear: 2030, captionLayout: 'dropdown-buttons' }}
+                  extendedProps={{ buttonClassName: '!mt-0', placeholder: 'Expiry Date' }}
+                />
+              </div>
+            </>
           </>
         ) : null}
 

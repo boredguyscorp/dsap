@@ -465,12 +465,43 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
     if (!openDialog) return null
 
     const dsInfo = openDialog.row.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
+    // const dlgmInfo = openDialog.row.delegateMembershipInfo as any
 
     return (
       <>
         <div className='grid grid-cols-12 gap-1 text-base'>
           <h1 className='col-span-3'>Ref. No:</h1>
           <h1 className='col-span-9'>{openDialog.row.code}</h1>
+
+          <h1 className='col-span-3'>Class:</h1>
+          <div className='col-span-9'>
+            <div className='flex items-center gap-2'>
+              {openDialog.row.delegateClass}
+              {regDelegate.delegateClass === 'Pharmacist' && (
+                <Badge variant='secondary'>{regDelegate.regPharmacistMembership.memberType}</Badge>
+              )}
+            </div>
+          </div>
+
+          {regDelegate.delegateClass === 'Pharmacist' && (
+            <>
+              {regDelegate.regPharmacistMembership.memberType === 'CPhAD Member' && (
+                <>
+                  <h1 className='col-span-3'>CPhAD ID No.</h1>
+                  <h1 className='col-span-9'>{regDelegate.regPharmacistMembership.cphadIdNo}</h1>
+                </>
+              )}
+
+              <h1 className='col-span-3'>PRC License No.</h1>
+              <h1 className='col-span-9'>{regDelegate.regPharmacistMembership.prcLicenseNo}</h1>
+
+              <h1 className='col-span-3'>Date Issued</h1>
+              <h1 className='col-span-9'>{toDateTime(regDelegate.regPharmacistMembership.dateIssued)}</h1>
+
+              <h1 className='col-span-3'>Date Expiry</h1>
+              <h1 className='col-span-9'>{toDateTime(regDelegate.regPharmacistMembership.expiryDate)}</h1>
+            </>
+          )}
 
           <h1 className='col-span-3'>First Name:</h1>
           <h1 className='col-span-9'>{openDialog.row.firstName}</h1>
@@ -594,7 +625,7 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
       />
       {openDialog && (openDialog.type === 'approved' || openDialog.type === 'pending') && (
         <AlertDialog open={openDialog?.isOpen} onOpenChange={() => setOpenDialog(null)}>
-          <AlertDialogContent className='max-w-[500px]'>
+          <AlertDialogContent className='max-w-[700px]'>
             <AlertDialogHeader>
               <AlertDialogTitle>{strProperCase(openDialog.type)} Registration?</AlertDialogTitle>
               <AlertDialogDescription>
@@ -652,7 +683,7 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
       )}
       {openDialog && openDialog.type === 'details' && (
         <Dialog open={openDialog?.isOpen} onOpenChange={() => setOpenDialog(null)}>
-          <DialogContent className='sm:max-w-md'>
+          <DialogContent className='sm:max-w-xl'>
             <DialogHeader>
               <DialogTitle>Registration Details</DialogTitle>
               {/* <DialogDescription>Your message or the basis for the registration rejection..</DialogDescription> */}
