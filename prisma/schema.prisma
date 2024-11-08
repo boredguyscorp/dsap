@@ -256,7 +256,6 @@ model Registration {
   code              String
   convention        String
   type              String
-  title             String?
   firstName         String
   middleName        String?
   lastName          String
@@ -265,6 +264,10 @@ model Registration {
   address           Json?
   drugstoreInfo     Json?
   proofOfPaymentUrl String
+
+  delegateClass          String  @default("")
+  title                  String?
+  delegateMembershipInfo Json?
 
   message String? @db.Text()
 

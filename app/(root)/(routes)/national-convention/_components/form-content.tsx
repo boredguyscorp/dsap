@@ -10,7 +10,13 @@ import React, { useMemo, useState } from 'react'
 import { Label } from '@/components/ui/label'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { CURRENT_CONVENTION, CURRENT_DATE, conventions } from '@/app/(app.domain.com)/dashboard/convention/_components/constant'
+import {
+  CURRENT_CONVENTION,
+  CURRENT_DATE,
+  conventions,
+  delegateClassList,
+  nonPharmacistTypeEnum
+} from '@/app/(app.domain.com)/dashboard/convention/_components/constant'
 import { ConventionRegistrationForm, title } from '@/lib/schema'
 import { useFormContext } from 'react-hook-form'
 import { Separator } from '@/components/ui/separator'
@@ -18,6 +24,7 @@ import { ChapterList } from '@/actions/fetchers'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useParams } from 'next/navigation'
+import { DatePickerForm } from '@/components/forms/DatePickerForm'
 
 type NationalConventionFormProps = {
   chapters: ChapterList
@@ -107,83 +114,194 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
         <Label>Personal Information</Label>
         <FormField
           control={control}
-          name='title'
+          name='regDelegate.delegateClass'
           render={({ field }) => (
-            <FormItem>
-              <Select
-                onValueChange={(value: string) => {
-                  if (value === '') return
-                  field.onChange(value)
-                }}
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select Title' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {title &&
-                    title.map((t, i) => {
-                      return (
-                        <SelectItem key={`${i}-${t}`} value={t}>
-                          {t}
-                        </SelectItem>
-                      )
-                    })}
-                </SelectContent>
-              </Select>
+            <FormItem className='space-y-3'>
+              {/* <FormLabel>Ownership Type</FormLabel> */}
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  value={field.value}
+                  className='flex items-center space-x-2'
+                >
+                  {delegateClassList.map((row) => {
+                    return (
+                      <FormItem key={row.value} className='flex items-center space-x-3 space-y-0'>
+                        <React.Fragment key={row.value}>
+                          <FormControl>
+                            <RadioGroupItem value={row.value} />
+                          </FormControl>
+                          <FormLabel className={cn('cursor-pointer font-normal', row.value === field.value && 'font-semibold')}>
+                            {row.label}
+                          </FormLabel>
+                        </React.Fragment>
+                      </FormItem>
+                    )
+                  })}
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
+
+        {watch('regDelegate.delegateClass') === 'Non-Pharmacist' ? (
+          <FormField
+            control={control}
+            name='regDelegate.title'
+            render={({ field }) => (
+              <FormItem>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  value={field.value}
+                  className='flex items-center space-x-2'
+                >
+                  {title.map((value) => {
+                    return (
+                      <FormItem key={value} className='flex items-center space-x-3 space-y-0'>
+                        <React.Fragment key={value}>
+                          <FormControl>
+                            <RadioGroupItem value={value} />
+                          </FormControl>
+                          <FormLabel className={cn('cursor-pointer font-normal', value === field.value && 'font-semibold')}>
+                            {value}
+                          </FormLabel>
+                        </React.Fragment>
+                      </FormItem>
+                    )
+                  })}
+                </RadioGroup>
+              </FormItem>
+            )}
+          />
+        ) : null}
+
+        {watch('regDelegate.delegateClass') === 'Pharmacist' ? (
+          <>
+            <FormField
+              control={control}
+              name='regDelegate.regPharmacistMembership.memberType'
+              render={({ field, formState }) => (
+                <FormItem>
+                  {formState.errors && <FormMessage className={cn('text-destructive')} />}
+
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                    className='flex items-center space-x-2'
+                  >
+                    {nonPharmacistTypeEnum.map((value) => {
+                      return (
+                        <FormItem key={value} className='flex items-center space-x-3 space-y-0'>
+                          <React.Fragment key={value}>
+                            <FormControl>
+                              <RadioGroupItem value={value} />
+                            </FormControl>
+                            <FormLabel className={cn('cursor-pointer font-normal', value === field.value && 'font-semibold')}>
+                              {value}
+                            </FormLabel>
+                          </React.Fragment>
+                        </FormItem>
+                      )
+                    })}
+                  </RadioGroup>
+                </FormItem>
+              )}
+            />
+
+            {watch('regDelegate.regPharmacistMembership.memberType') === 'CPhAD Member' ? (
+              <>
+                <div className='grid grid-cols-2 gap-2'>
+                  <InputFieldForm
+                    control={control}
+                    name='regDelegate.regPharmacistMembership.cphadIdNo'
+                    fieldProps={{ placeholder: 'CPhAD ID No.', required: true }}
+                  />
+
+                  <InputFieldForm
+                    control={control}
+                    name='regDelegate.regPharmacistMembership.prcLicenseNo'
+                    fieldProps={{ placeholder: 'PRC License No.', required: true }}
+                  />
+                </div>
+
+                <div className='grid grid-cols-2 gap-2'>
+                  <DatePickerForm
+                    control={control}
+                    name='regDelegate.regPharmacistMembership.dateIssued'
+                    fieldProps={{ mode: 'single', fromYear: 2010, toYear: new Date().getFullYear(), captionLayout: 'dropdown-buttons' }}
+                    extendedProps={{ disabledFuture: true, buttonClassName: '!mt-0', placeholder: 'Date Issued' }}
+                  />
+
+                  <DatePickerForm
+                    control={control}
+                    name='regDelegate.regPharmacistMembership.expiryDate'
+                    fieldProps={{ mode: 'single', fromYear: 2010, toYear: 2030, captionLayout: 'dropdown-buttons' }}
+                    extendedProps={{ buttonClassName: '!mt-0', placeholder: 'Expiry Date' }}
+                  />
+                </div>
+              </>
+            ) : null}
+          </>
+        ) : null}
 
         <InputFieldForm control={control} name='firstName' fieldProps={{ placeholder: 'First Name', required: true }} />
         <InputFieldForm control={control} name='middleName' fieldProps={{ placeholder: 'Middle Name' }} />
         <InputFieldForm control={control} name='lastName' fieldProps={{ placeholder: 'Last Name', required: true }} />
 
-        <InputFieldForm
-          control={control}
-          name='contactNo'
-          fieldProps={{
-            placeholder: 'Contact No.',
-            required: true,
-            onChange: onContactChange,
-            onKeyPress: onKeyPressNumber,
-            maxLength: watch('contactNo')?.includes('+') ? 15 : 13
-          }}
-        />
+        <div className='!mt-0 grid grid-cols-2 gap-2'>
+          <InputFieldForm
+            control={control}
+            name='contactNo'
+            fieldProps={{
+              placeholder: 'Contact No.',
+              required: true,
+              onChange: onContactChange,
+              onKeyPress: onKeyPressNumber,
+              maxLength: watch('contactNo')?.includes('+') ? 15 : 13
+            }}
+          />
 
-        <InputFieldForm control={control} name='emailAdd' fieldProps={{ placeholder: 'Email Address', required: true, type: 'email' }} />
+          <InputFieldForm control={control} name='emailAdd' fieldProps={{ placeholder: 'Email Address', required: true, type: 'email' }} />
+        </div>
       </div>
 
       <Separator />
       <div className='space-y-2'>
         <Label>Address</Label>
-        <InputFieldForm control={control} name='address.street' fieldProps={{ placeholder: 'No./Street' }} />
-        <InputFieldForm control={control} name='address.brgy' fieldProps={{ placeholder: 'Barangay' }} />
-        <InputFieldForm control={control} name='address.city' fieldProps={{ placeholder: 'City' }} />
-        <InputFieldForm control={control} name='address.province' fieldProps={{ placeholder: 'Province' }} />
+        <div className='grid grid-cols-2 gap-2'>
+          <InputFieldForm control={control} name='address.street' fieldProps={{ placeholder: 'No./Street' }} />
+          <InputFieldForm control={control} name='address.brgy' fieldProps={{ placeholder: 'Barangay' }} />
+        </div>
+
+        <div className='grid grid-cols-2 gap-2'>
+          <InputFieldForm control={control} name='address.city' fieldProps={{ placeholder: 'City' }} />
+          <InputFieldForm control={control} name='address.province' fieldProps={{ placeholder: 'Province' }} />
+        </div>
       </div>
 
       <Separator />
       <div className='space-y-2'>
         <Label>Drugstore Information</Label>
-        <InputFieldForm control={control} name='drugstoreInfo.establishment' fieldProps={{ placeholder: 'Establishment Represented' }} />
-        {/* <InputFieldForm control={control} name='drugstoreInfo.chapter' fieldProps={{ placeholder: 'Chapter' }} /> */}
 
-        <FormField
-          control={control}
-          name='drugstoreInfo.chapter'
-          render={({ field }) => {
-            return (
-              <FormItem className='flex w-full flex-col'>
+        <div className='grid grid-cols-2 gap-2'>
+          <InputFieldForm control={control} name='drugstoreInfo.establishment' fieldProps={{ placeholder: 'Establishment Represented' }} />
+
+          <FormField
+            control={control}
+            name='drugstoreInfo.chapter'
+            render={({ field }) => {
+              return (
                 <Popover open={openChapter} onOpenChange={setOpenChapter} modal={true}>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
                         variant='outline'
                         role='combobox'
-                        className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+                        className={cn('mt-2 w-full justify-between', !field.value && 'text-muted-foreground')}
                       >
                         {field.value ? chapters.find((chapter) => chapter.name === field.value)?.name : 'Select chapter'}
                         <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
@@ -214,14 +332,15 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
                     </ScrollArea>
                   </PopoverContent>
                 </Popover>
-                <FormMessage />
-              </FormItem>
-            )
-          }}
-        />
+              )
+            }}
+          />
+        </div>
 
-        <InputFieldForm control={control} name='drugstoreInfo.owner' fieldProps={{ placeholder: 'Owner of Drugstore/Establishment' }} />
-        <InputFieldForm control={control} name='drugstoreInfo.mainAddress' fieldProps={{ placeholder: 'Main Address' }} />
+        <div className='grid grid-cols-2 gap-2'>
+          <InputFieldForm control={control} name='drugstoreInfo.owner' fieldProps={{ placeholder: 'Owner of Drugstore/Establishment' }} />
+          <InputFieldForm control={control} name='drugstoreInfo.mainAddress' fieldProps={{ placeholder: 'Main Address' }} />
+        </div>
       </div>
     </div>
   )

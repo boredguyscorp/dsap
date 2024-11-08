@@ -27,6 +27,7 @@ type RateTypeValues = {
   amount: number
   preReg: boolean
 }
+
 export const rateValues: RateTypeValues[] = [
   { convention: '25th', value: '25th-prm', label: 'Pre-Reg Member (9,800.00)', amount: 9800, preReg: true },
   { convention: '25th', value: '25th-prnm', label: 'Pre-Reg Non-Member (11,300.00)', amount: 11300, preReg: true },
@@ -119,3 +120,18 @@ export const chaptersArray: Array<Pick<Chapter, 'id' | 'code' | 'name' | 'isActi
   { id: '55', code: 'DMG', name: 'DUMAGUETE', isActive: true },
   { id: '56', code: 'PPP', name: 'PP PALMA', isActive: true }
 ]
+
+const delegateClassEnum = ['Non-Pharmacist', 'Pharmacist'] as const
+
+type DelegateClass = (typeof delegateClassEnum)[number]
+type DelegateClassValues = {
+  value: DelegateClass
+  label: string
+}
+
+export const delegateClassList = [
+  { value: 'Non-Pharmacist', label: 'Non-Pharmacist' },
+  { value: 'Pharmacist', label: 'Pharmacist' }
+] satisfies DelegateClassValues[]
+
+export const nonPharmacistTypeEnum = ['CPhAD Member', 'Non-Member'] as const

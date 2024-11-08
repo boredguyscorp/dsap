@@ -18,8 +18,14 @@ const utapi = new UTApi()
 
 export async function registerConvention(formValues: ConventionRegistrationForm, formData: FormData) {
   const code = generateRandomString(4).toUpperCase() + '-' + generateNumberString(4)
-  const { title, ...restFormData } = formValues
-  const data = { ...restFormData, title: title === 'Select Title' ? null : title, code }
+
+  const { regDelegate, ...restOfData } = formValues
+
+  const delegateClass = regDelegate.delegateClass
+  const title = delegateClass === 'Non-Pharmacist' ? regDelegate.title : undefined
+  const delegateMembershipInfo = delegateClass === 'Pharmacist' ? regDelegate.regPharmacistMembership : undefined
+
+  const data = { ...restOfData, title, delegateClass, delegateMembershipInfo, code }
 
   try {
     //? get file value from formData

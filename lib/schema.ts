@@ -507,14 +507,71 @@ export type DrugStoreSingleClassDetails = z.infer<typeof dpPharmacistSchema>
 export type OwnerProfileRepresentativeMemberType = z.infer<typeof opDsapMemberRep>
 
 // NATIONAL CONVENTION
-export const title = ['Select Title', 'Mr.', 'Mrs.', 'Ms.', 'Rph.', 'Dr.'] as const
+export const title = ['Mr.', 'Mrs.', 'Ms.', 'Rph.', 'Dr.'] as const
+
+const regPharmacistMember = z.object({
+  memberType: z.literal('CPhAD Member'),
+  cphadIdNo: z.string({ required_error: 'Please enter CPhAD ID No.' }),
+  prcLicenseNo: z.string({ required_error: 'Please enter PRC License No.' }),
+  dateIssued: z.coerce.date({
+    errorMap: (issue, ctx) => {
+      if (issue.code === 'invalid_date') {
+        return { message: `Invalid Date Issued` }
+      }
+      return { message: ctx.defaultError }
+    }
+  }),
+  expiryDate: z.coerce.date({
+    errorMap: (issue, ctx) => {
+      if (issue.code === 'invalid_date') {
+        return { message: `Invalid Expiry Date` }
+      }
+      return { message: ctx.defaultError }
+    }
+  })
+})
+
+const regPharmacistNonMember = z.object({
+  memberType: z.literal('Non-Member')
+})
+
+const regPharmacistMembership = z.discriminatedUnion('memberType', [regPharmacistMember, regPharmacistNonMember], {
+  errorMap: (issue, ctx) => {
+    if (issue.code === 'invalid_union_discriminator')
+      return { message: `Please select CPhAD membership type. Expected ${issue.options.join(' | ')}` }
+    return { message: ctx.defaultError }
+  }
+})
+
+const regDelegateNonPharmacist = z.object({
+  delegateClass: z.literal('Non-Pharmacist'),
+  title: z.string()
+})
+
+const regDelegatePharmacist = z.object({
+  delegateClass: z.literal('Pharmacist'),
+  regPharmacistMembership
+})
+
+const regDelegate = z.discriminatedUnion('delegateClass', [regDelegateNonPharmacist, regDelegatePharmacist], {
+  required_error: 'Please select Delegate type.'
+})
 
 export const ConventionRegistrationFormSchema = z.object({
-  // convention: z.enum(conventionEnum),
-  // type: z.enum(typeEnum),
+  regDelegate,
+  // regDelegatePharmacist,
+  // pharmacist: z
+  //   .object({
+  //     type: z.string({ required_error: 'Please select CPhAD membership type.' }),
+  //     cphadIdNo: z.string(),
+  //     prcLicenseNo: z.string(),
+  //     dateIssued: z.coerce.date(),
+  //     expiryDate: z.coerce.date()
+  //   })
+  //   .optional(),
+
   convention: z.string(),
   type: z.string(),
-  title: z.string().optional(),
   firstName: z.string({ required_error: 'First Name is required.' }).min(1, { message: 'Please enter First Name.' }),
   middleName: z.string().optional(),
   lastName: z.string({ required_error: 'Last Name is required.' }).min(1, { message: 'Please enter Last Name.' }),

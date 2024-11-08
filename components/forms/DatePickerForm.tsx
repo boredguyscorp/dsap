@@ -14,6 +14,8 @@ type ExtendedProps = {
   label?: string
   required?: boolean
   disabledFuture?: boolean
+  buttonClassName?: string
+  placeholder?: string
 }
 
 interface TextFieldFormProps<T extends FieldValues> extends UseControllerProps<T> {
@@ -23,7 +25,7 @@ interface TextFieldFormProps<T extends FieldValues> extends UseControllerProps<T
 
 export function DatePickerForm<T extends FieldValues>(props: TextFieldFormProps<T>) {
   const { name, fieldProps, extendedProps } = props
-  const { label, required, disabledFuture } = extendedProps || {}
+  const { label, required, disabledFuture, buttonClassName, placeholder } = extendedProps || {}
 
   //React Hook Form Context
   const {
@@ -47,8 +49,11 @@ export function DatePickerForm<T extends FieldValues>(props: TextFieldFormProps<
             <Popover modal>
               <PopoverTrigger asChild>
                 <FormControl>
-                  <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                    {field.value ? format(new Date(field.value), 'PPP') : <span>Pick a date</span>}
+                  <Button
+                    variant={'outline'}
+                    className={cn(' w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground', buttonClassName)}
+                  >
+                    {field.value ? format(new Date(field.value), 'PPP') : <span>{placeholder ?? 'Pick a date'}</span>}
                     <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
                   </Button>
                 </FormControl>
