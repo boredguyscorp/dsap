@@ -11,6 +11,7 @@ type ExtendedProps = {
   errorMessageClassName?: string
   description?: string
   style?: 'default' | 'classic'
+  formItemClassName?: string
 }
 
 interface TextFieldFormProps<T extends FieldValues> extends UseControllerProps<T> {
@@ -20,7 +21,7 @@ interface TextFieldFormProps<T extends FieldValues> extends UseControllerProps<T
 
 export function InputFieldForm<T extends FieldValues>(props: TextFieldFormProps<T>) {
   const { name, fieldProps, extendedProps } = props
-  const { label, style = 'default' } = extendedProps || {}
+  const { label, style = 'default', formItemClassName } = extendedProps || {}
 
   //React Hook Form Context
   const {
@@ -37,7 +38,7 @@ export function InputFieldForm<T extends FieldValues>(props: TextFieldFormProps<
       name={name}
       render={({ field }) => {
         return (
-          <FormItem>
+          <FormItem className={cn('', formItemClassName)}>
             <FormLabel className={cn('w-52', extendedProps?.labelClassName)}>{labelText}</FormLabel>
             <FormControl className={cn('', style === 'classic' && 'border-b')}>
               <div className='relative w-full'>

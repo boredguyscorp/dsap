@@ -1,4 +1,5 @@
 import { Chapter } from '@prisma/client'
+import { LucideIcon, UserCheck, UserMinus } from 'lucide-react'
 
 export const CURRENT_CONVENTION: ConventionEnum = '26th'
 export const CURRENT_DATE = new Date().toISOString().split('T')[0]
@@ -26,6 +27,7 @@ type RateTypeValues = {
   label: string
   amount: number
   preReg: boolean
+  icon?: LucideIcon
 }
 
 export const rateValues: RateTypeValues[] = [
@@ -33,10 +35,10 @@ export const rateValues: RateTypeValues[] = [
   { convention: '25th', value: '25th-prnm', label: 'Pre-Reg Non-Member (11,300.00)', amount: 11300, preReg: true },
   { convention: '25th', value: '25th-m', label: 'Member (10,800.00)', amount: 10800, preReg: false },
   { convention: '25th', value: '25th-nm', label: 'Non-Member (12,300.00)', amount: 12300, preReg: false },
-  { convention: '26th', value: '26th-prm', label: 'Pre-Reg Member (9,000.00)', amount: 9000, preReg: true },
-  { convention: '26th', value: '26th-prnm', label: 'Pre-Reg Non-Member (10,500.00)', amount: 10500, preReg: true },
-  { convention: '26th', value: '26th-m', label: 'Member (10,000.00)', amount: 10000, preReg: false },
-  { convention: '26th', value: '26th-nm', label: 'Non-Member (11,500.00)', amount: 11500, preReg: false }
+  { convention: '26th', value: '26th-prm', label: 'Pre-Reg Member (9,000.00)', amount: 9000, preReg: true, icon: UserCheck },
+  { convention: '26th', value: '26th-prnm', label: 'Pre-Reg Non-Member (10,500.00)', amount: 10500, preReg: true, icon: UserMinus },
+  { convention: '26th', value: '26th-m', label: 'Member (10,000.00)', amount: 10000, preReg: false, icon: UserCheck },
+  { convention: '26th', value: '26th-nm', label: 'Non-Member (11,500.00)', amount: 11500, preReg: false, icon: UserMinus }
 ]
 
 export const conventions: Convention[] = [

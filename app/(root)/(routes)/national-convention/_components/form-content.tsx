@@ -3,7 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
 
 import { InputFieldForm } from '../../../../../components/forms/InputFieldForm'
-import { CalendarIcon, Check, ChevronDownIcon, ChevronsUpDown, MapPin } from 'lucide-react'
+import { CalendarIcon, Check, ChevronDownIcon, ChevronsUpDown, LucideIcon, MapPin } from 'lucide-react'
 
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import React, { useMemo, useState } from 'react'
@@ -21,7 +21,7 @@ import { ConventionRegistrationForm, title } from '@/lib/schema'
 import { useFormContext } from 'react-hook-form'
 import { Separator } from '@/components/ui/separator'
 import { ChapterList } from '@/actions/fetchers'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useParams } from 'next/navigation'
 import { DatePickerForm } from '@/components/forms/DatePickerForm'
@@ -74,113 +74,36 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
 
   return (
     <div className='space-y-5'>
-      <FormField
-        control={control}
+      <RadioGroupForm
         name='type'
-        render={({ field }) => (
-          <FormItem className='space-y-3'>
-            {/* <FormLabel>Ownership Type</FormLabel> */}
-            <FormControl>
-              <RadioGroup
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-                value={field.value}
-                className='flex items-center space-x-2'
-              >
-                {convention?.rate
-                  .filter((r) => {
-                    return showAllFees ? true : r.preReg === isPreReg
-                  })
-                  .map((row) => {
-                    return (
-                      <FormItem key={row.value} className='flex items-center space-x-3 space-y-0'>
-                        <React.Fragment key={row.value}>
-                          <FormControl>
-                            <RadioGroupItem value={row.value} />
-                          </FormControl>
-                          <FormLabel className={cn('font-normal', row.value === field.value && 'font-semibold')}>{row.label}</FormLabel>
-                        </React.Fragment>
-                      </FormItem>
-                    )
-                  })}
-              </RadioGroup>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        options={convention?.rate.filter((r) => {
+          return showAllFees ? true : r.preReg === isPreReg
+        })}
       />
 
       <div className='space-y-2'>
         <Label>Personal Information</Label>
-        <FormField
-          control={control}
-          name='regDelegate.delegateClass'
-          render={({ field }) => (
-            <FormItem className='space-y-3'>
-              {/* <FormLabel>Ownership Type</FormLabel> */}
-              <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  value={field.value}
-                  className='flex items-center space-x-2'
-                >
-                  {delegateClassList.map((row) => {
-                    return (
-                      <FormItem key={row.value} className='flex items-center space-x-3 space-y-0'>
-                        <React.Fragment key={row.value}>
-                          <FormControl>
-                            <RadioGroupItem value={row.value} />
-                          </FormControl>
-                          <FormLabel className={cn('cursor-pointer font-normal', row.value === field.value && 'font-semibold')}>
-                            {row.label}
-                          </FormLabel>
-                        </React.Fragment>
-                      </FormItem>
-                    )
-                  })}
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <RadioGroupForm name='regDelegate.delegateClass' options={delegateClassList} />
 
         {watch('regDelegate.delegateClass') === 'Non-Pharmacist' ? (
-          <FormField
-            control={control}
+          <RadioGroupForm
             name='regDelegate.title'
-            render={({ field }) => (
-              <FormItem>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  value={field.value}
-                  className='flex items-center space-x-2'
-                >
-                  {title.map((value) => {
-                    return (
-                      <FormItem key={value} className='flex items-center space-x-3 space-y-0'>
-                        <React.Fragment key={value}>
-                          <FormControl>
-                            <RadioGroupItem value={value} />
-                          </FormControl>
-                          <FormLabel className={cn('cursor-pointer font-normal', value === field.value && 'font-semibold')}>
-                            {value}
-                          </FormLabel>
-                        </React.Fragment>
-                      </FormItem>
-                    )
-                  })}
-                </RadioGroup>
-              </FormItem>
-            )}
+            options={title.map((t) => {
+              return { label: t, value: t }
+            })}
           />
         ) : null}
 
         {watch('regDelegate.delegateClass') === 'Pharmacist' ? (
           <>
-            <FormField
+            <RadioGroupForm
+              name='regDelegate.regPharmacistMembership.memberType'
+              options={nonPharmacistTypeEnum.map((t) => {
+                return { label: t, value: t }
+              })}
+            />
+
+            {/* <FormField
               control={control}
               name='regDelegate.regPharmacistMembership.memberType'
               render={({ field, formState }) => (
@@ -210,10 +133,10 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
                   </RadioGroup>
                 </FormItem>
               )}
-            />
+            /> */}
 
             <>
-              <div className='grid grid-cols-2 gap-2'>
+              <div className='grid sm:grid-cols-2 sm:gap-2'>
                 <InputFieldForm
                   control={control}
                   name='regDelegate.regPharmacistMembership.cphadIdNo'
@@ -231,7 +154,7 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
                 />
               </div>
 
-              <div className='grid grid-cols-2 gap-2'>
+              <div className='grid gap-2 sm:grid-cols-2'>
                 <DatePickerForm
                   control={control}
                   name='regDelegate.regPharmacistMembership.dateIssued'
@@ -249,12 +172,10 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
             </>
           </>
         ) : null}
-
         <InputFieldForm control={control} name='firstName' fieldProps={{ placeholder: 'First Name', required: true }} />
         <InputFieldForm control={control} name='middleName' fieldProps={{ placeholder: 'Middle Name' }} />
         <InputFieldForm control={control} name='lastName' fieldProps={{ placeholder: 'Last Name', required: true }} />
-
-        <div className='!mt-0 grid grid-cols-2 gap-2'>
+        <div className='!mt-0 grid sm:grid-cols-2 sm:gap-2'>
           <InputFieldForm
             control={control}
             name='contactNo'
@@ -272,24 +193,24 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
       </div>
 
       <Separator />
-      <div className='space-y-2'>
+      <div className='sm:space-y-2'>
         <Label>Address</Label>
-        <div className='grid grid-cols-2 gap-2'>
+        <div className='grid sm:grid-cols-2 sm:gap-2'>
           <InputFieldForm control={control} name='address.street' fieldProps={{ placeholder: 'No./Street' }} />
           <InputFieldForm control={control} name='address.brgy' fieldProps={{ placeholder: 'Barangay' }} />
         </div>
 
-        <div className='grid grid-cols-2 gap-2'>
+        <div className='grid sm:grid-cols-2 sm:gap-2'>
           <InputFieldForm control={control} name='address.city' fieldProps={{ placeholder: 'City' }} />
           <InputFieldForm control={control} name='address.province' fieldProps={{ placeholder: 'Province' }} />
         </div>
       </div>
 
       <Separator />
-      <div className='space-y-2'>
+      <div className='sm:space-y-2'>
         <Label>Drugstore Information</Label>
 
-        <div className='grid grid-cols-2 gap-2'>
+        <div className='grid sm:grid-cols-2 sm:gap-2'>
           <InputFieldForm control={control} name='drugstoreInfo.establishment' fieldProps={{ placeholder: 'Establishment Represented' }} />
 
           <FormField
@@ -339,11 +260,68 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
           />
         </div>
 
-        <div className='grid grid-cols-2 gap-2'>
+        <div className='grid sm:grid-cols-2 sm:gap-2'>
           <InputFieldForm control={control} name='drugstoreInfo.owner' fieldProps={{ placeholder: 'Owner of Drugstore/Establishment' }} />
           <InputFieldForm control={control} name='drugstoreInfo.mainAddress' fieldProps={{ placeholder: 'Main Address' }} />
         </div>
       </div>
     </div>
+  )
+}
+
+type RadioGroupOption = { value: string; label: string; icon?: LucideIcon } & Record<string, any>
+type RadioGroupFormProps = {
+  options: RadioGroupOption[] | undefined
+  name: string
+}
+
+function RadioGroupForm({ options, name }: RadioGroupFormProps) {
+  const {
+    reset,
+    setError,
+    clearErrors,
+    formState: { errors },
+    getValues,
+    watch,
+    setValue,
+    trigger,
+    control
+  } = useFormContext()
+
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className='space-y-3'>
+          {/* <FormLabel>Ownership Type</FormLabel> */}
+          <FormControl>
+            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-row items-center'>
+              {options?.map((item) => {
+                return (
+                  <FormItem key={item.value} className='flex flex-col space-x-3 space-y-0'>
+                    <FormControl>
+                      <Label
+                        htmlFor={item.value}
+                        className='flex cursor-pointer flex-col items-center justify-between gap-2 rounded-md border-2 border-muted bg-popover p-4 text-center hover:bg-accent hover:text-accent-foreground md:flex-row md:text-left [&:has([data-state=checked])]:border-teal-600'
+                      >
+                        <RadioGroupItem value={item.value} id={item.value} className='sr-only leading-10' />
+                        {item.icon && (
+                          <div className={cn('size-10 rounded-full ', field.value === item.value && 'bg-teal-600 text-white')}>
+                            <item.icon className={cn('h-full w-full p-[10px] ')} />
+                          </div>
+                        )}
+                        {item.label}
+                      </Label>
+                    </FormControl>
+                  </FormItem>
+                )
+              })}
+            </RadioGroup>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   )
 }
