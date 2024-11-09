@@ -87,13 +87,13 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
 
   if (!showForm) {
     return (
-      <div className='mx-auto mt-32 max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
+      <div className='mx-auto mt-40 max-w-[85rem] px-4 py-10 xs:mt-32 sm:px-6 lg:px-8 lg:py-14'>
         <div className='md:grid md:grid-cols-2 md:items-center md:gap-12 xl:gap-32'>
-          <div>
-            <Image src={dsap26th} alt='dsap-national-convention-26th' className='w-full rounded-xl object-cover' />
+          <div className='mb-5 flex h-full items-start justify-start'>
+            <Image src={dsap26th} alt='dsap-national-convention-26th' className=' w-full rounded-xl object-cover' />
           </div>
 
-          <div className='mt-5 sm:mt-10 lg:mt-0'>
+          <div className=' flex h-full items-start justify-start  '>
             <div className='space-y-6 sm:space-y-8'>
               <div className='space-y-2 md:space-y-4'>
                 <p className='text-center text-lg'>
@@ -195,7 +195,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
 
   return (
     <div className={'w-full bg-gradient-to-br from-teal-400 to-cyan-100'}>
-      <div className='mx-auto mt-24 max-w-[900px] px-0 py-10 sm:px-6 lg:px-8 lg:py-14'>
+      <div className='mx-auto mt-28 max-w-[900px] px-0 py-10  sm:px-6  '>
         <div className='p-5'>
           <div className='p-4'>
             <Form {...form}>
