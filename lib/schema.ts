@@ -552,7 +552,7 @@ const regPharmacistMembership = z.discriminatedUnion('memberType', [regPharmacis
 
 const regDelegateNonPharmacist = z.object({
   delegateClass: z.literal('Non-Pharmacist'),
-  title: z.string()
+  title: z.string({ required_error: 'Please select title.' })
 })
 
 const regDelegatePharmacist = z.object({

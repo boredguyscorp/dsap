@@ -29,9 +29,9 @@ import { Label } from '@/components/ui/label'
 import { CURRENT_CONVENTION, CURRENT_DATE, conventions, rateValues } from '@/app/(app.domain.com)/dashboard/convention/_components/constant'
 import { registerConvention } from '@/actions/convention'
 
-import { FileWithPath, useDropzone } from 'react-dropzone'
-import { generateClientDropzoneAccept } from 'uploadthing/client'
-import { useUploadThing } from '@/lib/uploadthing'
+// import { FileWithPath, useDropzone } from 'react-dropzone'
+// import { generateClientDropzoneAccept } from 'uploadthing/client'
+// import { useUploadThing } from '@/lib/uploadthing'
 import { Form } from '@/components/ui/form'
 import { RegistrationFormInputs } from './form-content'
 import { ChapterList } from '@/actions/fetchers'
@@ -43,7 +43,11 @@ type NationalConventionFormProps = {
 }
 
 export function NationalConventionForm({ chapters }: NationalConventionFormProps) {
-  const [showForm, setShowForm] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+
+  useEffect(() => {
+    if (showForm) window.scrollTo(0, 0)
+  }, [showForm])
 
   const convention = useMemo(() => conventions.find((row) => row.code === CURRENT_CONVENTION), [])
   const cutOffDate = convention?.preRegCutOff ?? '2025-01-28'
@@ -187,9 +191,11 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
     })
   }
 
+  // const showBanner = process.env.NEXT_PUBLIC_SHOW_BANNER === 'true'
+
   return (
-    <div className='w-full bg-gradient-to-br from-teal-400 to-cyan-100'>
-      <div className='mx-auto mt-14 max-w-[900px] px-0 py-10 sm:px-6 lg:px-8 lg:py-14'>
+    <div className={'w-full bg-gradient-to-br from-teal-400 to-cyan-100'}>
+      <div className='mx-auto mt-24 max-w-[900px] px-0 py-10 sm:px-6 lg:px-8 lg:py-14'>
         <div className='p-5'>
           <div className='p-4'>
             <Form {...form}>
@@ -242,7 +248,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
               <ol className='max space-y-2 px-6 text-base  md:text-lg'>
                 <li className='list-decimal'>
                   Registration is <span className='font-bold underline'>Non-transferable</span> and{' '}
-                  <span className='font-bold underline'>Non-refundable</span>
+                  <span className='font-bold underline'>Non-refundable.</span>
                 </li>
                 <li className='list-decimal'>DSAP and CPhAD Membership dues 2025 should be paid to avail of member Registration rate.</li>
               </ol>

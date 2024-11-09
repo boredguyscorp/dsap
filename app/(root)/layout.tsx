@@ -42,7 +42,7 @@ export default async function RootLayout({ children }: MarketingLayoutProps) {
         >
           <div className='mx-auto max-w-[85rem] px-4 font-bold sm:px-6 lg:px-8'>
             <p className='me-2 inline-block text-xs text-gray-800 dark:text-gray-200 sm:text-base'>
-              25th DSAP National Convention April 24-26, 2024
+              26th DSAP National Convention March 26-28, 2025
             </p>
             <span className='inline-flex items-center justify-center gap-x-2 text-xs text-white decoration-2 group-hover:underline sm:text-base '>
               Register Now
