@@ -545,7 +545,7 @@ const regPharmacistNonMember = z
 const regPharmacistMembership = z.discriminatedUnion('memberType', [regPharmacistMember, regPharmacistNonMember], {
   errorMap: (issue, ctx) => {
     if (issue.code === 'invalid_union_discriminator')
-      return { message: `Please select CPhAD membership type. Expected ${issue.options.join(' | ')}` }
+      return { message: `Please select CPhAD membership type. Option ${issue.options.join(' | ')}` }
     return { message: ctx.defaultError }
   }
 })
@@ -561,7 +561,11 @@ const regDelegatePharmacist = z.object({
 })
 
 const regDelegate = z.discriminatedUnion('delegateClass', [regDelegateNonPharmacist, regDelegatePharmacist], {
-  required_error: 'Please select Delegate type.'
+  errorMap: (issue, ctx) => {
+    if (issue.code === 'invalid_union_discriminator')
+      return { message: `Please select delegate class. Option ${issue.options.join(' | ')}` }
+    return { message: ctx.defaultError }
+  }
 })
 
 export const ConventionRegistrationFormSchema = z.object({

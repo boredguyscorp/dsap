@@ -43,7 +43,7 @@ type NationalConventionFormProps = {
 }
 
 export function NationalConventionForm({ chapters }: NationalConventionFormProps) {
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(true)
 
   const convention = useMemo(() => conventions.find((row) => row.code === CURRENT_CONVENTION), [])
   const cutOffDate = convention?.preRegCutOff ?? '2025-01-28'
@@ -51,7 +51,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
   const showRegistration = process.env.NEXT_PUBLIC_SHOW_REGISTRATION === 'true'
 
   const defaultValues = {
-    ['regDelegate.delegateClass']: 'Non-Pharmacist',
+    // ['regDelegate.delegateClass']: 'Non-Pharmacist',
     convention: CURRENT_CONVENTION,
     type: isPreReg ? '26th-prm' : '26th-m',
     firstName: '',
@@ -189,14 +189,14 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
 
   return (
     <div className='w-full bg-gradient-to-br from-teal-400 to-cyan-100'>
-      <div className='mx-auto mt-20 max-w-3xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14'>
+      <div className='mx-auto mt-14 max-w-[900px] px-0 py-10 sm:px-6 lg:px-8 lg:py-14'>
         <div className='p-5'>
           <div className='p-4'>
             <Form {...form}>
               <form className='space-y-4'>
                 <Card className='w-full'>
                   <CardHeader>
-                    <CardTitle>Convention Registration Form</CardTitle>
+                    <CardTitle className='text-xl'>Convention Registration Form</CardTitle>
                     <CardDescription className='mb-5'>
                       Please fill up the form below. <span className='text-lg font-bold text-teal-500'> * </span> is required.
                     </CardDescription>

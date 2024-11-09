@@ -25,6 +25,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useParams } from 'next/navigation'
 import { DatePickerForm } from '@/components/forms/DatePickerForm'
+import Balancer from 'react-wrap-balancer'
 
 type NationalConventionFormProps = {
   chapters: ChapterList
@@ -79,11 +80,12 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
         options={convention?.rate.filter((r) => {
           return showAllFees ? true : r.preReg === isPreReg
         })}
+        formItemClass='h-[130px]'
       />
 
       <div className='space-y-2'>
         <Label>Personal Information</Label>
-        <RadioGroupForm name='regDelegate.delegateClass' options={delegateClassList} />
+        <RadioGroupForm name='regDelegate.delegateClass' options={delegateClassList} formItemClass='h-[60px]' />
 
         {watch('regDelegate.delegateClass') === 'Non-Pharmacist' ? (
           <RadioGroupForm
@@ -273,9 +275,10 @@ type RadioGroupOption = { value: string; label: string; icon?: LucideIcon } & Re
 type RadioGroupFormProps = {
   options: RadioGroupOption[] | undefined
   name: string
+  formItemClass?: string
 }
 
-function RadioGroupForm({ options, name }: RadioGroupFormProps) {
+function RadioGroupForm({ options, name, formItemClass }: RadioGroupFormProps) {
   const {
     reset,
     setError,
@@ -293,31 +296,35 @@ function RadioGroupForm({ options, name }: RadioGroupFormProps) {
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className='space-y-3'>
+        <FormItem className=' space-y-3'>
           {/* <FormLabel>Ownership Type</FormLabel> */}
           <FormControl>
-            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-row items-center'>
-              {options?.map((item) => {
-                return (
-                  <FormItem key={item.value} className='flex flex-col space-x-3 space-y-0'>
-                    <FormControl>
-                      <Label
-                        htmlFor={item.value}
-                        className='flex cursor-pointer flex-col items-center justify-between gap-2 rounded-md border-2 border-muted bg-popover p-4 text-center hover:bg-accent hover:text-accent-foreground md:flex-row md:text-left [&:has([data-state=checked])]:border-teal-600'
-                      >
-                        <RadioGroupItem value={item.value} id={item.value} className='sr-only leading-10' />
-                        {item.icon && (
-                          <div className={cn('size-10 rounded-full ', field.value === item.value && 'bg-teal-600 text-white')}>
-                            <item.icon className={cn('h-full w-full p-[10px] ')} />
-                          </div>
-                        )}
-                        {item.label}
-                      </Label>
-                    </FormControl>
-                  </FormItem>
-                )
-              })}
-            </RadioGroup>
+            <ScrollArea>
+              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className='flex flex-row items-center '>
+                {options?.map((item) => {
+                  return (
+                    <FormItem key={item.value} className={cn('flex w-full flex-col  space-x-3 space-y-0 md:h-full', formItemClass)}>
+                      <FormControl>
+                        <Label
+                          htmlFor={item.value}
+                          className=' flex h-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-4 text-center leading-5 hover:bg-accent hover:text-accent-foreground md:flex-row  [&:has([data-state=checked])]:border-teal-600'
+                        >
+                          <RadioGroupItem value={item.value} id={item.value} className='sr-only leading-10 ' />
+                          {item.icon && (
+                            <div className={cn('size-10 rounded-full ', field.value === item.value && 'bg-teal-600 text-white')}>
+                              <item.icon className={cn('h-full w-full p-[10px] ')} />
+                            </div>
+                          )}
+                          {/* <Balancer>{item.label}</Balancer> */}
+                          {item.label}
+                        </Label>
+                      </FormControl>
+                    </FormItem>
+                  )
+                })}
+              </RadioGroup>
+              <ScrollBar orientation='horizontal' />
+            </ScrollArea>
           </FormControl>
           <FormMessage />
         </FormItem>
