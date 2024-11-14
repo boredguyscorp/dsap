@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 
 const RHFDevTool = dynamic(() => import('../../../../../components/forms/DevTools'), { ssr: false })
 
-import dsap26th from 'public/images/dsap26th.png'
+import dsap26th from 'public/images/dsap26th.jpg'
 // import logo from 'public/images/logo.jpg'
 
 import Image from 'next/image'

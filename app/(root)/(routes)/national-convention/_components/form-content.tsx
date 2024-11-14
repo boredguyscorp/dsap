@@ -73,6 +73,8 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
     }
   }
 
+  const isPharmacist = watch('regDelegate.delegateClass') === 'Pharmacist'
+
   return (
     <div className='space-y-5'>
       <RadioGroupForm
@@ -96,7 +98,7 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
           />
         ) : null}
 
-        {watch('regDelegate.delegateClass') === 'Pharmacist' ? (
+        {isPharmacist ? (
           <>
             <RadioGroupForm
               name='regDelegate.regPharmacistMembership.memberType'
@@ -104,38 +106,6 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
                 return { label: t, value: t }
               })}
             />
-
-            {/* <FormField
-              control={control}
-              name='regDelegate.regPharmacistMembership.memberType'
-              render={({ field, formState }) => (
-                <FormItem>
-                  {formState.errors && <FormMessage className={cn('text-destructive')} />}
-
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    value={field.value}
-                    className='flex items-center space-x-2'
-                  >
-                    {nonPharmacistTypeEnum.map((value) => {
-                      return (
-                        <FormItem key={value} className='flex items-center space-x-3 space-y-0'>
-                          <React.Fragment key={value}>
-                            <FormControl>
-                              <RadioGroupItem value={value} />
-                            </FormControl>
-                            <FormLabel className={cn('cursor-pointer font-normal', value === field.value && 'font-semibold')}>
-                              {value}
-                            </FormLabel>
-                          </React.Fragment>
-                        </FormItem>
-                      )
-                    })}
-                  </RadioGroup>
-                </FormItem>
-              )}
-            /> */}
 
             <>
               <div className='grid sm:grid-cols-2 sm:gap-2'>
@@ -174,9 +144,23 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
             </>
           </>
         ) : null}
-        <InputFieldForm control={control} name='firstName' fieldProps={{ placeholder: 'First Name', required: true }} />
-        <InputFieldForm control={control} name='middleName' fieldProps={{ placeholder: 'Middle Name' }} />
-        <InputFieldForm control={control} name='lastName' fieldProps={{ placeholder: 'Last Name', required: true }} />
+
+        <InputFieldForm
+          control={control}
+          name='firstName'
+          fieldProps={{ placeholder: `First Name ${isPharmacist ? '(indicate at PRC License)' : ''}`, required: true }}
+        />
+        <InputFieldForm
+          control={control}
+          name='middleName'
+          fieldProps={{ placeholder: `Middle Name ${isPharmacist ? '(indicate at PRC License)' : ''}` }}
+        />
+        <InputFieldForm
+          control={control}
+          name='lastName'
+          fieldProps={{ placeholder: `Last Name ${isPharmacist ? '(indicate at PRC License)' : ''}`, required: true }}
+        />
+
         <div className='!mt-0 grid sm:grid-cols-2 sm:gap-2'>
           <InputFieldForm
             control={control}
