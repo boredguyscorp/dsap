@@ -83,7 +83,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
     setValue
   } = form
 
-  const year = new Date().getFullYear() + 1
+  const year = new Date().getFullYear()
 
   if (!showForm) {
     return (
