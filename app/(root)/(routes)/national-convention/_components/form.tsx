@@ -50,7 +50,7 @@ export function NationalConventionForm({ chapters }: NationalConventionFormProps
   }, [showForm])
 
   const convention = useMemo(() => conventions.find((row) => row.code === CURRENT_CONVENTION), [])
-  const cutOffDate = convention?.preRegCutOff ?? '2025-01-29'
+  const cutOffDate = convention?.preRegCutOff ?? '2025-02-16'
   const isPreReg = cutOffDate > CURRENT_DATE
   const showRegistration = process.env.NEXT_PUBLIC_SHOW_REGISTRATION === 'true'
 
