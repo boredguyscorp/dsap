@@ -18,7 +18,8 @@ type Payload = {
 const secret = process.env.API_KEY_SIGNATURE_SECRET || '@Test123'
 
 function generateApiKey(_payload: Payload, expiresIn: string) {
-  const key = sign(_payload, secret, { expiresIn })
+  // const key = sign(_payload, secret, { expiresIn })
+  const key = '123'
   const payload = verify(key, secret) as JwtPayload
 
   return { key, payload }

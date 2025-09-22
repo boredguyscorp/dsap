@@ -143,7 +143,7 @@ export default async function Page() {
 					</div>
 
 					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-						<FeaturedEvents />
+						{/* <FeaturedEvents /> */}
 
 						<Link
 							className="group relative flex min-h-[15rem] w-full flex-col rounded-xl bg-[url('https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3000&q=80')] bg-cover bg-center transition hover:shadow-lg"
@@ -189,7 +189,7 @@ export default async function Page() {
 						</p>
 					</div>
 					<div className="grid gap-10 lg:grid-cols-2 lg:gap-y-16">
-						<FeaturedNews />
+						{/* <FeaturedNews /> */}
 					</div>
 				</div>
 			</section>
