@@ -38,7 +38,7 @@ export function RegistrationFormInputs({ chapters, showAllFees }: NationalConven
   const conventionCode = useMemo(() => params.code ?? CURRENT_CONVENTION, [params.code])
 
   const convention = useMemo(() => conventions.find((row) => row.code === conventionCode), [conventionCode])
-  const cutOffDate = convention?.preRegCutOff ?? '2025-01-28'
+  const cutOffDate = convention?.preRegCutOff ?? '2026-03-06'
   const isPreReg = cutOffDate > CURRENT_DATE
 
   const [openChapter, setOpenChapter] = useState<boolean>(false)

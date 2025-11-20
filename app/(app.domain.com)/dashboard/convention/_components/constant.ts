@@ -1,10 +1,10 @@
 import { Chapter } from '@prisma/client'
 import { LucideIcon, UserCheck, UserMinus } from 'lucide-react'
 
-export const CURRENT_CONVENTION: ConventionEnum = '26th'
+export const CURRENT_CONVENTION: ConventionEnum = '27th'
 export const CURRENT_DATE = new Date().toISOString().split('T')[0]
 
-export const conventionEnum = ['25th', '26th'] as const
+export const conventionEnum = ['25th', '26th', '27th'] as const
 export type ConventionEnum = (typeof conventionEnum)[number]
 
 export type Convention = {
@@ -18,7 +18,20 @@ export type Convention = {
   img: string
 }
 
-export const typeEnum = ['25th-prm', '25th-prnm', '25th-m', '25th-nm', '26th-prm', '26th-prnm', '26th-m', '26th-nm'] as const
+export const typeEnum = [
+  '25th-prm',
+  '25th-prnm',
+  '25th-m',
+  '25th-nm',
+  '26th-prm',
+  '26th-prnm',
+  '26th-m',
+  '26th-nm',
+  '27th-prm',
+  '27th-prnm',
+  '27th-m',
+  '27th-nm'
+] as const
 export type TypeRate = (typeof typeEnum)[number]
 
 type RateTypeValues = {
@@ -38,7 +51,11 @@ export const rateValues: RateTypeValues[] = [
   { convention: '26th', value: '26th-prm', label: 'Pre-Reg Member (9,000.00)', amount: 9000, preReg: true, icon: UserCheck },
   { convention: '26th', value: '26th-prnm', label: 'Pre-Reg Non-Member (10,500.00)', amount: 10500, preReg: true, icon: UserMinus },
   { convention: '26th', value: '26th-m', label: 'Member (10,000.00)', amount: 10000, preReg: false, icon: UserCheck },
-  { convention: '26th', value: '26th-nm', label: 'Non-Member (11,500.00)', amount: 11500, preReg: false, icon: UserMinus }
+  { convention: '26th', value: '26th-nm', label: 'Non-Member (11,500.00)', amount: 11500, preReg: false, icon: UserMinus },
+  { convention: '27th', value: '27th-prm', label: 'Pre-Reg Member (10,000.00)', amount: 10000, preReg: true, icon: UserCheck },
+  { convention: '27th', value: '27th-prnm', label: 'Pre-Reg Non-Member (11,000.00)', amount: 11000, preReg: true, icon: UserMinus },
+  { convention: '27th', value: '27th-m', label: 'Member (11,000.00)', amount: 11000, preReg: false, icon: UserCheck },
+  { convention: '27th', value: '27th-nm', label: 'Non-Member (12,000.00)', amount: 12000, preReg: false, icon: UserMinus }
 ]
 
 export const conventions: Convention[] = [
@@ -61,6 +78,16 @@ export const conventions: Convention[] = [
     preRegCutOff: '2025-02-16',
     img: '/images/dsap26th.png',
     rate: rateValues.filter((row) => row.convention === '26th')
+  },
+  {
+    code: '27th',
+    name: 'Manila',
+    description: 'Timeless DSAP: Adapting Through Generations',
+    title: 'DSAPCon2026',
+    date: 'April 8-10, 2026',
+    preRegCutOff: '2026-03-07',
+    img: '/images/dsap27th.png',
+    rate: rateValues.filter((row) => row.convention === '27th')
   }
 ]
 

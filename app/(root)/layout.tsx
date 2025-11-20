@@ -30,20 +30,20 @@ export default async function RootLayout({ children }: MarketingLayoutProps) {
 	// }
 
 	const user = await getCurrentUser();
-	const showBanner = false;
-	// const showBanner = process.env.SHOW_BANNER === 'true'
+	// const showBanner = true;
+	const showBanner = process.env.NEXT_PUBLIC_SHOW_BANNER === 'true'
 
 	return (
 		<div className="flex min-h-screen flex-col">
 			{/* <HomePageWrapper> */}
 			{showBanner && (
 				<Link
-					className="group fixed top-0 z-50 block w-full bg-teal-500 p-4 text-center transition-all duration-300 hover:bg-teal-400 "
+					className="group fixed top-0 z-[9999] block w-full bg-teal-500 p-4 text-center transition-all duration-300 hover:bg-teal-400 "
 					href="/national-convention"
 				>
-					<div className="mx-auto max-w-[85rem] px-4 font-bold sm:px-6 lg:px-8">
+					<div className="mx-auto max-w-[85rem] px-4 font-bold sm:px-6 lg:px-8 z-50">
 						<p className="me-2 inline-block text-xs text-gray-800 dark:text-gray-200 sm:text-base">
-							26th DSAP National Convention March 26-28, 2025
+							27th DSAP National Convention April 8-10, 2026
 						</p>
 						<span className="inline-flex items-center justify-center gap-x-2 text-xs text-white decoration-2 group-hover:underline sm:text-base ">
 							Register Now
@@ -55,7 +55,7 @@ export default async function RootLayout({ children }: MarketingLayoutProps) {
 
 			<header
 				className={cn(
-					"supports-backdrop-blur:bg-background/60 fixed top-0 z-[100] w-full border-b bg-background/95 px-3 py-2 backdrop-blur 2xl:px-20 ",
+					"supports-backdrop-blur:bg-background/60 fixed top-0 z-[9999] w-full border-b bg-background/95 px-3 py-2 backdrop-blur 2xl:px-20 ",
 					showBanner && "mt-[80px] xs:mt-14",
 				)}
 			>
