@@ -612,7 +612,7 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
               <div ref={phImgContainerRef} tabIndex={0}>
                 <ImageUploader
                   label='Photo'
-                  value={getValues('dpDSClassDetails.dpPhImageUrl')}
+                  value={getValues('dpDSClassDetails.dpPhImageUrl') ?? ''}
                   isRequired
                   uploaderKey='dpDSClassDetails-dpPhImageUrl'
                   icon={Icons.media}
@@ -846,7 +846,7 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
               <div ref={phAsImgContainerRef} tabIndex={0}>
                 <ImageUploader
                   label='Photo'
-                  value={getValues('dpDSClassDetails.dpPhAsImageUrl')}
+                  value={getValues('dpDSClassDetails.dpPhAsImageUrl') ?? ''}
                   isRequired
                   uploaderKey='dpDSClassDetails-dpPhAsImageUrl'
                   icon={Icons.media}
@@ -1044,7 +1044,7 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
               <div className='grid gap-2 lg:grid-cols-3'>
                 <div ref={phAsCOEContainerRef} tabIndex={0}>
                   <FileUploader
-                    value={getValues('dpDSClassDetails.dpPhAsAttachmentCOEUrl')}
+                    value={getValues('dpDSClassDetails.dpPhAsAttachmentCOEUrl') ?? ''}
                     label='Certificate of Employment'
                     isRequired
                     type={['application/pdf']}
@@ -1068,7 +1068,7 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
 
                 <div ref={phAsDiplomaContainerRef} tabIndex={0}>
                   <FileUploader
-                    value={getValues('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl')}
+                    value={getValues('dpDSClassDetails.dpPhAsAttachmentDiplomaUrl') ?? ''}
                     label='Diploma'
                     isRequired
                     type={['application/pdf']}
@@ -1092,7 +1092,7 @@ function SingleDrugstoreProfilePharmacist({ isModalForm }: { isModalForm?: boole
 
                 <div ref={phAsCOAContainerRef} tabIndex={0}>
                   <FileUploader
-                    value={getValues('dpDSClassDetails.dpPhAsAttachmentCOAUrl')}
+                    value={getValues('dpDSClassDetails.dpPhAsAttachmentCOAUrl') ?? ''}
                     label='Certificate of Attendance'
                     isRequired
                     type={['application/pdf']}
