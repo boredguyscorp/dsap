@@ -62,8 +62,7 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
       { lastName: { contains: searchVal } },
       { emailAdd: { contains: searchVal } },
       { contactNo: { contains: searchVal } },
-      { drugstoreInfo: { path: '$.establishment', string_contains: searchVal.toLowerCase() } },
-      { drugstoreInfo: { path: '$.establishment', string_contains: searchVal.toUpperCase() } }
+      { drugstoreInfo: { contains: searchVal, mode: 'insensitive' } }
     )
   }
 
@@ -76,7 +75,7 @@ export default async function IndexPage({ searchParams, params }: IndexPageProps
   const chapterFilterVal: Prisma.RegistrationWhereInput['OR'] = []
 
   chapterFilter.forEach((el) => {
-    chapterFilterVal.push({ drugstoreInfo: { path: '$.chapter', string_contains: el } })
+    chapterFilterVal.push({ drugstoreInfo: { contains: el, mode: 'insensitive' } })
   })
 
   const regFeeTypeFilterVal: Prisma.RegistrationWhereInput['OR'] = []

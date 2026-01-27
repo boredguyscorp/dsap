@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Organization {
@@ -13,8 +12,8 @@ model Organization {
   code      String
   name      String
   userId    String
-  isActive  Boolean    @default(true) @db.Bit(1)
-  isDefault Boolean    @default(false) @db.Bit(1)
+  isActive  Boolean    @default(true)
+  isDefault Boolean    @default(false)
   business  Business[] @relation("OrganizationToBusiness")
   location  Location[] @relation("OrganizationToLocation")
 
@@ -34,8 +33,8 @@ model Business {
   id             String       @unique()
   code           String
   name           String
-  isActive       Boolean      @default(true) @db.Bit(1)
-  isDefault      Boolean      @default(false) @db.Bit(1)
+  isActive       Boolean      @default(true)
+  isDefault      Boolean      @default(false)
   status         Status       @default(Pending)
   location       Location[]   @relation("BusinessToLocation")
   organizationId String
@@ -52,7 +51,7 @@ model Location {
   id             String       @unique()
   code           String
   name           String
-  isActive       Boolean      @default(true) @db.Bit(1)
+  isActive       Boolean      @default(true)
   businessId     String
   business       Business     @relation("BusinessToLocation", fields: [businessId], references: [id], onDelete: Cascade)
   organizationId String
@@ -70,7 +69,7 @@ model Location {
 model ApiKey {
   id         String   @id @default(uuid())
   name       String   @default("Secret Key")
-  key        String   @db.LongText()
+  key        String   @db.Text
   locationId String
   location   Location @relation("LocationToApiKey", fields: [locationId], references: [id], onDelete: Cascade)
   businessId String
@@ -261,13 +260,13 @@ model Registration {
   lastName          String
   contactNo         String
   emailAdd          String
-  address           Json?
-  drugstoreInfo     Json?
+  address           String? @db.Text
+  drugstoreInfo     String? @db.Text
   proofOfPaymentUrl String
 
-  delegateClass          String  @default("")
+  delegateClass          String?
   title                  String?
-  delegateMembershipInfo Json?
+  delegateMembershipInfo String? @db.Text
 
   message String? @db.Text()
 
@@ -282,7 +281,7 @@ model Chapter {
   id        String    @id @default(cuid())
   code      String
   name      String
-  isActive  Boolean   @default(true) @db.Bit(1)
+  isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?

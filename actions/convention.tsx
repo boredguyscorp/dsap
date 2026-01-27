@@ -25,7 +25,15 @@ export async function registerConvention(formValues: ConventionRegistrationForm,
   const title = delegateClass === 'Non-Pharmacist' ? regDelegate.title : undefined
   const delegateMembershipInfo = delegateClass === 'Pharmacist' ? regDelegate.regPharmacistMembership : undefined
 
-  const data = { ...restOfData, title, delegateClass, delegateMembershipInfo, code }
+  const data = {
+    ...restOfData,
+    title,
+    delegateClass,
+    delegateMembershipInfo: delegateMembershipInfo ? JSON.stringify(delegateMembershipInfo) : null,
+    address: restOfData.address ? JSON.stringify(restOfData.address) : null,
+    drugstoreInfo: restOfData.drugstoreInfo ? JSON.stringify(restOfData.drugstoreInfo) : null,
+    code
+  }
 
   try {
     //? get file value from formData
@@ -62,7 +70,22 @@ export async function registerConvention(formValues: ConventionRegistrationForm,
 
 export async function updateRegistrationDetails(formData: ConventionRegistrationForm, id: string) {
   try {
-    await db.registration.update({ data: formData, where: { id } })
+    const { regDelegate, ...restOfData } = formData
+
+    const delegateClass = regDelegate.delegateClass
+    const title = delegateClass === 'Non-Pharmacist' ? regDelegate.title : undefined
+    const delegateMembershipInfo = delegateClass === 'Pharmacist' ? regDelegate.regPharmacistMembership : undefined
+
+    const updateData = {
+      ...restOfData,
+      title,
+      delegateClass,
+      delegateMembershipInfo: delegateMembershipInfo ? JSON.stringify(delegateMembershipInfo) : null,
+      address: restOfData.address ? JSON.stringify(restOfData.address) : null,
+      drugstoreInfo: restOfData.drugstoreInfo ? JSON.stringify(restOfData.drugstoreInfo) : null
+    }
+
+    await db.registration.update({ data: updateData, where: { id } })
 
     revalidatePath('/convention')
 
