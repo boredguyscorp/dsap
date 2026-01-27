@@ -178,22 +178,22 @@ model Members {
   chapter           String?
   code              String
   drugStoreName     String
-  address           String
-  emailAdd          String
-  mobileNo          String
+  address           String?
+  emailAdd          String?
+  mobileNo          String?
   telNo             String?
-  ownershipType     String
-  membershipType    String
+  ownershipType     String?
+  membershipType    String?
   dpDateEstablished DateTime?
-  opPhImageUrl      String
-  drugstoreClass    String
+  opPhImageUrl      String?
+  drugstoreClass    String?
   dpSetup           String?
   dpLocation        String?
   dpStoreHours      String?
   dpInvSystem       String?
-  dpDSClassDetails  Json?
-  opLastName        String
-  opFirstName       String
+  dpDSClassDetails  String?
+  opLastName        String?
+  opFirstName       String?
   opMiddleName      String?
   opAddress         String?
   opBirthday        DateTime?
@@ -202,12 +202,12 @@ model Members {
   opCellNo          String?
   opStatus          String?
   opGender          String?
-  opEducCollege     Json?
-  opEducMasters     Json?
-  opEducDoctorate   Json?
-  opEducSpecialProg Json?
-  opEducOthers      Json?
-  opDsapMember      Json?
+  opEducCollege     String?
+  opEducMasters     String?
+  opEducDoctorate   String?
+  opEducSpecialProg String?
+  opEducOthers      String?
+  opDsapMember      String?
 
   fdaLtoNo         String?
   fdaDateIssued    DateTime?
