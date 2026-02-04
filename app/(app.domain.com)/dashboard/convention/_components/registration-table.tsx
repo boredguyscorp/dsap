@@ -68,6 +68,36 @@ import { ChapterList } from '@/actions/fetchers'
 // export const status = ['pending', 'approved', 'rejected'] as const
 // export type Status = typeof status[number]
 
+type DrugstoreInfo = ConventionRegistrationForm['drugstoreInfo']
+type AddressInfo = ConventionRegistrationForm['address']
+
+function parseDrugstoreInfo(value: string | null | undefined): DrugstoreInfo {
+  if (!value || typeof value !== 'string') return undefined
+  try {
+    return JSON.parse(value) as DrugstoreInfo
+  } catch {
+    return undefined
+  }
+}
+
+function parseAddressInfo(value: string | null | undefined): AddressInfo {
+  if (!value || typeof value !== 'string') return undefined
+  try {
+    return JSON.parse(value) as AddressInfo
+  } catch {
+    return undefined
+  }
+}
+
+function parseDelegateMembershipInfo(value: string | null | undefined) {
+  if (!value || typeof value !== 'string') return undefined
+  try {
+    return JSON.parse(value)
+  } catch {
+    return undefined
+  }
+}
+
 const status: {
   value: MembershipStatus
   label: string
@@ -102,13 +132,13 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
     row: Registration
   } | null>(null)
 
-  const dsInfo = openDialog?.row.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
-  const addressInfo = openDialog?.row.address as ConventionRegistrationForm['address']
+  const dsInfo = parseDrugstoreInfo(openDialog?.row.drugstoreInfo)
+  const addressInfo = parseAddressInfo(openDialog?.row.address)
 
   const delegateClass = openDialog?.row.delegateClass === 'Non-Pharmacist' ? 'Non-Pharmacist' : 'Pharmacist'
   const title = delegateClass === 'Non-Pharmacist' ? (openDialog?.row.title ?? '') : ''
 
-  const regPharmacistMembership = openDialog?.row.delegateMembershipInfo
+  const regPharmacistMembership = parseDelegateMembershipInfo(openDialog?.row.delegateMembershipInfo)
 
   const regDelegateTempValue = delegateClass === 'Non-Pharmacist' ? { delegateClass, title } : { delegateClass, regPharmacistMembership }
 
@@ -260,7 +290,7 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
         accessorKey: 'establishment',
         header: ({ column }) => <DataTableColumnHeader column={column} title='Drugstore/Establishment' />,
         cell: ({ row }) => {
-          const dsInfo = row.original.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
+          const dsInfo = parseDrugstoreInfo(row.original.drugstoreInfo)
 
           return (
             <div className='flex space-x-2'>
@@ -274,7 +304,7 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
         accessorKey: 'drugstoreInfo',
         header: ({ column }) => <DataTableColumnHeader column={column} title='Chapter' />,
         cell: ({ row }) => {
-          const dsInfo = row.original.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
+          const dsInfo = parseDrugstoreInfo(row.original.drugstoreInfo)
 
           return (
             <div className='flex space-x-2'>
@@ -464,7 +494,7 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
   function RegDetails() {
     if (!openDialog) return null
 
-    const dsInfo = openDialog.row.drugstoreInfo as ConventionRegistrationForm['drugstoreInfo']
+    const dsInfo = parseDrugstoreInfo(openDialog.row.drugstoreInfo)
     // const dlgmInfo = openDialog.row.delegateMembershipInfo as any
 
     return (
@@ -477,13 +507,13 @@ export function RegistrationTableShell({ data, pageCount, chapters, conventionCo
           <div className='col-span-9'>
             <div className='flex items-center gap-2'>
               {openDialog.row.delegateClass}
-              {regDelegate.delegateClass === 'Pharmacist' && (
+              {regDelegate.delegateClass === 'Pharmacist' && regDelegate.regPharmacistMembership && (
                 <Badge variant='secondary'>{regDelegate.regPharmacistMembership.memberType}</Badge>
               )}
             </div>
           </div>
 
-          {regDelegate.delegateClass === 'Pharmacist' && (
+          {regDelegate.delegateClass === 'Pharmacist' && regDelegate.regPharmacistMembership && (
             <>
               {regDelegate.regPharmacistMembership.memberType === 'CPhAD Member' && (
                 <>
