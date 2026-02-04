@@ -71,32 +71,164 @@ import { ChapterList } from '@/actions/fetchers'
 type DrugstoreInfo = ConventionRegistrationForm['drugstoreInfo']
 type AddressInfo = ConventionRegistrationForm['address']
 
-function parseDrugstoreInfo(value: string | null | undefined): DrugstoreInfo {
+type DelegateMembershipInfo = {
+  memberType?: string
+  cphadIdNo?: string
+  prcLicenseNo?: string
+  dateIssued?: string
+  expiryDate?: string
+}
+
+
+function parseDrugstoreInfo(value: string | null | undefined): DrugstoreInfo | undefined {
   if (!value || typeof value !== 'string') return undefined
+
+  // 1️⃣ Try valid JSON first
   try {
     return JSON.parse(value) as DrugstoreInfo
   } catch {
-    return undefined
+    // continue
   }
+
+  // 2️⃣ Parse legacy format: {key:value,key:value,...}
+  const trimmed = value.trim()
+  if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) return undefined
+
+  const body = trimmed.slice(1, -1)
+
+  const result: DrugstoreInfo = {}
+
+  const knownKeys = ['establishment', 'chapter', 'owner', 'mainAddress'] as const
+
+  let remaining = body
+
+  for (const key of knownKeys) {
+    const marker = `${key}:`
+    const start = remaining.indexOf(marker)
+    if (start === -1) continue
+
+    const valueStart = start + marker.length
+    let valueEnd = remaining.length
+
+    for (const nextKey of knownKeys) {
+      if (nextKey === key) continue
+      const idx = remaining.indexOf(`,${nextKey}:`, valueStart)
+      if (idx !== -1 && idx < valueEnd) {
+        valueEnd = idx
+      }
+    }
+
+    result[key ] = remaining
+      .slice(valueStart, valueEnd)
+      .trim()
+
+    remaining = remaining.slice(valueEnd + 1)
+  }
+
+  return result
 }
 
-function parseAddressInfo(value: string | null | undefined): AddressInfo {
+
+function parseAddressInfo(value: string | null | undefined): AddressInfo | undefined {
   if (!value || typeof value !== 'string') return undefined
+
+  // 1️⃣ Try JSON first
   try {
     return JSON.parse(value) as AddressInfo
   } catch {
-    return undefined
+    // continue
   }
+
+  // 2️⃣ Legacy parser
+  const trimmed = value.trim()
+  if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) return undefined
+
+  const body = trimmed.slice(1, -1)
+  const result: AddressInfo = {}
+
+  const knownKeys = ["brgy",'street', 'city', 'province'] as const
+
+  let remaining = body
+
+  for (const key of knownKeys) {
+    const marker = `${key}:`
+    const start = remaining.indexOf(marker)
+    if (start === -1) continue
+
+    const valueStart = start + marker.length
+    let valueEnd = remaining.length
+
+    for (const nextKey of knownKeys) {
+      if (nextKey === key) continue
+      const idx = remaining.indexOf(`,${nextKey}:`, valueStart)
+      if (idx !== -1 && idx < valueEnd) {
+        valueEnd = idx
+      }
+    }
+
+    result[key] = remaining.slice(valueStart, valueEnd).trim()
+    remaining = remaining.slice(valueEnd + 1)
+  }
+
+  return result
 }
 
-function parseDelegateMembershipInfo(value: string | null | undefined) {
+
+function parseDelegateMembershipInfo(
+  value: string | null | undefined
+): DelegateMembershipInfo | undefined {
   if (!value || typeof value !== 'string') return undefined
+
+  // 1️⃣ Try valid JSON first
   try {
-    return JSON.parse(value)
+    return JSON.parse(value) as DelegateMembershipInfo
   } catch {
-    return undefined
+    // continue
   }
+
+  // 2️⃣ Parse legacy format: {key:value,key:value,...}
+  const trimmed = value.trim()
+  if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) return undefined
+
+  const body = trimmed.slice(1, -1)
+  const result: DelegateMembershipInfo = {}
+
+  const knownKeys = [
+    'memberType',
+    'cphadIdNo',
+    'prcLicenseNo',
+    'dateIssued',
+    'expiryDate'
+  ] as const
+
+  let remaining = body
+
+  for (const key of knownKeys) {
+    const marker = `${key}:`
+    const start = remaining.indexOf(marker)
+    if (start === -1) continue
+
+    const valueStart = start + marker.length
+    let valueEnd = remaining.length
+
+    for (const nextKey of knownKeys) {
+      if (nextKey === key) continue
+      const idx = remaining.indexOf(`,${nextKey}:`, valueStart)
+      if (idx !== -1 && idx < valueEnd) {
+        valueEnd = idx
+      }
+    }
+
+    result[key] = remaining
+      .slice(valueStart, valueEnd)
+      .trim()
+
+    remaining = remaining.slice(valueEnd + 1)
+  }
+
+  return result
 }
+
 
 const status: {
   value: MembershipStatus
