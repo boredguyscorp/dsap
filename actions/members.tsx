@@ -23,6 +23,15 @@ import { UTApi } from 'uploadthing/server'
 
 const utapi = new UTApi()
 
+function parseMemberJson<T>(value: string | null | undefined): T | undefined {
+  if (!value || typeof value !== 'string') return undefined
+  try {
+    return JSON.parse(value) as T
+  } catch {
+    return undefined
+  }
+}
+
 export type MemberEntity = Awaited<ReturnType<typeof findMemberById>>
 
 export async function registerMember(formValues: MemberRegistrationForm, formData: FormData) {
@@ -117,41 +126,53 @@ export async function registerMember(formValues: MemberRegistrationForm, formDat
       ...(proofOfPaymentUrlFile ? [proofOfPaymentUrlFile] : [])
     ])
 
+    const dpDSClassDetailsStr = (() => {
+      if (data.drugstoreClass === 'single' && data.dpDSClassDetails && data.dpDSClassDetails.dsClass === 'single') {
+        return JSON.stringify({
+          ...data.dpDSClassDetails,
+          dpPhImageUrl: dpClassSingleUploads[0],
+          dpPhAsImageUrl: dpClassSingleUploads[1],
+          dpPhAsAttachmentCOEUrl: dpClassSingleUploads[2],
+          dpPhAsAttachmentDiplomaUrl: dpClassSingleUploads[3],
+          dpPhAsAttachmentCOAUrl: dpClassSingleUploads[4]
+        })
+      }
+      if (data.drugstoreClass === 'chain' && data.dpDSClassDetails && data.dpDSClassDetails.dsClass === 'chain') {
+        return JSON.stringify({
+          ...data.dpDSClassDetails,
+          dpBranches: data.dpDSClassDetails.dpBranches.map((branch, index) => ({
+            ...branch,
+            fdaUrlAttachment: dpclassChainUploads[index].fdaUrlAttachment ?? '',
+            docUrlAttachment: dpclassChainUploads[index].docUrlAttachment ?? ''
+          }))
+        })
+      }
+      return data.dpDSClassDetails ? JSON.stringify(data.dpDSClassDetails) : null
+    })()
+
+    const opDsapMemberStr = (() => {
+      if (data.opDsapMember && data.opDsapMember.opDsapMemberType === 'representative') {
+        return JSON.stringify({
+          ...data.opDsapMember,
+          opRepFormUrl: opRepUploads.opRepFormUrl,
+          opRepPhotoUrl: opRepUploads.opRepPhotoUrl
+        })
+      }
+      return data.opDsapMember ? JSON.stringify(data.opDsapMember) : null
+    })()
+
+    const { dpDSClassDetails: _dpDS, opDsapMember: _opDsap, opEducCollege: _opEc, opEducMasters: _opEm, opEducDoctorate: _opEd, opEducSpecialProg: _opEsp, opEducOthers: _opEo, ...createData } = data
+
     const result = await db.members.create({
       data: {
-        ...data,
-        ...(data.drugstoreClass === 'single' &&
-          data.dpDSClassDetails &&
-          data.dpDSClassDetails.dsClass === 'single' && {
-            dpDSClassDetails: {
-              ...data.dpDSClassDetails,
-              dpPhImageUrl: dpClassSingleUploads[0],
-              dpPhAsImageUrl: dpClassSingleUploads[1],
-              dpPhAsAttachmentCOEUrl: dpClassSingleUploads[2],
-              dpPhAsAttachmentDiplomaUrl: dpClassSingleUploads[3],
-              dpPhAsAttachmentCOAUrl: dpClassSingleUploads[4]
-            }
-          }),
-        ...(data.drugstoreClass === 'chain' &&
-          data.dpDSClassDetails &&
-          data.dpDSClassDetails.dsClass === 'chain' && {
-            dpDSClassDetails: {
-              ...data.dpDSClassDetails,
-              dpBranches: data.dpDSClassDetails.dpBranches.map((branch, index) => ({
-                ...branch,
-                fdaUrlAttachment: dpclassChainUploads[index].fdaUrlAttachment ?? '',
-                docUrlAttachment: dpclassChainUploads[index].docUrlAttachment ?? ''
-              }))
-            }
-          }),
-        ...(data.opDsapMember &&
-          data.opDsapMember.opDsapMemberType === 'representative' && {
-            opDsapMember: {
-              ...data.opDsapMember,
-              opRepFormUrl: opRepUploads.opRepFormUrl,
-              opRepPhotoUrl: opRepUploads.opRepPhotoUrl
-            }
-          }),
+        ...createData,
+        dpDSClassDetails: dpDSClassDetailsStr,
+        opDsapMember: opDsapMemberStr,
+        opEducCollege: data.opEducCollege ? JSON.stringify(data.opEducCollege) : null,
+        opEducMasters: data.opEducMasters ? JSON.stringify(data.opEducMasters) : null,
+        opEducDoctorate: data.opEducDoctorate ? JSON.stringify(data.opEducDoctorate) : null,
+        opEducSpecialProg: data.opEducSpecialProg ? JSON.stringify(data.opEducSpecialProg) : null,
+        opEducOthers: data.opEducOthers ? JSON.stringify(data.opEducOthers) : null,
         opPhImageUrl: opPhImageUrl.data?.url ?? '',
         fdaUrlAttachment: fdaUrlAttachment.data?.url ?? '',
         bpUrlAttachment: bpUrlAttachment.data?.url ?? '',
@@ -231,20 +252,23 @@ export async function updateMember(formValues: MemberRegistrationForm & { id: st
 
     //? if member changed to other drugstore class (e.g from "single" to "chain"), all related files from "single" class should be deleted
     //? check if member class is equal to newly pass data of member class, if not equal delete the files related to previous class of member
+    const parsedDpDSClassDetails = parseMemberJson<DrugStoreSingleClassDetails | DrugStoreChainClassDetails>(member.dpDSClassDetails)
+    const parsedOpDsapMember = parseMemberJson<OwnerProfileRepresentativeMemberType | { opDsapMemberType: 'owner' }>(member.opDsapMember)
+
     if (formValues.drugstoreClass !== member.drugstoreClass) {
       if (member.drugstoreClass === 'single') {
-        const dpDSClassDetailsMembersData = member.dpDSClassDetails as any as DrugStoreSingleClassDetails
+        const dpDSClassDetailsMembersData = parsedDpDSClassDetails as DrugStoreSingleClassDetails
 
         await utapi.deleteFiles([
-          extractFileKeyFromUrl(dpDSClassDetailsMembersData.dpPhImageUrl),
-          extractFileKeyFromUrl(dpDSClassDetailsMembersData.dpPhAsImageUrl),
-          extractFileKeyFromUrl(dpDSClassDetailsMembersData.dpPhAsAttachmentCOEUrl),
-          extractFileKeyFromUrl(dpDSClassDetailsMembersData.dpPhAsAttachmentDiplomaUrl),
-          extractFileKeyFromUrl(dpDSClassDetailsMembersData.dpPhAsAttachmentCOAUrl)
+          extractFileKeyFromUrl(dpDSClassDetailsMembersData?.dpPhImageUrl ?? ''),
+          extractFileKeyFromUrl(dpDSClassDetailsMembersData?.dpPhAsImageUrl ?? ''),
+          extractFileKeyFromUrl(dpDSClassDetailsMembersData?.dpPhAsAttachmentCOEUrl ?? ''),
+          extractFileKeyFromUrl(dpDSClassDetailsMembersData?.dpPhAsAttachmentDiplomaUrl ?? ''),
+          extractFileKeyFromUrl(dpDSClassDetailsMembersData?.dpPhAsAttachmentCOAUrl ?? '')
         ])
       } else if (member.drugstoreClass === 'chain') {
-        const dpDSClassDetailsMembersData = member.dpDSClassDetails as any as DrugStoreChainClassDetails
-        const branches = dpDSClassDetailsMembersData.dpBranches
+        const dpDSClassDetailsMembersData = parsedDpDSClassDetails as DrugStoreChainClassDetails
+        const branches = dpDSClassDetailsMembersData?.dpBranches ?? []
         const promises: Promise<{ success: boolean }>[] = []
 
         branches.forEach((branch) => {
@@ -258,9 +282,9 @@ export async function updateMember(formValues: MemberRegistrationForm & { id: st
 
     //? check if member chaged membership type (e.g. representative to owner)
     //? check if member type is equal to newly pass data of opDsapMember.memberType, if not equal delete the files related to previous member type
-    if (formValues.opDsapMember.opDsapMemberType !== (member.opDsapMember as MemberOwnerProfile['opDsapMember']).opDsapMemberType) {
-      if ((member.opDsapMember as MemberOwnerProfile['opDsapMember']).opDsapMemberType === 'representative') {
-        const opDsapMemberMembersData = member.opDsapMember as OwnerProfileRepresentativeMemberType
+    if (formValues.opDsapMember.opDsapMemberType !== parsedOpDsapMember?.opDsapMemberType) {
+      if (parsedOpDsapMember?.opDsapMemberType === 'representative') {
+        const opDsapMemberMembersData = parsedOpDsapMember as OwnerProfileRepresentativeMemberType
         await utapi.deleteFiles([
           extractFileKeyFromUrl(opDsapMemberMembersData.opRepFormUrl),
           extractFileKeyFromUrl(opDsapMemberMembersData.opRepPhotoUrl)
@@ -270,13 +294,13 @@ export async function updateMember(formValues: MemberRegistrationForm & { id: st
 
     if (formValues.drugstoreClass === 'single') {
       //? deletion of previously uploaded files which will replace by new ones
-      const dpDSClassDetailsMembersData = member.dpDSClassDetails as any as DrugStoreSingleClassDetails
+      const dpDSClassDetailsMembersData = parsedDpDSClassDetails as DrugStoreSingleClassDetails
 
-      const dpPhImageUrlFileKey = extractFileKeyFromUrl(dpDSClassDetailsMembersData.dpPhImageUrl)
-      const dpPhAsImageUrlFileKey = extractFileKeyFromUrl(dpDSClassDetailsMembersData.dpPhAsImageUrl)
-      const dpPhAsAttachmentCOEUrFileKey = extractFileKeyFromUrl(dpDSClassDetailsMembersData.dpPhAsAttachmentCOEUrl)
-      const dpPhAsAttachmentDiplomaUrFileKey = extractFileKeyFromUrl(dpDSClassDetailsMembersData.dpPhAsAttachmentDiplomaUrl)
-      const dpPhAsAttachmentCOAUrlFileKey = extractFileKeyFromUrl(dpDSClassDetailsMembersData.dpPhAsAttachmentCOAUrl)
+      const dpPhImageUrlFileKey = extractFileKeyFromUrl(dpDSClassDetailsMembersData?.dpPhImageUrl ?? '')
+      const dpPhAsImageUrlFileKey = extractFileKeyFromUrl(dpDSClassDetailsMembersData?.dpPhAsImageUrl ?? '')
+      const dpPhAsAttachmentCOEUrFileKey = extractFileKeyFromUrl(dpDSClassDetailsMembersData?.dpPhAsAttachmentCOEUrl ?? '')
+      const dpPhAsAttachmentDiplomaUrFileKey = extractFileKeyFromUrl(dpDSClassDetailsMembersData?.dpPhAsAttachmentDiplomaUrl ?? '')
+      const dpPhAsAttachmentCOAUrlFileKey = extractFileKeyFromUrl(dpDSClassDetailsMembersData?.dpPhAsAttachmentCOAUrl ?? '')
 
       const dpPhImageUrlDeleted = dpPhImageUrlFile && dpPhImageUrlFileKey ? utapi.deleteFiles(dpPhImageUrlFileKey) : null
       const dpPhAsImageUrlDeleted = dpPhAsImageUrlFile && dpPhAsImageUrlFileKey ? utapi.deleteFiles(dpPhAsImageUrlFileKey) : null
@@ -316,8 +340,8 @@ export async function updateMember(formValues: MemberRegistrationForm & { id: st
     if (formValues.drugstoreClass === 'chain') {
       //? delete all files related from the branches for simplicity of the logic, then upload new ones for
 
-      const dpDSClassDetailsMembersData = member.dpDSClassDetails as any as DrugStoreChainClassDetails
-      const branches = dpDSClassDetailsMembersData.dpBranches
+      const dpDSClassDetailsMembersData = parsedDpDSClassDetails as DrugStoreChainClassDetails
+      const branches = dpDSClassDetailsMembersData?.dpBranches
 
       if (branches && branches.length > 0) {
         const promises: Promise<{ success: boolean }>[] = []
@@ -349,11 +373,11 @@ export async function updateMember(formValues: MemberRegistrationForm & { id: st
     }
 
     if (formValues.opDsapMember && formValues.opDsapMember.opDsapMemberType === 'representative') {
-      const opDsapMemberMembersData = member.opDsapMember as OwnerProfileRepresentativeMemberType
+      const opDsapMemberMembersData = parsedOpDsapMember as OwnerProfileRepresentativeMemberType
 
       //? deletion of previously uploaded files which will replace by new ones
-      const opRepFormUrlFileKey = extractFileKeyFromUrl(opDsapMemberMembersData.opRepFormUrl)
-      const opRepPhotoUrlFileKey = extractFileKeyFromUrl(opDsapMemberMembersData.opRepPhotoUrl)
+      const opRepFormUrlFileKey = extractFileKeyFromUrl(opDsapMemberMembersData?.opRepFormUrl ?? '')
+      const opRepPhotoUrlFileKey = extractFileKeyFromUrl(opDsapMemberMembersData?.opRepPhotoUrl ?? '')
 
       const opRepFormUrlDeleted = opRepFormUrlFile && opRepFormUrlFileKey ? utapi.deleteFiles(opRepFormUrlFileKey) : null
       const opRepPhotoUrlDeleted = opRepPhotoUrlFile && opRepPhotoUrlFileKey ? utapi.deleteFiles(opRepPhotoUrlFileKey) : null
@@ -373,7 +397,7 @@ export async function updateMember(formValues: MemberRegistrationForm & { id: st
     }
 
     //? deletion of previously uploaded files which will replace by new ones
-    const opPhImageUrlFileKey = extractFileKeyFromUrl(member.opPhImageUrl)
+    const opPhImageUrlFileKey = extractFileKeyFromUrl(member.opPhImageUrl ?? '')
     const fdaUrlAttachmentFileKey = extractFileKeyFromUrl(member.fdaUrlAttachment ?? '')
     const bpUrlAttachmentFileKey = extractFileKeyFromUrl(member.bpUrlAttachment ?? '')
     const docUrlAttachmentFileKey = extractFileKeyFromUrl(member.docUrlAttachment ?? '')
@@ -414,47 +438,61 @@ export async function updateMember(formValues: MemberRegistrationForm & { id: st
       proofOfPaymentUrlUploaded
     ])
 
+    const dpDSClassDetailsStr = (() => {
+      const parsedMember = parsedDpDSClassDetails as DrugStoreSingleClassDetails | undefined
+      if (formValues.drugstoreClass === 'single' && formValues.dpDSClassDetails && formValues.dpDSClassDetails.dsClass === 'single') {
+        return JSON.stringify({
+          ...formValues.dpDSClassDetails,
+          dpPhImageUrl: dpClassSingleUploads[0] ?? parsedMember?.dpPhImageUrl,
+          dpPhAsImageUrl: dpClassSingleUploads[1] ?? parsedMember?.dpPhAsImageUrl,
+          dpPhAsAttachmentCOEUrl: dpClassSingleUploads[2] ?? parsedMember?.dpPhAsAttachmentCOEUrl,
+          dpPhAsAttachmentDiplomaUrl: dpClassSingleUploads[3] ?? parsedMember?.dpPhAsAttachmentDiplomaUrl,
+          dpPhAsAttachmentCOAUrl: dpClassSingleUploads[4] ?? parsedMember?.dpPhAsAttachmentCOAUrl
+        })
+      }
+      if (formValues.drugstoreClass === 'chain' && formValues.dpDSClassDetails && formValues.dpDSClassDetails.dsClass === 'chain') {
+        return JSON.stringify({
+          ...formValues.dpDSClassDetails,
+          dpBranches: formValues.dpDSClassDetails.dpBranches.map((branch, index) => ({
+            ...branch,
+            fdaUrlAttachment: dpclassChainUploads[index].fdaUrlAttachment ?? '',
+            docUrlAttachment: dpclassChainUploads[index].docUrlAttachment ?? ''
+          }))
+        })
+      }
+      return formValues.dpDSClassDetails ? JSON.stringify(formValues.dpDSClassDetails) : null
+    })()
+
+    const opDsapMemberStr = (() => {
+      const parsedMember = parsedOpDsapMember as OwnerProfileRepresentativeMemberType | undefined
+      if (formValues.opDsapMember && formValues.opDsapMember.opDsapMemberType === 'representative') {
+        return JSON.stringify({
+          ...formValues.opDsapMember,
+          opRepFormUrl: opRepUploads.opRepFormUrl ?? parsedMember?.opRepFormUrl,
+          opRepPhotoUrl: opRepUploads.opRepPhotoUrl ?? parsedMember?.opRepPhotoUrl
+        })
+      }
+      return formValues.opDsapMember ? JSON.stringify(formValues.opDsapMember) : null
+    })()
+
+    const { id: _id, dpDSClassDetails: _dpDS, opDsapMember: _opDsap, opEducCollege: _opEc, opEducMasters: _opEm, opEducDoctorate: _opEd, opEducSpecialProg: _opEsp, opEducOthers: _opEo, ...updateData } = formValues
+
     await db.members.update({
       data: {
-        ...formValues,
+        ...updateData,
         status: member.status === 'import' ? 'updated' : member.status,
-        ...(formValues.drugstoreClass === 'single' &&
-          formValues.dpDSClassDetails &&
-          formValues.dpDSClassDetails.dsClass === 'single' && {
-            dpDSClassDetails: {
-              ...formValues.dpDSClassDetails,
-              dpPhImageUrl: dpClassSingleUploads[0] ?? (member.dpDSClassDetails as any as DrugStoreSingleClassDetails).dpPhImageUrl,
-              dpPhAsImageUrl: dpClassSingleUploads[1] ?? (member.dpDSClassDetails as any as DrugStoreSingleClassDetails).dpPhAsImageUrl,
-              dpPhAsAttachmentCOEUrl: dpClassSingleUploads[2] ?? (member.dpDSClassDetails as any as DrugStoreSingleClassDetails).dpPhAsAttachmentCOEUrl, // prettier-ignore
-              dpPhAsAttachmentDiplomaUrl: dpClassSingleUploads[3] ?? (member.dpDSClassDetails as any as DrugStoreSingleClassDetails).dpPhAsAttachmentDiplomaUrl, // prettier-ignore
-              dpPhAsAttachmentCOAUrl: dpClassSingleUploads[4] ?? (member.dpDSClassDetails as any as DrugStoreSingleClassDetails).dpPhAsAttachmentCOAUrl // prettier-ignore
-            }
-          }),
-        ...(formValues.drugstoreClass === 'chain' &&
-          formValues.dpDSClassDetails &&
-          formValues.dpDSClassDetails.dsClass === 'chain' && {
-            dpDSClassDetails: {
-              ...formValues.dpDSClassDetails,
-              dpBranches: formValues.dpDSClassDetails.dpBranches.map((branch, index) => ({
-                ...branch,
-                fdaUrlAttachment: dpclassChainUploads[index].fdaUrlAttachment ?? '',
-                docUrlAttachment: dpclassChainUploads[index].docUrlAttachment ?? ''
-              }))
-            }
-          }),
-        ...(formValues.opDsapMember &&
-          formValues.opDsapMember.opDsapMemberType === 'representative' && {
-            opDsapMember: {
-              ...formValues.opDsapMember,
-              opRepFormUrl: opRepUploads.opRepFormUrl ?? (member.opDsapMember as any as OwnerProfileRepresentativeMemberType).opRepFormUrl, // prettier-ignore
-              opRepPhotoUrl: opRepUploads.opRepPhotoUrl ?? (member.opDsapMember as any as OwnerProfileRepresentativeMemberType).opRepPhotoUrl // prettier-ignore
-            }
-          }),
+        dpDSClassDetails: dpDSClassDetailsStr,
+        opDsapMember: opDsapMemberStr,
+        opEducCollege: formValues.opEducCollege ? JSON.stringify(formValues.opEducCollege) : null,
+        opEducMasters: formValues.opEducMasters ? JSON.stringify(formValues.opEducMasters) : null,
+        opEducDoctorate: formValues.opEducDoctorate ? JSON.stringify(formValues.opEducDoctorate) : null,
+        opEducSpecialProg: formValues.opEducSpecialProg ? JSON.stringify(formValues.opEducSpecialProg) : null,
+        opEducOthers: formValues.opEducOthers ? JSON.stringify(formValues.opEducOthers) : null,
         opPhImageUrl: opPhImageUrl ? opPhImageUrl.data?.url ?? '' : member.opPhImageUrl,
         fdaUrlAttachment: fdaUrlAttachment ? fdaUrlAttachment.data?.url ?? '' : member.fdaUrlAttachment,
         bpUrlAttachment: bpUrlAttachment ? bpUrlAttachment.data?.url ?? '' : member.bpUrlAttachment,
         docUrlAttachment: docUrlAttachment ? docUrlAttachment.data?.url ?? '' : member.docUrlAttachment,
-        proofOfPaymentUrl: proofOfPaymentUrl ? proofOfPaymentUrl.data?.url ?? '' : formValues.proofOfPaymentUrl ?  member.proofOfPaymentUrl : '' // prettier-ignore
+        proofOfPaymentUrl: proofOfPaymentUrl ? proofOfPaymentUrl.data?.url ?? '' : formValues.proofOfPaymentUrl ? member.proofOfPaymentUrl : ''
       },
       where: { id: formValues.id }
     })
@@ -664,7 +702,7 @@ export async function emailMembershipStatus(result: Partial<Members>) {
 
   const mailOptions: Mail.Options = {
     from: process.env.NODEMAILER_EMAIL,
-    to: result.emailAdd,
+    to: result.emailAdd ?? '',
     subject:
       result.status === 'approved'
         ? `DSAP Membership Application Confirmation`
