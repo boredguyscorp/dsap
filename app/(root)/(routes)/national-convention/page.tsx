@@ -6,6 +6,8 @@ export default async function NationalConventionPage() {
 
   const chapters = await getChapters()
 
+
+
   return showRegistration ? (
     <NationalConventionForm chapters={chapters} />
   ) : (

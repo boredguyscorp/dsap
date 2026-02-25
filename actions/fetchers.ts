@@ -14,19 +14,23 @@ type PostOptions = {
 
 export type ChapterList = AsyncReturnType<typeof getChapters>
 export async function getChapters() {
+  const chaptersData = await db.chapter.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } })
+
+  return chaptersData.filter((chapter) => chapter.name !== 'NA')
+
   // return chaptersArray.map((chapter) => {
   //   return { id: chapter.id, name: chapter.name }
   // })
-  return await unstable_cache(
-    async () => {
-      return db.chapter.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } })
-    },
-    [`chapters`],
-    {
-      revalidate: 86400, // 86400 = 1 day cache (900 = 15 minutes)
-      tags: [`chapters`]
-    }
-  )()
+  // return await unstable_cache(
+  //   async () => {
+  //     return db.chapter.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } })
+  //   },
+  //   [`chapters`],
+  //   {
+  //     revalidate: 86400, // 86400 = 1 day cache (900 = 15 minutes)
+  //     tags: [`chapters`]
+  //   }
+  // )()
 }
 
 export async function getPostsForSite(page: string, options?: PostOptions) {
