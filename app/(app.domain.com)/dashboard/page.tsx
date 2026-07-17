@@ -13,7 +13,8 @@ export default async function DashboardPage() {
 
   return (
     <DashboardShell title={'Hello, ' + user?.name || 'dsap'} description='Welcome to DSAP Portal. 😘'>
-      <Tabs defaultValue='overview' className='space-y-4'>
+      <></>
+      {/* <Tabs defaultValue='overview' className='space-y-4'>
         <TabsList>
           <TabsTrigger value='overview'>Overview</TabsTrigger>
           <TabsTrigger value='analytics' disabled>
@@ -69,7 +70,6 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
           </div>
-          {/* <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'> */}
           <div>
             <Card className='col-span-7 md:col-span-2 lg:col-span-4'>
               <CardHeader>
@@ -80,19 +80,10 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* <Suspense
-              fallback={
-                <LoadingCard
-                  title='Recent Ingestions'
-                  description='Loading recent ingestions...'
-                  className='col-span-7 md:col-span-2 lg:col-span-3'
-                />
-              }
-            >
-            </Suspense> */}
+
           </div>
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
     </DashboardShell>
   )
 }

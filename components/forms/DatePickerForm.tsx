@@ -4,7 +4,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar, CalendarProps } from '@/components/ui/calendar'
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { CalendarIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -42,6 +42,7 @@ export function DatePickerForm<T extends FieldValues>(props: TextFieldFormProps<
       name={name}
       render={({ field }) => {
         const value = field.value ? (typeof field.value === 'string' ? new Date(field.value) : field.value) : undefined
+        const isValidDate = value instanceof Date && isValid(value)
 
         return (
           <FormItem>
@@ -51,9 +52,9 @@ export function DatePickerForm<T extends FieldValues>(props: TextFieldFormProps<
                 <FormControl>
                   <Button
                     variant={'outline'}
-                    className={cn(' w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground', buttonClassName)}
+                    className={cn(' w-full pl-3 text-left font-normal', !isValidDate && 'text-muted-foreground', buttonClassName)}
                   >
-                    {field.value ? format(new Date(field.value), 'PPP') : <span>{placeholder ?? 'Pick a date'}</span>}
+                    {isValidDate ? format(value, 'PPP') : <span>{placeholder ?? 'Pick a date'}</span>}
                     <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
                   </Button>
                 </FormControl>
@@ -62,9 +63,9 @@ export function DatePickerForm<T extends FieldValues>(props: TextFieldFormProps<
                 <Calendar
                   {...fieldProps}
                   mode={fieldProps.mode as any}
-                  defaultMonth={value}
-                  selected={value}
-                  onSelect={field.onChange}
+                  defaultMonth={isValidDate ? value : undefined}
+                  selected={isValidDate ? value : undefined}
+                  onSelect={(date) => field.onChange(date ?? undefined)}
                   disabled={disabledFuture ? (date) => date > new Date() || date < new Date('1900-01-01') : false}
                 />
               </PopoverContent>

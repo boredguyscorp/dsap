@@ -1,5 +1,11 @@
 import { conventionEnum, typeEnum } from '@/app/(app.domain.com)/dashboard/convention/_components/constant'
+import { normalizeDateInput } from '@/lib/utils'
 import { z } from 'zod'
+
+const optionalDate = z.preprocess((val) => normalizeDateInput(val), z.date().nullish())
+
+const requiredDate = (message: string) =>
+  z.preprocess((val) => normalizeDateInput(val), z.date({ required_error: message, invalid_type_error: message }))
 
 export const signUpSchema = z.object({
   name: z.string().min(1, { message: 'Please enter your name.' }),
@@ -130,7 +136,7 @@ const dpPharmacistSchema = z.object({
   dpPhFirstName: z.string({ required_error: 'First Name is required.' }).min(1, { message: 'Please enter first name.' }),
   dpPhMiddleName: z.string().optional(),
   dpPhAddress: z.string().optional(),
-  dpPhBirthday: z.coerce.date().optional(),
+  dpPhBirthday: optionalDate,
   dpPhEmail: z.string().optional(),
   dpPhTelNo: z.string().optional(),
   dpPhCellNo: z.string().optional(),
@@ -141,8 +147,8 @@ const dpPharmacistSchema = z.object({
     .min(1, { message: 'Please enter Name in PRC Certificate.' }),
   dpPhOtherName: z.string().optional(),
   dpPhLicenseNo: z.string({ required_error: 'PRC License No. is required.' }).min(1, { message: 'Please enter PRC License Number.' }),
-  dpPhDateIssued: z.coerce.date({ required_error: 'Date Issue is required.' }),
-  dpPhExpDate: z.coerce.date({ required_error: 'Date Expiry Date is required.' }),
+  dpPhDateIssued: requiredDate('Date Issue is required.'),
+  dpPhExpDate: requiredDate('Date Expiry Date is required.'),
   dpPhEducCollege: dsEducAttSchema.optional(),
   dpPhEducMasters: dsEducAttSchema.optional(),
   dpPhEducDoctorate: dsEducAttSchema.optional(),
@@ -155,7 +161,7 @@ const dpPharmacistSchema = z.object({
   dpPhAsFirstName: z.string({ required_error: 'PA First Name is required.' }).min(1, { message: 'Please enter PA first name.' }),
   dpPhAsMiddleName: z.string().optional(),
   dpPhAsAddress: z.string().optional(),
-  dpPhAsBirthday: z.coerce.date().optional(),
+  dpPhAsBirthday: optionalDate,
   dpPhAsEmail: z.string().optional(),
   dpPhAsTelNo: z.string().optional(),
   dpPhAsCellNo: z.string().optional(),
@@ -188,12 +194,12 @@ export const dpChainClassDetailsSchema = z.object({
   mobileNo: z.string().nullish(),
   telNo: z.string().nullish(),
   fdaLtoNo: z.string().nullish(),
-  fdaDateIssued: z.coerce.date().nullish(),
-  fdaDateExpiry: z.coerce.date().nullish(),
+  fdaDateIssued: optionalDate,
+  fdaDateExpiry: optionalDate,
   fdaUrlAttachment: z.string().nullish(),
   docNo: z.string().nullish(),
-  docDateIssued: z.coerce.date().nullish(),
-  docDateExpiry: z.coerce.date().nullish(),
+  docDateIssued: optionalDate,
+  docDateExpiry: optionalDate,
   docUrlAttachment: z.string().nullish(),
   managerOic: z.string().nullish(),
   dpPhLastName: z.string().nullish(),
@@ -203,13 +209,13 @@ export const dpChainClassDetailsSchema = z.object({
   dpPhNameInCert: z.string().nullish(),
   dpPhOtherName: z.string().nullish(),
   dpPhLicenseNo: z.string().nullish(),
-  dpPhDateIssued: z.coerce.date().nullish(),
-  dpPhExpDate: z.coerce.date().nullish(),
+  dpPhDateIssued: optionalDate,
+  dpPhExpDate: optionalDate,
   dpPhAsLastName: z.string().nullish(),
   dpPhAsFirstName: z.string().nullish(),
   dpPhAsMiddleName: z.string().nullish(),
   dpPhAsAddress: z.string().nullish(),
-  dpDateEstablished: z.coerce.date().nullish(),
+  dpDateEstablished: optionalDate,
   dpSetup: z.string().optional(),
   dpLocation: z.string().optional(),
   dpStoreHours: z.string().optional(),
@@ -227,14 +233,49 @@ const dpDSClassOthers = z.object({
 
 const dpDSClassDetails = z.discriminatedUnion('dsClass', [dpPharmacistSchema, dpChainSchema, dpDSClassOthers]).optional()
 
-const dsProfile = z.object({
-  dpDateEstablished: z.coerce.date({ required_error: 'Date Established is required.' }),
+const dsProfileFields = z.object({
+  dpDateEstablished: requiredDate('Date Established is required.'),
   dpSetup: z.string().nullish(),
   dpLocation: z.string().nullish(),
   dpStoreHours: z.string().nullish(),
-  dpInvSystem: z.string().nullish(),
+  dpInvSystem: z.string().nullish()
+})
+
+const dsProfile = dsProfileFields.extend({
   dpDSClassDetails
 })
+
+export function getDrugstoreProfileStepSchema(
+  drugstoreClass: string | null | undefined,
+  dsClass: string | undefined,
+  strict: boolean
+) {
+  const base = strict
+    ? dsProfileFields
+    : z.object({
+        dpDateEstablished: optionalDate,
+        dpSetup: z.string().nullish(),
+        dpLocation: z.string().nullish(),
+        dpStoreHours: z.string().nullish(),
+        dpInvSystem: z.string().nullish()
+      })
+
+  const effectiveClass = dsClass ?? drugstoreClass
+
+  if (effectiveClass === 'single') {
+    return base.extend({
+      dpDSClassDetails: strict ? dpPharmacistSchema : _dpPharmacistSchema
+    })
+  }
+
+  if (effectiveClass === 'chain') {
+    return base.extend({
+      dpDSClassDetails: strict ? dpChainSchema : _dpChainSchema
+    })
+  }
+
+  return base
+}
 
 const opDsapMemberOwner = z.object({
   opDsapMemberType: z.literal('owner')
@@ -332,7 +373,7 @@ const _dpPharmacistSchema = z.object({
   dpPhFirstName: z.string().nullish(),
   dpPhMiddleName: z.string().nullish(),
   dpPhAddress: z.string().nullish(),
-  dpPhBirthday: z.coerce.date().nullish(),
+  dpPhBirthday: optionalDate,
   dpPhEmail: z.string().nullish(),
   dpPhTelNo: z.string().nullish(),
   dpPhCellNo: z.string().nullish(),
@@ -341,8 +382,8 @@ const _dpPharmacistSchema = z.object({
   dpPhNameInCert: z.string().nullish(),
   dpPhOtherName: z.string().nullish(),
   dpPhLicenseNo: z.string().nullish(),
-  dpPhDateIssued: z.coerce.date().nullish(),
-  dpPhExpDate: z.coerce.date().nullish(),
+  dpPhDateIssued: optionalDate,
+  dpPhExpDate: optionalDate,
   dpPhEducCollege: _dsEducAttSchema.nullish(),
   dpPhEducMasters: _dsEducAttSchema.nullish(),
   dpPhEducDoctorate: _dsEducAttSchema.nullish(),
@@ -353,7 +394,7 @@ const _dpPharmacistSchema = z.object({
   dpPhAsFirstName: z.string().nullish(),
   dpPhAsMiddleName: z.string().nullish(),
   dpPhAsAddress: z.string().nullish(),
-  dpPhAsBirthday: z.coerce.date().nullish(),
+  dpPhAsBirthday: optionalDate,
   dpPhAsEmail: z.string().nullish(),
   dpPhAsTelNo: z.string().nullish(),
   dpPhAsCellNo: z.string().nullish(),
@@ -380,12 +421,12 @@ export const _dpChainClassDetailsSchema = z.object({
   mobileNo: z.string().nullish(),
   telNo: z.string().nullish(),
   fdaLtoNo: z.string().nullish(),
-  fdaDateIssued: z.coerce.date().nullish(),
-  fdaDateExpiry: z.coerce.date().nullish(),
+  fdaDateIssued: optionalDate,
+  fdaDateExpiry: optionalDate,
   fdaUrlAttachment: z.string().nullish(),
   docNo: z.string().nullish(),
-  docDateIssued: z.coerce.date().nullish(),
-  docDateExpiry: z.coerce.date().nullish(),
+  docDateIssued: optionalDate,
+  docDateExpiry: optionalDate,
   docUrlAttachment: z.string().nullish(),
   managerOic: z.string().nullish(),
   dpPhLastName: z.string().nullish(),
@@ -395,13 +436,13 @@ export const _dpChainClassDetailsSchema = z.object({
   dpPhNameInCert: z.string().nullish(),
   dpPhOtherName: z.string().nullish(),
   dpPhLicenseNo: z.string().nullish(),
-  dpPhDateIssued: z.coerce.date().nullish(),
-  dpPhExpDate: z.coerce.date().nullish(),
+  dpPhDateIssued: optionalDate,
+  dpPhExpDate: optionalDate,
   dpPhAsLastName: z.string().nullish(),
   dpPhAsFirstName: z.string().nullish(),
   dpPhAsMiddleName: z.string().nullish(),
   dpPhAsAddress: z.string().nullish(),
-  dpDateEstablished: z.coerce.date().nullish(),
+  dpDateEstablished: optionalDate,
   dpSetup: z.string().nullish(),
   dpLocation: z.string().nullish(),
   dpStoreHours: z.string().nullish(),
@@ -419,14 +460,17 @@ const _dpDSClassOthers = z.object({
 
 const _dpDSClassDetails = z.discriminatedUnion('dsClass', [_dpPharmacistSchema, _dpChainSchema, _dpDSClassOthers]).optional()
 
-const _dsProfile = z.object({
-  dpDateEstablished: z.coerce.date().nullish(),
-  dpSetup: z.string().nullish(),
-  dpLocation: z.string().nullish(),
-  dpStoreHours: z.string().nullish(),
-  dpInvSystem: z.string().nullish(),
-  dpDSClassDetails: _dpDSClassDetails
-})
+const _dsProfile = z
+  .object({
+    dpDateEstablished: optionalDate,
+    dpSetup: z.string().nullish(),
+    dpLocation: z.string().nullish(),
+    dpStoreHours: z.string().nullish(),
+    dpInvSystem: z.string().nullish()
+  })
+  .extend({
+    dpDSClassDetails: _dpDSClassDetails
+  })
 
 const _opDsapMemberOwner = z.object({
   opDsapMemberType: z.literal('owner')
@@ -463,8 +507,8 @@ const _ownerProfile = z.object({
 
 const _registrationDetails = z.object({
   fdaLtoNo: z.string().nullish(),
-  fdaDateIssued: z.coerce.date().nullish(),
-  fdaDateExpiry: z.coerce.date().nullish(),
+  fdaDateIssued: optionalDate,
+  fdaDateExpiry: optionalDate,
   fdaUrlAttachment: z.string().nullish(),
   bpNo: z.string().nullish(),
   bpDateIssued: z.coerce.date().nullish(),
@@ -472,8 +516,8 @@ const _registrationDetails = z.object({
   bpUrlAttachment: z.string().nullish(),
 
   docNo: z.string().nullish(),
-  docDateIssued: z.coerce.date().nullish(),
-  docDateExpiry: z.coerce.date().nullish(),
+  docDateIssued: optionalDate,
+  docDateExpiry: optionalDate,
   docUrlAttachment: z.string().nullish()
   // ownershipTypeDetails: z.discriminatedUnion('type', [singleProp, corporate, partnership])
 })

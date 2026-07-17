@@ -168,20 +168,36 @@ function isString(value: any): value is string {
   return typeof value === 'string'
 }
 
+export function normalizeDateInput(value: unknown): Date | undefined {
+  if (value === null || value === undefined || value === '') return undefined
+  if (value instanceof Date) return isValid(value) ? value : undefined
+  if (typeof value === 'string') {
+    const iso = parseISO(value)
+    if (isValid(iso)) return iso
+    const parsed = new Date(value)
+    return isValid(parsed) ? parsed : undefined
+  }
+  if (typeof value === 'number') {
+    const parsed = new Date(value)
+    return isValid(parsed) ? parsed : undefined
+  }
+  return undefined
+}
+
 export function convertStringDatesPropToDates<T extends AnyObject>(obj: T): T {
   const newObj: AnyObject = Array.isArray(obj) ? [] : {}
 
   Object.keys(obj).forEach((key) => {
     const value = obj[key]
     if (isString(value)) {
-      const date = parseISO(value)
-      newObj[key] = isValid(date) ? date : value
+      const normalized = normalizeDateInput(value)
+      newObj[key] = normalized ?? value
     } else if (value instanceof Date) {
-      newObj[key] = value // Leave Date objects as they are
+      newObj[key] = isValid(value) ? value : undefined
     } else if (value && typeof value === 'object') {
-      newObj[key] = convertStringDatesPropToDates(value) // Recursively process nested objects
+      newObj[key] = convertStringDatesPropToDates(value)
     } else {
-      newObj[key] = value // Copy over all other values as is
+      newObj[key] = value
     }
   })
 

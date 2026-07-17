@@ -2,7 +2,7 @@
 
 import { Icons } from '@/components/shared/icons'
 import { cn, convertStringDatesPropToDates, getFileFromBlobUrl } from '@/lib/utils'
-import React, { useMemo, useState, useTransition } from 'react'
+import React, { useEffect, useMemo, useState, useTransition } from 'react'
 
 import { Form } from '@/components/ui/form'
 
@@ -12,13 +12,15 @@ import {
   MemberRegistrationForm,
   MemberRegistrationFormSchema,
   MemberRegistrationMergeSchema,
+  getDrugstoreProfileStepSchema,
   _MemberRegistrationFormSchema,
   _MemberRegistrationMergeSchema,
   _uploadPayment,
   uploadPayment
 } from '@/lib/schema'
-import { FieldValues, SubmitHandler } from 'react-hook-form'
+import { FieldValues } from 'react-hook-form'
 import _ from 'lodash'
+import type { ZodIssue, ZodType } from 'zod'
 
 const RHFDevTool = dynamic(() => import('../../../../../components/forms/DevTools'), { ssr: false })
 
@@ -35,6 +37,72 @@ import { useParams, useRouter } from 'next/navigation'
 import MemberAuth from './member-auth'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+
+function parseJsonField<T>(value: unknown): T | undefined {
+  if (!value) return undefined
+  if (typeof value === 'object') return value as T
+  if (typeof value !== 'string') return undefined
+
+  try {
+    return JSON.parse(value) as T
+  } catch {
+    return undefined
+  }
+}
+
+function emptyStringsToUndefined<T>(value: T): T {
+  if (value === '') return undefined as T
+  if (Array.isArray(value)) return value.map(emptyStringsToUndefined) as T
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, val]) => [key, emptyStringsToUndefined(val)])) as T
+  }
+  return value
+}
+
+function parseMemberDetailsForForm(member: NonNullable<MemberEntity>): MemberRegistrationForm {
+  const dpDSClassDetails = parseJsonField<MemberRegistrationForm['dpDSClassDetails']>(member.dpDSClassDetails)
+  const normalizedDpDSClassDetails =
+    dpDSClassDetails?.dsClass === 'chain'
+      ? { ...dpDSClassDetails, dpBranches: dpDSClassDetails.dpBranches ?? [] }
+      : dpDSClassDetails
+
+  return emptyStringsToUndefined(
+    convertStringDatesPropToDates({
+      ...member,
+      chapter: member.chapter ?? '',
+      dpDSClassDetails: normalizedDpDSClassDetails,
+      opDsapMember: parseJsonField(member.opDsapMember) ?? { opDsapMemberType: 'owner' },
+      opEducCollege: parseJsonField(member.opEducCollege),
+      opEducMasters: parseJsonField(member.opEducMasters),
+      opEducDoctorate: parseJsonField(member.opEducDoctorate),
+      opEducSpecialProg: parseJsonField(member.opEducSpecialProg),
+      opEducOthers: parseJsonField(member.opEducOthers)
+    })
+  ) as MemberRegistrationForm
+}
+
+function normalizeFormValues(values: MemberRegistrationForm): MemberRegistrationForm {
+  const dpDSClassDetails = parseJsonField<MemberRegistrationForm['dpDSClassDetails']>(values.dpDSClassDetails) ?? values.dpDSClassDetails
+  const dsClass = typeof dpDSClassDetails === 'object' && dpDSClassDetails ? dpDSClassDetails.dsClass : undefined
+
+  const normalizedDpDSClassDetails =
+    dsClass === 'chain' && dpDSClassDetails && typeof dpDSClassDetails === 'object' && dpDSClassDetails.dsClass === 'chain'
+      ? { ...dpDSClassDetails, dpBranches: dpDSClassDetails.dpBranches ?? [] }
+      : dpDSClassDetails
+
+  return emptyStringsToUndefined(
+    convertStringDatesPropToDates({
+      ...values,
+      dpDSClassDetails: normalizedDpDSClassDetails,
+      opDsapMember: parseJsonField(values.opDsapMember) ?? values.opDsapMember,
+      opEducCollege: parseJsonField(values.opEducCollege) ?? values.opEducCollege,
+      opEducMasters: parseJsonField(values.opEducMasters) ?? values.opEducMasters,
+      opEducDoctorate: parseJsonField(values.opEducDoctorate) ?? values.opEducDoctorate,
+      opEducSpecialProg: parseJsonField(values.opEducSpecialProg) ?? values.opEducSpecialProg,
+      opEducOthers: parseJsonField(values.opEducOthers) ?? values.opEducOthers
+    })
+  ) as MemberRegistrationForm
+}
 
 export type MembershipFormProps = {
   chapters: ChapterList
@@ -78,10 +146,6 @@ export default function MembershipForm({
   const [activeStep, setActiveStep] = useState(/*STEPS.GENERAL_INFO*/ 0)
   const [isCheckingEmail, setIsCheckingEmail] = useState(false)
 
-  const currentValidationSchema = activeStep > 4 ? uploadPayment : MemberRegistrationFormSchema[activeStep < 4 ? activeStep : 0]
-
-  const _currentValidationSchema = activeStep > 4 ? _uploadPayment : _MemberRegistrationFormSchema[activeStep < 4 ? activeStep : 0]
-
   const defaultValues: MemberRegistrationForm = {
     drugStoreName: '',
     chapter: '',
@@ -92,10 +156,6 @@ export default function MembershipForm({
     ownershipType: 'single proprietor',
     membershipType: 'regular',
     drugstoreClass: '',
-    // ownershipType: 'single proprietor',
-    // membershipType: 'regular',
-    // drugstoreClass: 'single',
-    // ownershipTypeDetails: { type: 'single' },
     opLastName: '',
     opFirstName: '',
     opPhImageUrl: '',
@@ -114,21 +174,65 @@ export default function MembershipForm({
     opDsapMember: { opDsapMemberType: 'owner' }
   } as const
 
+  const formDefaultValues = useMemo(
+    () => (memberDetails ? parseMemberDetailsForForm(memberDetails) : defaultValues),
+    [memberDetails]
+  )
+
+  const getStepSchema = (step: number, values?: MemberRegistrationForm): ZodType => {
+    if (step > STEPS.REVIEW_INFORMATION) {
+      return strict ? uploadPayment : _uploadPayment
+    }
+
+    if (step === STEPS.REVIEW_INFORMATION) {
+      return strict ? MemberRegistrationMergeSchema : _MemberRegistrationMergeSchema
+    }
+
+    if (step === STEPS.DRUGSTORE_PROFILE && values) {
+      const dsClass =
+        typeof values.dpDSClassDetails === 'object' && values.dpDSClassDetails ? values.dpDSClassDetails.dsClass : undefined
+
+      return getDrugstoreProfileStepSchema(values.drugstoreClass, dsClass, strict)
+    }
+
+    return strict ? MemberRegistrationFormSchema[step] : _MemberRegistrationFormSchema[step]
+  }
+
+  const [validationSchema, setValidationSchema] = useState<ZodType>(() => getStepSchema(STEPS.GENERAL_INFO))
+
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
   const form = useZodForm({
-    schema: strict ? currentValidationSchema : _currentValidationSchema,
-    defaultValues: memberDetails ? memberDetails : defaultValues,
+    schema: validationSchema,
+    defaultValues: formDefaultValues,
     shouldUnregister: false
   })
 
-  const {
-    getValues,
-    trigger,
-    formState: { errors },
-    watch
-  } = form
+  const { getValues, setError, clearErrors, watch } = form
+
+  const drugstoreClass = watch('drugstoreClass')
+  const dsClass = watch('dpDSClassDetails.dsClass')
+
+  useEffect(() => {
+    clearErrors()
+
+    if (activeStep === STEPS.DRUGSTORE_PROFILE) {
+      setValidationSchema(getDrugstoreProfileStepSchema(drugstoreClass, dsClass, strict))
+      return
+    }
+
+    setValidationSchema(getStepSchema(activeStep))
+  }, [activeStep, drugstoreClass, dsClass, strict, clearErrors])
+
+  const applyZodErrors = (issues: ZodIssue[]) => {
+    issues.forEach((issue) => {
+      const fieldName = issue.path.join('.')
+      if (fieldName) {
+        setError(fieldName as keyof MemberRegistrationForm, { type: 'manual', message: issue.message })
+      }
+    })
+  }
 
   if (showMemberAuthForm) {
     return <MemberAuth setShowMemberAuthForm={setShowMemberAuthForm} setShowForm={setShowForm} />
@@ -143,51 +247,64 @@ export default function MembershipForm({
   }
 
   const onNext = async () => {
-    const isStepValid = await trigger()
-    if (isStepValid) setActiveStep((value) => value + 1)
-  }
+    clearErrors()
+    const normalizedValues = normalizeFormValues(getValues() as MemberRegistrationForm)
+    const validationResult = getStepSchema(activeStep, normalizedValues).safeParse(normalizedValues)
 
-  const onSubmit = async (data: FieldValues, isForceSubmit?: boolean) => {
-    let isEmailExist = false
+    if (!validationResult.success) {
+      applyZodErrors(validationResult.error.issues)
+      toast.error('Please complete all required fields before continuing.', { position: 'top-center' })
+      return
+    }
 
-    if (activeStep !== STEPS.UPLOAD_PAYMENT) {
-      if (activeStep === STEPS.GENERAL_INFO) {
-        if (data.emailAdd) {
-          setIsCheckingEmail(true)
+    if (activeStep === STEPS.GENERAL_INFO && getValues('emailAdd')) {
+      try {
+        setIsCheckingEmail(true)
 
-          isEmailExist = memberDetails
-            ? await isMemberEmailExist({ action: 'edit', code: memberDetails.code, email: data.emailAdd })
-            : await isMemberEmailExist({ action: 'create', email: data.emailAdd })
+        const isEmailExist = memberDetails
+          ? await isMemberEmailExist({ action: 'edit', code: memberDetails.code, email: getValues('emailAdd') })
+          : await isMemberEmailExist({ action: 'create', email: getValues('emailAdd') })
 
-          setIsCheckingEmail(false)
-
-          if (isEmailExist) {
-            form.setError('emailAdd', { message: 'Email already exist' })
-            toast.error(`Email "${form.getValues('emailAdd')}" is already exist.`, { position: 'top-center', duration: 5000 })
-            return
-          }
+        if (isEmailExist) {
+          setError('emailAdd', { message: 'Email already exist' })
+          toast.error(`Email "${getValues('emailAdd')}" is already exist.`, { position: 'top-center', duration: 5000 })
+          return
         }
-      }
-
-      if (!isForceSubmit) {
-        return onNext()
+      } catch {
+        toast.error('Unable to verify email. Please try again.', { position: 'top-center' })
+        return
+      } finally {
+        setIsCheckingEmail(false)
       }
     }
 
-    if (isForceSubmit || activeStep === STEPS.UPLOAD_PAYMENT) {
-      const validationResult =
-        !strict && memberDetails
-          ? _MemberRegistrationMergeSchema.safeParse(getValues())
-          : MemberRegistrationMergeSchema.safeParse(getValues())
+    setActiveStep((value) => value + 1)
+  }
 
-      if (!validationResult.success) throw new Error('Error Parsing Form Data.')
+  const onSubmit = async (_data?: FieldValues, isForceSubmit?: boolean) => {
+    if (!isForceSubmit && activeStep !== STEPS.UPLOAD_PAYMENT) {
+      return onNext()
+    }
 
-      startTransition(async () => {
-        const data = validationResult.data as any
+    clearErrors()
+    const normalizedValues = normalizeFormValues(getValues() as MemberRegistrationForm)
+    const validationResult =
+      !strict && memberDetails
+        ? _MemberRegistrationMergeSchema.safeParse(normalizedValues)
+        : MemberRegistrationMergeSchema.safeParse(normalizedValues)
 
-        try {
-          const formData = new FormData()
-          let response: Awaited<ReturnType<typeof updateMember>> | Awaited<ReturnType<typeof registerMember>>
+    if (!validationResult.success) {
+      applyZodErrors(validationResult.error.issues)
+      toast.error('Please fix the form errors before submitting.', { position: 'top-center' })
+      return
+    }
+
+    startTransition(async () => {
+      const data = validationResult.data as any
+
+      try {
+        const formData = new FormData()
+        let response: Awaited<ReturnType<typeof updateMember>> | Awaited<ReturnType<typeof registerMember>>
 
           if (memberDetails) {
             //? populate formData / process file by getting the file based on the BLOB URL
@@ -495,7 +612,6 @@ export default function MembershipForm({
           console.error('ERROR: ', error)
         }
       })
-    }
   }
 
   return (
@@ -590,7 +706,7 @@ export default function MembershipForm({
             {!strict && memberDetails && activeStep !== STEPS.UPLOAD_PAYMENT && (
               <div>
                 {isModalForm ? (
-                  <Button onClick={form.handleSubmit((data) => onSubmit(data, true))} disabled={isPending}>
+                  <Button type='button' onClick={() => void onSubmit(undefined, true)} disabled={isPending || isCheckingEmail}>
                     {isPending
                       ? memberDetails
                         ? 'Updating Application'
@@ -605,7 +721,7 @@ export default function MembershipForm({
                       'ml-2 flex min-w-[150px] cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:border-teal-500 enabled:hover:bg-teal-500',
                       (isPending || isCheckingEmail) && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
                     )}
-                    onClick={form.handleSubmit((data) => onSubmit(data, true))}
+                    onClick={() => void onSubmit(undefined, true)}
                     disabled={isPending || isCheckingEmail}
                     // onClick={onNext}
                   >
@@ -647,7 +763,12 @@ export default function MembershipForm({
               {/* <div className='flex flex-row-reverse flex-auto'> */}
               <div className='flex'>
                 {isModalForm ? (
-                  <Button className='ml-2' onClick={form.handleSubmit((data) => onSubmit(data))} disabled={isPending}>
+                  <Button
+                    type='button'
+                    className='ml-2'
+                    onClick={() => void (activeStep === STEPS.UPLOAD_PAYMENT ? onSubmit(undefined, true) : onNext())}
+                    disabled={isPending || isCheckingEmail}
+                  >
                     {activeStep !== STEPS.UPLOAD_PAYMENT && 'Next'}
 
                     {activeStep === STEPS.UPLOAD_PAYMENT &&
@@ -665,7 +786,7 @@ export default function MembershipForm({
                       'ml-2 flex min-w-[150px] cursor-pointer justify-center rounded border border-teal-600 bg-teal-600 px-4 py-2 text-base font-bold  text-white  transition duration-200 ease-in-out focus:outline-none  enabled:hover:border-teal-500 enabled:hover:bg-teal-500',
                       (isPending || isCheckingEmail) && 'cursor-not-allowed border-gray-400 bg-gray-100 text-gray-700'
                     )}
-                    onClick={form.handleSubmit((data) => onSubmit(data))}
+                    onClick={() => void (activeStep === STEPS.UPLOAD_PAYMENT ? onSubmit(undefined, true) : onNext())}
                     disabled={isPending || isCheckingEmail}
                     // onClick={onNext}
                   >
