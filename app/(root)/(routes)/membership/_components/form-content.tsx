@@ -1288,7 +1288,7 @@ function DrugstoreChainDetails() {
                 Cancel
               </Button>
               {/* <Button type='button' onClick={form.handleSubmit((data, e) => onSubmit(data, e))}> */}
-              <Button type='button' onClick={form.handleSubmit(onSubmit)}>
+              <Button type='button' onClick={form.handleSubmit((data) => onSubmit(data as DrugstoreChainClassBranch))}>
                 Save
               </Button>
             </div>

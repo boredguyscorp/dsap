@@ -2,9 +2,12 @@ import { conventionEnum, typeEnum } from '@/app/(app.domain.com)/dashboard/conve
 import { normalizeDateInput } from '@/lib/utils'
 import { z } from 'zod'
 
-const optionalDate = z.preprocess((val) => normalizeDateInput(val), z.date().nullish())
+const optionalDate: z.ZodType<Date | null | undefined, z.ZodTypeDef, unknown> = z.preprocess(
+  (val) => normalizeDateInput(val),
+  z.date().nullish()
+)
 
-const requiredDate = (message: string) =>
+const requiredDate = (message: string): z.ZodType<Date, z.ZodTypeDef, unknown> =>
   z.preprocess((val) => normalizeDateInput(val), z.date({ required_error: message, invalid_type_error: message }))
 
 export const signUpSchema = z.object({
